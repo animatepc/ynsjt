@@ -1,0 +1,44 @@
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import {adapted} from './common/js/adapted.js'  
+export default {
+  name: 'App',
+  created(){
+    adapted.api()
+    this.resize()
+  },
+  methods:{
+    resize(){
+      window.addEventListener('resize',()=>{
+        adapted.api()
+      },false)
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "./less/_global";
+*{
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+#app {
+  font-family: "Microsoft Yahei",arial,sans-serif;
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  -webkit-overflow-scrolling:touch;
+}
+html{
+    font-size: calc(100vw/7.5);
+}
+</style>

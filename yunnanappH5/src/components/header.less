@@ -1,0 +1,201 @@
+.header{
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    font-size: 0.28rem;
+    text-align: center;
+    z-index: 2;
+    .search_photo{
+        width: 5.35rem;
+    }
+    .gobroke{
+        height: 1rem;
+        line-height: 1rem;
+        right: .5rem;
+        font-size: 0.6rem;
+        color: #fff;
+    }
+    .search_box{
+        width: 70%;
+        height:.6rem;
+        border: 2px solid #fff;
+        border-radius: .1rem;
+        margin: 0 0.3rem;
+        .search_icon{
+            width: .3rem;
+            height: .3rem;
+            background: url('../../static/imgs/search.png') center center no-repeat;
+            background-size: contain;
+            z-index: 1;
+            top: 0;
+            left: 35%;
+            bottom: 0;
+            margin: auto;
+        }
+        .search_mode{
+            width: 100%;
+            height: 100%;
+            // line-height: .6rem;
+            outline: 0;
+            text-align: center;
+            box-sizing: border-box;
+            display: block;
+            font-size: 0.28rem;
+            background-color: #f41a14;
+            color: #fff;
+            border: 0;
+            &::-webkit-input-placeholder{ /*WebKit browsers*/
+                color: #fff;
+            }
+            &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                color: #fff;
+            }
+            &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                color: #fff;
+            }
+        }
+    }
+    >.search_city{
+        text-align: right;
+        // height: .5rem;
+        // line-height: .5rem;
+        padding-right: 0.3rem;
+        >span{
+            display: flex;
+            align-items: center;
+            .menu_location{
+                display: inline-block;
+                width: .3rem;
+                height: .3rem;
+                background: url('../../static/imgs/gps_icon.png') no-repeat;
+                background-size: contain;
+            }
+        }
+    }
+    .search{
+        height: 100vh;
+        background-color: #fff;
+        margin-top: 1rem;
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            font-size: 0.28rem;
+            text-align: center;
+            background: #f41a14;
+            z-index: 2;
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                border: 2px solid #fff;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    // line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .search_content{
+            .city_list{
+                >li{
+                    height: 0.9rem;
+                    text-align: center;
+                    line-height: 0.9rem;
+                    border-bottom: 2px solid #eeeeee;
+                }
+            }
+        }
+    }
+    .weui-dialog{
+        position: fixed !important ;
+    }
+    .head_sheet{
+        .weui-actionsheet__menu{
+            background-color: #EFEFF4;
+            >div{
+                background-color: #fff;
+                height: 1rem;
+                line-height: 1rem;
+                padding: 0;
+                font-size: .24rem;
+                margin-bottom: .02rem;
+                &:active{
+                    background-color: #EFEFF4;
+                }
+            }
+            >div:last-child{
+                margin-top: .1rem;
+            }
+        }
+    }
+    .lineHeight{ 
+        line-height: initial;
+    }
+}

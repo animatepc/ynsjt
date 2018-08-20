@@ -1,0 +1,284 @@
+<template>
+    <div class="newsMessage">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="colorfff city_text">消息</span>
+        </div>
+        <div class="newsMessage_content" style="background: #fff;">
+          <span class="newsMessage_notime" v-if="!list.length">您还没有收到过消息~</span>
+          <scroller v-else class="" style="height: calc(100vh - .98rem);z-index: 2;" :arg="arg" types="newsMessage" @pullDown="selPulldown" @pullUp="selPullup" :scrollerMsg="scrollerMsg" :dataList="list" ref="scroller"></scroller>
+        </div>
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http";
+import { coreApi } from "../../services/coreApi";
+import Scroller from "../../base/scroller/scroller.vue";
+export default {
+  components: {
+    Scroller
+  },
+  data() {
+    return {
+      list: [],
+      arg: ["", "", "/myModule/feedback", "/myModule/mypicture"],
+      scrollerMsg: {
+        PageIndex: 1, //页码从第一页开始
+        PageSize: 5, //煤业显示的条数
+        isShow: false, //是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+        showloading: false,
+        textloading: "加载中",
+        showUp: true,
+        isbounce: true,
+        lists: [],
+        downObj: {
+          content: "下拉刷新",
+          height: 40,
+          autoRefresh: false,
+          downContent: "下拉刷新",
+          upContent: "释放后刷新",
+          loadingContent: "正在刷新...",
+          clsPrefix: "xs-plugin-pulldown-"
+        },
+        upobj: {
+          content: "上拉加载更多",
+          pullUpHeight: 60,
+          height: 40,
+          autoRefresh: false,
+          downContent: "释放后加载",
+          upContent: "上拉加载更多",
+          loadingContent: "加载中...",
+          clsPrefix: "xs-plugin-pullup-"
+        },
+        isShowLoading: false,
+        textLoading: "加载中",
+        scrollerStatus: {
+          pulldownStatus: "disabled",
+          pullupStatus: "disabled"
+        }
+      }
+    };
+  },
+  beforeRouteLeave(to, from, next) {
+    from.meta.keepAlive = false;
+    next();
+  },
+  mounted() {
+    this.getList(true);
+  },
+  methods: {
+    selPulldown(index) {
+      // if (index.i == 1) {
+      this.scrollerMsg.PageIndex = 1;
+      this.getList(true);
+      // } else {
+      //   this.scrollerMsg.PageIndex = index;
+      //   this.getList(false);
+      // }
+    },
+    selPullup(index) {
+      this.scrollerMsg.PageIndex = index;
+      this.getList(false);
+    },
+    getList(isEmpty) {
+      let bodys = {
+        i: this.scrollerMsg.PageIndex,
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      coreApi.gethomeMessage(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 接口访问成功，执行
+          let data = r.list;
+          if (isEmpty) {
+            this.list = [];
+            this.scrollerMsg.isShow = false;
+            this.scrollerMsg.showToast = false;
+            this.scrollerMsg.scrollerStatus.pullupStatus = "enabled";
+            this.$nextTick(() => {
+              this.$refs.scroller.reset();
+            });
+          } else {
+            //isEmpty为false时，也就是向上滚动刷新selPullUp ()方法被被调用的时候
+            if (data && data.length === 0) {
+              this.scrollerMsg.showToast = true;
+              this.scrollerMsg.isShowLoading = false;
+              this.scrollerMsg.scrollerStatus.pullupStatus = "disabled"; // 禁用下拉
+
+              this.scrollerMsg.show = false;
+              return;
+            }
+            this.scrollerMsg.isShow = false;
+          }
+          data.map(i => {
+            this.list.push(i);
+          });
+
+          this.scrollerMsg.isShow = true;
+          this.scrollerMsg.showloading = false;
+          if (!isEmpty) {
+            this.scrollerMsg.scrollerStatus.pullupStatus = "default";
+            this.$nextTick(() => {
+              this.$refs.scroller.reset();
+            });
+          }
+        }
+      });
+    },
+
+    city_back() {
+      this.$router.go(-1);
+    },
+    SetUserhead() {
+      this.$router.push({
+        path: "/mymodule/setheadphoto"
+      });
+    },
+    SetUsername() {
+      this.$router.push({
+        path: "/mymodule/setusername"
+      });
+    }
+  }
+};
+</script>
+<style lang="less">
+.newsMessage {
+  background-color: #f6f6f6;
+  margin-top: 1rem;
+  font-size: 0.28rem;
+  .searchVal {
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    text-align: center;
+    background: #f41a14;
+    z-index: 2;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_box {
+      height: 0.6rem;
+      color: #fff;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: 0.3rem 0.3rem;
+        z-index: 1;
+        top: 0;
+        left: 1.5rem;
+        bottom: 0;
+        margin: auto;
+      }
+      .search_mode {
+        width: 100%;
+        height: 0.6rem;
+        line-height: 0.6rem;
+        padding-left: 2rem;
+        outline: 0;
+        text-align: left;
+        box-sizing: border-box;
+        display: block;
+        font-size: 0.24rem;
+        background-color: #f41a14;
+        color: #fff;
+        &::-webkit-input-placeholder {
+          /*WebKit browsers*/
+          color: #fff;
+        }
+        &::-moz-input-placeholder {
+          /*Mozilla Firefox*/
+          color: #fff;
+        }
+        &::-ms-input-placeholder {
+          /*Internet Explorer*/
+          color: #fff;
+        }
+      }
+    }
+    .search_city {
+      height: 0.5rem;
+      line-height: 0.5rem;
+      //              margin: 0 0.3rem;
+      margin-right: 0.3rem;
+    }
+    .city_text {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+    }
+  }
+  .newsMessage_content {
+    background-color: #f6f6f6 !important;
+    .newsMessage_list {
+      padding-left: 0.3rem;
+      padding-right: 0.3rem;
+      > li {
+        border-bottom: 2px solid #eeeeee;
+        .new_span_a {
+          float: left;
+          color: #007aff;
+        }
+        .new_span {
+          float: left;
+          text-align: left;
+          // margin-left: 0.3rem;
+        }
+        .new_span_color {
+          color: #999999;
+          margin-right: 6px;
+        }
+        .new_date_span {
+          width: 100%;
+          display: block;
+          padding: 0.3rem 0;
+          text-align: center;
+        }
+        .new_date_con {
+          padding: 0 0.3rem;
+          text-align: center;
+          line-height: 0.9rem;
+          overflow: hidden;
+          border-radius: 0.1rem;
+          background: #ffffff;
+        }
+      }
+    }
+    .newsMessage_notime {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background-color: #fff;
+    }
+  }
+  .new_icon {
+    padding: 0 0.1rem;
+    height: 0.4rem;
+    line-height: 0.4rem;
+    background-color: #f41a14;
+    color: #fff;
+  }
+}
+</style>

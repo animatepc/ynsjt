@@ -1,0 +1,5 @@
+
+// export const sms = 'http://yntvapp.4kb.cn/webapp-yrt/' 
+export const sms = 'http://chaims.cn/webapp-yrt/' 
+// export const sms = 'http://yntvapp.4kb.cn/webapp-yrt/' 
+// let sms = 'http://dinglinfeng.4kb.cn/webapp-yrt/'

@@ -1,0 +1,74 @@
+<template>
+    <div class="scroller">
+         <scroller
+            v-show="isShow"
+            v-model="scrollerStatus"
+            lock-x
+            scrollbar-y
+            ref="scroller"
+            :bounce="isbounce"
+            :use-pullup="showUp"
+            :use-pulldown="true"
+            :pulldown-config="downObj"
+            :pullup-config="upobj" 
+            @on-pulldown-loading="selPullDown(keys)"
+            @on-pullup-loading="selPullUp(keys)">
+            <!-- style="height: calc(100vh - 1rem - .88rem - .98rem)" -->
+           <slot></slot>
+        </scroller>
+    </div>
+</template>
+<script>
+    export default {
+        data(){
+            return {
+                PageIndex: 1,//页码从第一页开始
+                PageSize: 5,//煤业显示的条数
+                isShow: true,//是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+                showloading: false,
+                textloading: '加载中',
+                showUp: true,
+                isbounce: true,
+                lists: [],
+                downObj: {
+                    content: '请上拉刷新数据',
+                    pullUpHeight: 60,
+                    height: 40,
+                    autoRefresh: false,
+                    downContent: '请上拉刷新数据',
+                    upContent: '请上拉刷新数据',
+                    loadingContent: '加载中...',
+                    clsPrefix: 'xs-plugin-pullup-'
+                },
+                upobj: {
+                    content: '请上拉刷新数据',
+                    pullUpHeight: 60,
+                    height: 40,
+                    autoRefresh: false,
+                    downContent: '请上拉刷新数据',
+                    upContent: '请上拉刷新数据',
+                    loadingContent: '加载中...',
+                    clsPrefix: 'xs-plugin-pullup-'
+                },
+                isShowLoading: false,
+                textLoading: '加载中',
+                scrollerStatus: {
+                    pulldownStatus :'default',
+                    pullupStatus: 'default'
+                }
+           }
+        },
+        methods:{
+            selPullDown(keys){
+                this.$emit('pullDown',keys)
+            },
+            selPullUp(keys){
+                this.$emit('pullUp',keys)
+            }
+        }
+    }
+</script>
+<style lang="less">
+
+</style>
+

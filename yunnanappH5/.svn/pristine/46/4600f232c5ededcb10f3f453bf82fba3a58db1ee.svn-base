@@ -1,0 +1,10 @@
+export default {
+  saveImgInfo:(state,imgObject)=>{
+  	Array.prototype.imgObject = imgObject
+    imgObject?( state.imgObj=Array.prototype.imgObject):[]
+  },
+  saveCityObj:(state,cityObject)=>{
+    cityObject?( state.cityObj=Object.assign(state.cityObj,cityObject)):{}
+    cityObject?localStorage.setItem('cityObj',JSON.stringify(cityObject)):{}
+  }
+}

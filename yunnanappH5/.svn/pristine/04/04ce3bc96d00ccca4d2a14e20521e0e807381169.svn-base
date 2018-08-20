@@ -1,0 +1,319 @@
+<template>
+    <div class="myIntegration">
+        <div class="_cus_overHidden" style="height: 3rem">
+            <div class="myIntegration_head _cus_flexContent _cus_fleAlignCen">
+                <span class="search_back" @click="city_back"></span>
+                <router-link target="span" to="/mymodule/integrationrule" class="colorfff city_text">积分规则</router-link>
+            </div>
+            <div class="signin_msg">
+                <div class="signin_img" @click="set_userinfo">
+                    <span class="head_photo" v-bind:class="!nowIcon?'Imgcontain':''" v-bind:style="nowIcon?imgUrl:''"></span>
+                    <span class="head_leve">{{nowLevel}}</span>
+                </div>
+                <p class="signin_btn" @click="mask_alert">
+                    <span>积分：{{count}}</span>
+                    <span>距离下一等级还差：{{point}}</span>
+                </p>
+            </div>
+        </div>
+        <div class="myIntegration_content">  
+             <scroller
+                :lock-x="false"
+                :lock-y="true"
+                :scrollbarX="false"
+                ref="myScroller">
+                <div class="myIntegration_list" ref="myIntegration_list">
+                    <ul ref="myIntegration_width">
+                        <li v-for="item in list">
+                            <p>{{item.levelName }}</p>
+                            <div>
+                                <p></p>
+                                <i></i>
+                            </div>
+                            <p>{{item.pointsMax }}</p>
+                        </li>
+                        
+                    </ul>
+                </div>
+             </scroller>
+             <p class="myIntegration_tip">《左右滑动查看全部等级》</p>
+        </div>
+        <div class="myIntegration_default">
+            <p>积分记录</p>
+            <div class="myIntegration_box">
+                <scroller
+                    :lock-y="false"
+                    :lock-x="true"
+                    style="height: calc(100vh -  6.68rem);"
+                    ref="myScroller">
+                    <div class="">
+                        <ul>
+                            <li class="myintegration_list" v-for="item in pointLogList">
+                                <div>
+                                    <span>{{item.createTimeStr}}</span>
+                                    <span>{{item.reason}}</span>
+                                </div>
+                                <span class="myIntegration_tip">{{item.amount}}</span>
+                            </li> 
+                        </ul>
+                    </div>
+                </scroller>
+            </div>
+            
+        </div>
+    </div>
+</template>
+<script>
+    import { HttpService } from '../../services/http.js'
+    import { coreApi} from '../../services/coreApi.js'
+    export default {
+        data(){
+            return {
+                list:[],
+                nowIcon:'',
+                nowLevel:'',
+                point:'',
+                count:'',
+                pointLogList:[]
+            }
+        },
+        computed:{
+            imgUrl(){
+                return `backgroundImage: url(${this.nowIcon});`
+            }
+        },
+        mounted(){
+            this.getList();
+        },
+        methods:{
+            getList(){
+                var bodys = {
+                    _jsonp:true,
+                    _jsonpCallback:'onBack'
+                }
+                coreApi.getUserPointInfo(bodys).then( r =>{
+                    if(r.statusCode == '200' && r.status){
+                        // 接口访问成功，执行
+                        this.list = r.list;//等级列表
+                        this.nowIcon = r.nowIcon;//当前积分图标
+                        this.nowLevel = r.nowLevel;//当前积分等级名称
+                        this.point = r.point;//距离下一等级还差分数
+                        this.count = r.count;//总积分
+                        this.$nextTick(()=>{
+                            let widths = this.$refs.myIntegration_width.children.length,
+                            arrwidth = this.$refs.myIntegration_width.children[0].clientWidth;
+                            this.$refs.myIntegration_width.style = `width: ${widths * arrwidth}px`
+                            this.$refs.myIntegration_list.style = `width: ${widths * arrwidth}px`
+                        })
+
+                        this.getUserPointLog();//下半部分积分列表
+                    }else if(!r.status){
+                        // 返回错误信息
+                        this.list = []
+                    }
+                }) 
+                
+            },
+            getUserPointLog(){//下半部分积分列表
+
+                let index = 1;
+                var pointLog = {
+                    i:index,
+                    _jsonp:true,
+                    _jsonpCallback:'onBack'
+                }
+                coreApi.getUserPointLog(pointLog).then( r =>{
+                       
+                    if(r.statusCode == '200' && r.status){
+                        // 接口访问成功，执行
+                        this.pointLogList = r.list;//积分列表 
+                    }else if(!r.status){
+                        // 返回错误信息
+                        this.pointLogList = []
+                    }
+                })
+            },
+            city_back(){
+                this.$router.go(-1)
+            },
+            set_userinfo(){
+
+            },
+            mask_alert(){
+                
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .myIntegration{
+        .myIntegration_head{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            z-index: 1;
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .city_text{
+                position: absolute;
+                right: .3rem;
+                text-align: right;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .signin_msg{
+            width: 100%;
+            height: 3rem;
+            color: #fff;
+            padding: 0 0.3rem;
+            padding-top: .4rem;
+            position: fixed;
+            // top: .4rem;
+            background-color: #f0151a;
+            text-align: center;
+            box-sizing: border-box;
+            .signin_img{
+                width: 1.5rem;
+                height: 1.5rem;
+                display: inline-block;
+                position: relative;
+                .head_photo{
+                    width: 100%;
+                    height: 100%;
+                    display: inline-block;
+                    vertical-align: middle;
+                    border-radius:50%;
+                    background: url(../../../static/imgs/yntv_avatar.png) no-repeat;
+                    z-index: 2;
+                }
+                .Imgcontain{
+                    background-size: 100%;
+                }
+                .head_leve{
+                    display: inline-block;
+                    padding: 0.1rem;
+                    font-size: 0.22rem;
+                    background: #fdc243;
+                    border-radius: 0.1rem;
+                    color: #fff;
+                    position: absolute;
+                    right: -5%;
+                    bottom: -5%;
+                }
+            }
+            .signin_btn{
+                font-size: .3rem;
+                >span{
+                    margin-top: 0.1rem;
+                    display: block;
+                    height: .3rem;
+                    line-height: .3rem;
+                }
+            }
+        } 
+        .myIntegration_content{
+            background: #fff;
+            padding: 0.3rem 0.1rem;
+            height: 3rem;
+            .myIntegration_list{
+            		overflow: hidden;
+                font-size: .32rem;
+                >ul{
+                	overflow: hidden;
+                	height: 1.8rem;
+                    >li{
+                        float: left;
+                        width: calc((100vw - 0.2rem) / 3);
+                        height: 1.8rem;
+                        >p{
+                            position: relative;
+                            text-align: right;
+                        }
+                        >div{
+                            height: 0.1rem;
+                            background: #e7e7e7;
+                            margin: 0.34rem 0;
+                            position: relative;
+                            >p{
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                height: 0.1rem;
+                                background: #fd2803;
+                                width: 0%;
+                            }
+                            >i{
+                                width: 0.3rem;
+                                height: 0.3rem;
+                                position: absolute;
+                                top: 0;
+                                bottom: 0;
+                                right: 0;
+                                margin: auto;
+                                background: url('../../../static/imgs/level_1.png') 100% no-repeat;
+                            }
+                        }
+                    }
+                } 
+            }
+            .myIntegration_tip{
+                color: #fc5b45;
+                font-size: 0.28rem;
+                text-align: center;
+                margin-top: 0.1rem;
+            }
+        }
+        .myIntegration_default{
+            >P{
+                width: 95%;
+                height: .73rem;
+                line-height: 0.73rem;
+                padding-left: 5%;
+                background: #f4f4f4;
+                font-size: 0.32rem;
+                color: #666;
+            }
+            .myIntegration_box{
+                background-color: #fff; 
+            }
+            .myintegration_list{
+                padding: 0 0.3rem;
+                height: .95rem;
+                line-height: .95rem;
+                overflow-y:visible;
+                font-size: 0.28rem;
+                color:#000;
+                background: #fff;
+                border-bottom: 2px solid #eee;
+                display: flex;
+                justify-content:space-between;
+                >div{
+                    >span:first-child{
+                        display: inline-block;
+                        width: 2rem;
+                    }
+                }
+                
+                >span:last-child{
+                    color: #fc5b45; 
+                    text-align: right;
+                }
+            }
+        }
+    }
+</style>
+

@@ -1,0 +1,67 @@
+<template>
+    <div ref="header" class="header _cus_flexContent _cus_fleAlignCen _cus_justifyCen" :class="headerPath == 2?'_cus_posRelative':''" v-if="headerPath != 3 && headerPath != 4">
+        <div class="colorfff _cus_posRelative _cus_overHidden search_box" @click.prevent.stop="touchVal" :class="headerPath == 2?'search_photo':'_cus_flex1'">
+            <span class="_cus_posAbsolute search_icon"></span>
+            <input type="text" class="_cus_posAbsolute search_mode" placeholder="搜索" disabled>
+        </div>
+        <div class="colorfff search_city _cus_overHidden" @click="select_city" v-show=" headerPath == 0">
+            <i class="inlineBlock menu_location"></i>
+            <span>云南省</span>
+        </div>
+        <span class="gobroke" :class="headerPath == 2?'_cus_posAbsolute':''" v-if="headerPath == 2" @click="addphoto">+</span>
+    </div>
+</template>
+<script>
+    export default {
+        data(){
+            return {
+                search_popup:false,
+                city_popup:false
+            }
+        },
+        props:{
+            'headerPath':{
+                type:Number,
+                default:0
+            }
+        },
+        mounted(){
+//      	adapted.px2rem(doc,{'width':375,'height':,'margin':'margin-top':'','margin-bottom':'','margin-left':'','margin-bottom':'',,'padding':'padding-top':'','padding-bottom':'','padding-left':'','padding-bottom':''})
+        },
+        methods:{
+            touchVal(){
+                this.$router.push({
+                	'path':'/public/searchmsg'
+                })
+            },
+            search_back(){
+                this.$router.push({
+                	'path':'/public/screencity'
+                })
+            },
+            addphoto(){
+                this.$router.push({
+                    'path': '/public/releasephoto'
+                })
+            },
+            onHide(){
+
+            },
+            onShow(){
+                
+            },
+            select_city(){
+                this.$router.push({
+                	'path': '/public/screencity'
+                })
+            },
+            city_back(){
+                this.city_popup = false
+            },
+        }
+    }
+</script>
+<style lang="less" src="./header.less">
+
+</style>
+

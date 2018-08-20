@@ -1,0 +1,12 @@
+
+import { HttpService } from '../../services/http.js'
+import { sms } from '../../services/commonApi.js'
+export const commonApi = {
+    api:{
+        collection:sms+'/home/collection/add.do'
+    },
+    Collection(bodys){
+        return HttpService.post(this.api.collection,bodys,false,false)
+    }
+};
+  

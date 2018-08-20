@@ -1,0 +1,13 @@
+
+import { HttpService } from '../../services/http.js'
+let common = {
+    api:{
+        collection:'/home/collection/add.do'
+    }
+};
+export class Collection{
+    static save(bodys){
+        return HttpService.post(common.api.collection,bodys,false,true)
+    }
+  }
+  

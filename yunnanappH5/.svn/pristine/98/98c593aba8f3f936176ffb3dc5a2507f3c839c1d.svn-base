@@ -1,0 +1,344 @@
+<template>
+    <div class="newsdetails">
+         <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="colorfff city_text">新闻内容</span>
+        </div>
+        <div class="newsdetails_content">
+            <div class="details_head">
+                <span class="news_title">{{newsdetails_msg.title}}</span>
+                <p class="new_wrap perW100 _cus_flexContent _cus_jusContent">
+                    <span>
+                        <span>{{newsdetails_msg.source}}</span>
+                        <span>{{newsdetails_msg.createTimeStr}}</span>
+                    </span>
+                    <span>
+                        <img src="../../../static/imgs/collect.png" alt="">
+                        <span>{{newsdetails_msg.virtualClickTimes}}</span>
+                        <i class="news_watch"></i>
+                    </span>
+                </p>
+            </div>
+            <div class="details_content" v-html="htmlDecodeByRegExp"></div>
+            <div class="details_footer">
+                <p class="news_footer_title">新闻推荐</p>
+                <ul class="home_list _cus_overHidden">
+                    <li v-for="(item,keys) in newslists" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                        <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative" >
+                            <span v-show="item.tab" class="source-handle-title">{{item.tab}}</span>
+                            <label class="source-label">{{item.listTitle}}</label>
+                            <div class="tabImg" v-show="item.type =='tab' || item.type =='tab_video'" :class="item.type=='tablist'?'_cus_posRelative':''">
+                                <img class="" :src="item.urlList[0]" alt="">
+                                <i class="video_playicon" v-show="item.type =='tab_video'"></i>
+                            </div>
+                            
+                            <p class="home_time _cus_overHidden color999" :class="item.type =='tablist'?'_cus_posAbsolute perW100':''">
+                                <span class="__cus_fl">
+                                    <span>{{item.source}}</span>
+                                    <span class="">{{item.createTimeStr}}</span>
+                                    
+                                </span>
+                                <span class="__cus_fr">
+                                    <span>{{item.virtualClickTimes}}</span>
+                                    <span class="new_watch"></span>
+                                </span>
+                            </p>
+                        </div>
+                        <div v-show="item.type == 'tablist'" class="_cus_overHidden __cus_fr imageNews-img">
+                            <img :src="item.urlList[0]" alt="">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+import { newsApi } from '../../services/newsapi.js'
+import {HttpService} from "../../services/http";
+    export default {
+        data(){
+            return {
+                newsdetails_msg:{},
+                newslists:[]
+            }
+        },
+        computed:{
+    	 	htmlDecodeByRegExp(){
+        	 	let str = this.newsdetails_msg.content;
+		         var s = '';
+		         if(str.length == 0) return "";
+		         s = str.replace(/&amp;/g,"&");
+		         s = s.replace(/&lt;/g,"<");
+		         s = s.replace(/&gt;/g,">");
+		         s = s.replace(/&nbsp;/g," ");
+		         s = s.replace(/&#39;/g,"\'");
+		         s = s.replace(/&quot;/g,"\"");
+		         return s;  
+		   	}
+        },
+        mounted(){
+            this.getNewsList()
+        },
+        methods:{
+            getNewsList(){
+                let params = this.$router.history.current.query
+                params = Object.assign(params,{
+                    _jsonp:true,
+                    _jsonpCallback:'onBack'
+                })
+                newsApi.getNewsDetails(params).then(r=>{
+                    if(r.status && r.statusCode == '200'){
+                        this.newsdetails_msg = r.data
+                        let data  = r.data.contentList
+                        for (var i = 0; i < data.length; i++) {
+                            console.log(data[i].contentType)
+                            switch(data[i].contentType){
+                                case '30':
+                                    data[i]['type'] = 'tab_video'
+                                break;
+                                case '10':
+                                    data[i]['type'] = 'tablist'
+                                break;
+                                case '60':
+                                    data[i]['type'] = 'tab'
+                                break;
+                                case '50':
+                                    data[i]['type'] = 'tablist'
+                                break;
+                            }
+                        }
+                        this.newslists = data
+                    }else{
+                        this.newsdetails_msg = {}
+                    }
+                })
+            },
+            city_back(){
+                this.$router.go(-1)
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .newsdetails{
+        background-color: #fff;
+        margin-top: 1rem;
+        font-size: 0.28rem;
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #f41a14;
+            z-index: 2;
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .newsdetails_content{
+            .details_head{
+                margin-bottom: 0.4rem;
+                border-bottom: 2px solid #eeeeee;
+                >.news_title{
+                    height: auto;
+                    display: block;
+                    font-size: 0.35rem;
+                    font-weight: bold;
+                    padding: 0.3rem;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                    text-align: justify;
+                    line-height: 0.56rem;
+                }
+                >.new_wrap{
+                    color: #b3b3b3;
+                    overflow: hidden;
+                    padding: 0 0.3rem 0.3rem 0.3rem;
+                    line-height: 0.34rem;
+                    >span:last-child{
+                        >img{
+                            width: 0.3rem;
+                            height: 0.3rem;
+                            display: block;
+                            float: left;
+                            margin-left: 0.03rem;
+                            margin-right: 0.5rem;
+                            transform: rotate(0deg)!important;
+                        }
+                        >.news_watch{
+                            display: inline-block;
+                            width: 0.29rem;
+                            height: 0.2rem;
+                            margin-bottom: 0.04rem;
+                            display: inline-block;
+                            vertical-align: middle;
+                            margin-left: 0.1rem;
+                            background: url(../../../static/imgs/eye.png) no-repeat left center;
+                            background-size: 100%;
+                        }
+                    }
+                }
+            }
+            .details_content{
+               p{
+           			line-height: 0.5rem;
+               }
+            }
+            .details_footer{
+                .news_footer_title{
+                    width: 95%;
+                    height: 0.8rem;
+                    background: #ffffff;
+                    border-bottom: solid 1px #eee;
+                    line-height: 0.8rem;
+                    padding-left: 5%;
+                }
+                .home_list{
+                    >li{
+                        padding: 0.2rem 0.3rem;
+                        border-bottom: 2px solid #eeeeee;
+                        box-sizing: border-box;
+                        .source-handle-title{
+                            margin-right: 0.15rem;
+                            margin-top: 0.033rem;
+                            float: left;
+                            color: #f41a14;
+                            border: 2px solid #f41a14;
+                            text-align: center;
+                            line-height: 1.5;
+                            padding: 0 0.1rem;
+                            font-size: 0.24rem;
+                            border-radius: 0.1rem;
+                        }
+                        .source-label{
+                                display: -webkit-box;
+                                -webkit-box-orient: vertical;
+                                -webkit-line-clamp: 2;
+                                overflow: hidden;
+                                text-align: justify;
+                                line-height: 0.48rem;
+                        }
+                        .tabImg{
+                            width: 100%;
+                            height: 3.4rem;
+                            margin-top: 0.1rem;
+                            margin-bottom: 0.3rem;
+                            >img{
+                                vertical-align: middle;
+                                width: 100%;
+                                height: 100%;
+                                z-index: 1;
+                            }
+                            >.video_playicon{
+                                width: 1.06rem;
+                                height: 1.06rem;
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                margin-top: -0.58rem;
+                                margin-left: -0.58rem;
+                                background: url(../../../static/imgs/playicon.png) no-repeat left center;
+                                background-size: 100%;
+                                z-index:2;
+                            }
+                        }
+                        .home_time{
+                            bottom: 0;
+                            margin-top:.3rem;
+                            font-size:.20rem;
+                            .new_watch{
+                                margin-left: .15rem;
+                                    width: .29rem;
+                                    height: .2rem;
+                                    display: inline-block;
+                                    background: url(../../../static/imgs/eye.png) no-repeat left center;
+                                    background-size: 100%;
+                            }
+                        }
+                        .imageNews-img{
+                            width: 2.2rem;
+                            height: 1.44rem;
+                            margin-left: 0.2rem;
+                            >img{
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+</style>
+

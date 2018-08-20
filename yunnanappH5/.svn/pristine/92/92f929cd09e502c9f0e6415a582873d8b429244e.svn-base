@@ -1,0 +1,332 @@
+<template>
+    <div class="channelDetails">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+                <span class="colorfff city_text">{{channel_title}}</span>
+                <span class="username_ready">
+                <i class="addfeedback_icon" @click="username_ready"></i>
+            </span>
+        </div>
+        <div class="channel_tab">
+            <span class="" @click="isTab = !isTab" :class="!isTab?'tab_active':''">热播</span>
+            <span class="" @click="isTab = !isTab" :class="isTab?'tab_active':''">最新</span>
+        </div>
+        <div class="newsMessage_content" style="background: #fff;">
+           <scroller>
+               <div class="">
+                   <ul class="channel_past">
+                       <li v-for="item in list" @click="Details_back(item)">
+                           <img v-bind:src="item.listImgOne" alt="">
+                           <p>{{item.listTitle}}</p>
+                           <div>{{item.listAbstract}}</div>
+                       </li>
+                   </ul>
+               </div>
+           </scroller>
+        </div>
+    </div>
+</template>
+<script>
+    import { HttpService } from '../../services/http.js'
+    import { videoApi} from '../../services/videoApi.js'
+    import Scroller from '../../base/scroller/scroller.vue'
+    export default {
+        components:{
+            Scroller
+        },
+        data(){
+            return {
+                list:[],
+                count:'',
+                channel_title:'云南卫视',
+                isTab:false
+            }
+        },
+        mounted(){
+            this.getList()
+            this.channelList()
+        },
+        methods:{
+            channelList(){
+                var sid = this.$router.history.current.query.id;
+                let bodys = {
+                    _jsonp:true,
+                    _jsonpCallback:'onBack',
+                    channelId:sid,
+                    orderBy:20
+                }
+                videoApi.channelList(bodys).then( r =>{
+                    if(r.statusCode == '200' && r.status){
+                        // 接口访问成功，执行                
+                        //视频-->品牌栏目--频道、节目-->详情
+                        this.list =  r.list;
+                        console.log(this.list)
+                        
+                    }else if(!r.status){
+                        // 返回错误信息
+                        this.watchList = []
+                    }
+                })     
+            },
+            Details_back(item){
+                 let data = items.contentType;
+                let path = '';
+                 switch(data){
+                    case '30':
+                        path = '/videodetails' 
+                    break;
+                    case '10':
+                         path = '/newsdetails'
+                    break;
+                    case '20':
+                         path = '/atlasdetails' 
+                    break;
+                    case '40':
+                         path = '/audiodetails' 
+                    break;
+                    case '60':  
+                         path = '/specialdetails'
+                    break;
+                    case '50':
+                         path = '/newsdetails' 
+                    break;
+                }
+                let Json = {
+                    refType:items.contentType,
+                    id: items.id,
+                    columnCode:items.columnCode,
+                };
+                this.$router.push({
+                    'path':`/public${path}`,
+                    query:Json
+                })
+            },
+            getList(){
+                
+            },
+
+            city_back(){
+                this.$router.go(-1)
+            },
+            username_ready(){
+                this.$router.push({'path':'/mymodule/addfeedback'})
+            },
+            onConfirm(){
+                 console.log('已清空')
+            },
+            onCancel(){
+                console.log('已取消')
+            },
+            SetUserhead(){
+                this.$router.push({
+                    'path': '/mymodule/setheadphoto'
+                })
+            },
+            SetUsername(){
+                this.$router.push({
+                    'path':'/mymodule/setusername'
+                })
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .channelDetails{
+        background-color: #fff;
+        margin-top: 1rem;
+        font-size: 0.28rem;
+        .channel_past{
+            background-color: #fff;
+            overflow: hidden;
+            padding: .3rem;
+            font-size: 14px;
+            >li{
+                width: 48%;
+                font-size: .26rem;
+                margin-bottom: .3rem;
+                >img{
+                    width: 100%;
+                    height: 1.8rem;
+                }
+                >p{
+                    margin: .32rem 0 .2rem;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                >div{
+                    font-size: .24rem;
+                    color: #999;
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #f41a14;
+            z-index: 2;
+            .username_ready{
+                position: absolute;
+                right: .3rem;
+                display: flex;
+            	align-items: center;
+                .addfeedback_icon{
+            	    display: inline-block;
+				    width: 0.5rem;
+				    height: 0.5rem;
+				    
+				    margin-right: 0.1rem;
+				    background: url(../../../static/imgs/search.png);
+				    background-repeat: no-repeat;
+				    background-size: 100%;
+                }
+            }
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .newsMessage_content{
+            .newsMessage_list{
+                >li{
+                    height: 0.9rem;
+                    text-align: center;
+                    line-height: 0.9rem;
+                    border-bottom: 2px solid #eeeeee;
+                }
+            }
+            .newsMessage_notime{
+                display: block;
+                width: 100%;
+                padding-top: 1rem;
+                text-align:center;
+            }
+        }
+        .channel_tab{
+            background: #fff;
+            padding: .3rem;
+            margin-bottom: .2rem;
+            display: flex;
+            >.tab_active{
+                padding: .03rem .05rem;
+                background: #f3f2f2;
+                border-radius: .05rem;
+                color: #ef131c;
+                margin-right: .2rem;
+            }
+            >span{
+                padding: .03rem .05rem;
+                border-radius: .05rem;
+                color: #000;
+                margin-right: .2rem;
+            }
+        }
+        .login_alert{
+            
+            .weui-dialog{
+                
+                max-width: 80%;
+                border-radius: .12rem;
+                // border:none;
+            }
+            .weui-dialog__bd, .weui-dialog__hd, .weui-dialog__ft{
+                font-size: .32rem;
+            }
+            .dialog__hd{
+                border:none;
+            }
+            .weui-dialog__ft{
+                width: 100%;
+                padding: 0 .4rem;
+                line-height: .8rem;
+                margin: 0 auto;
+                padding-bottom: .4rem;
+                .weui-dialog__btn_default{
+                    background-color: #C1C1C1;
+                    margin-rigfht: .4rem;
+                    margin-left: 0;
+                }
+                > a{
+                    margin-left: .4rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    font-weight: 500;
+                    border-radius: .12rem;
+                }
+            }
+        }
+    }    
+</style>

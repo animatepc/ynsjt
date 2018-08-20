@@ -1,0 +1,12 @@
+export class UserService{
+  static save(user){
+    sessionStorage.user=JSON.stringify(user)
+  }
+  static get() {
+    return JSON.parse(sessionStorage.user || null);
+  }
+
+  static clear() {
+    delete sessionStorage.user; 
+  }
+}

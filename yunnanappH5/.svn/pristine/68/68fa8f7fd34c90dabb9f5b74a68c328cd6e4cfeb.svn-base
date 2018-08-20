@@ -1,0 +1,174 @@
+<template>
+	<div class="atlasDetails">
+		<div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="cityBack"></span>
+            <span class="city_text"><span class="mypreview_indexs">{{indexs}}</span>/{{imgList.length }}</span>
+            <i class="collect"></i>
+            <!-- <span class="">  {{indexs}}</span> -->
+        </div>
+      
+        <div v-if="imgList.length > 0" class="swiper_content">
+        	<swiper :list="imgList" :show-dots="false" height="100vh" @on-index-change="swiperChange"></swiper>
+        </div>
+	</div>
+</template>
+
+<script>
+import { HttpService } from "../../services/http.js";
+import { newsApi } from "../../services/newsapi.js";
+import { Collection } from "../../common/js/common.js";
+
+export default {
+  data() {
+    return {
+      indexs: 1,
+      imgList: []
+    };
+  },
+  mounted() {
+    this.getNewsList();
+  },
+  watch: {
+    indexs(newVal, oldVal) {
+      if (newVal == 5) {
+        this.$router.push({
+          path: "/public/atlasextend"
+        });
+      }
+    }
+  },
+  methods: {
+    collectionBtn() {
+      var id = this.$router.history.current.query.id;
+      let bodys = {};
+      bodys.refType = "20";
+      bodys.refId = id;
+      Collection.save(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          console.log("接口调用成功");
+        } else {
+          alert("接口调用失败");
+          console.log("接口调用失败");
+        }
+      });
+    },
+    getNewsList() {
+      let params = this.$router.history.current.query;
+      params = Object.assign(params, {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      });
+      newsApi.getNewsDetails(params).then(r => {
+        if (r.status && r.statusCode == "200") {
+          let imgObj = r.list;
+          this.imglength = imgObj.length;
+          imgObj.map(i => {
+            i.img = i.atlasPhoto;
+            i.title = i.photoInstructions;
+          });
+          this.imgList = imgObj;
+        } else {
+          this.imgList = [];
+        }
+        console.log(this.imgList);
+      });
+    },
+    cityBack() {
+      this.$router.go(-1);
+    },
+    swiperChange(index) {
+      this.indexs = index + 1;
+    }
+  }
+};
+</script>
+
+<style lang="less">
+.atlasDetails {
+  background-color: #000;
+  height: calc(100vh - 1rem);
+  margin-top: 1rem;
+  font-size: 0.28rem;
+  color: #000;
+  overflow: hidden;
+  .searchVal {
+    width: 100%;
+    height: 1rem;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    text-align: center;
+    background: #fff;
+    z-index: 2;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/atlas_left_arrow.png") center center
+        no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_box {
+      height: 0.6rem;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: 0.3rem 0.3rem;
+        z-index: 1;
+        top: 0;
+        left: 1.5rem;
+        bottom: 0;
+        margin: auto;
+      }
+    }
+    .search_city {
+      height: 0.5rem;
+      line-height: 0.5rem;
+      //              margin: 0 0.3rem;
+      margin-right: 0.3rem;
+    }
+    .city_text {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+      .mypreview_indexs {
+        color: #f41a14;
+      }
+    }
+  }
+  .swiper_content {
+    overflow: hidden;
+  }
+  .vux-img {
+    background-size: contain !important;
+    background-position: center !important;
+    top: -10% !important;
+    position: absolute;
+  }
+  .vux-swiper-desc {
+    position: absolute;
+    font-size: 0.2rem !important;
+    height: auto !important;
+    top: 75% !important;
+    overflow: scroll !important;
+    text-overflow: none !important;
+    white-space: wrap !important;
+    word-wrap: wrap !important;
+  }
+}
+</style>

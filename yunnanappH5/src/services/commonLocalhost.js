@@ -1,0 +1,1 @@
+export const localhost = 'http://yntvapph5.4kb.cn/dist';

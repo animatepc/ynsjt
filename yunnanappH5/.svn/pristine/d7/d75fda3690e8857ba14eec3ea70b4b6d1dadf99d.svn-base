@@ -1,0 +1,26 @@
+import {HttpService} from './http';
+/**
+ * 封装首页新闻相关的请求及数据处理
+ */
+
+export const newsApi = {
+  api: {
+    columnList:'/content/columnList.do',
+    newsList:'/content/list.do',
+    newsDetails:'/content/details.do',
+    search:'/content/search.do'
+  },
+  getColumnList(body){
+    return HttpService.post(this.api.columnList, body, false, true)
+  },
+  getnewsList(body){
+    return HttpService.post(this.api.newsList, body, false, true)
+  },
+  getNewsDetails(body){
+    return HttpService.get(this.api.newsDetails, body, false, true)
+  },
+  //全局搜索
+  search(body){
+    return HttpService.post(this.api.search, body, false, true)
+  }
+}

@@ -1,0 +1,32 @@
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import {adapted} from './common/js/adapted.js'  
+export default {
+  name: 'App',
+  created(){
+// 	adapted.orientation(document,window)
+// 	adapted.dpr()
+  },
+  methods:{
+  	
+  }
+}
+</script>
+
+<style lang="less">
+@import "./less/_global";
+#app {
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  font-size: 0.28rem;
+  overflow: hidden;
+  -webkit-overflow-scrolling:touch;
+}
+</style>

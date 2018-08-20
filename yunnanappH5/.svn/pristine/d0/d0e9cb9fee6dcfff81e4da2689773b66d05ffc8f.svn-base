@@ -1,0 +1,335 @@
+<template>
+    <div class="modifypass">
+        <div class="login_msg _cus_flexContent _cus_fleAlignCen">
+            <i class="login_back" @click="login_back"></i>
+            <span class="colorfff _cus_posAbsolute login_sign">修改密码</span>
+        </div>
+        <div class="login_content _cus_overHidden">
+            <div class="login_box">
+                <div class="" v-if="!signin_mode">
+                     <div class="login_code _cus_flexContent _cus_jusContent">
+                        <div class="login_pass" style="width: 100%">
+                            <group class="_cus_flexContent _cus_fleAlignCen perH100 perW100 _cus_posRelative">
+                                <x-input type="text" title="" :show-clear="false" v-model="idCode.pass" placeholder="请输入登录密码" ref="passWord"></x-input>
+                            </group>
+                        </div>
+                    </div>
+                    <x-Button :disabled="xbuttondis2" type="button" class="login_sub" @click.native="readypass">确认修改密码</x-Button>
+                </div>
+            </div>
+        </div>
+        <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http.js";
+import { forgetApi } from "../../services/forgetApi.js";
+export default {
+  data() {
+    return {
+      xbuttondis: false,
+      xbuttondis2: false,
+      xbtn_msg: "点击发送验证码",
+      selected: true,
+      signin_mode: false,
+      hidePass: false,
+      hide_alert: false,
+      test_mag: "请输入新的登录密码",
+      idCode: {
+        pass: ""
+      }
+    };
+  },
+  mounted(){
+  },
+  methods: {
+    login_back() {
+      this.$router.push({
+        path: `/login/setpersonal`
+      });
+    },
+    selected_mask() {
+      this.selected = !this.selected;
+      this.selected ? (this.xbuttondis2 = false) : (this.xbuttondis2 = true);
+    },
+    signin() {
+      this.signin_mode = !this.signin_mode;
+    },
+    handle_hidePass() {
+      this.hidePass = !this.hidePass;
+    },
+    readypass() {
+      let pass = this.idCode.pass.replace(/\s+/g, ""),
+        reg1 = /^(\w){6,20}$/;
+      if (this.idCode.pass == "") {
+        this.hide_alert = !this.hide_alert;
+        this.test_mag = "请输入新的登录密码!";
+      } else if (!reg1.test(pass)) {
+        this.hide_alert = !this.hide_alert;
+        this.test_mag = "请输入6-20个字母、数字、下划线组成密码!";
+      } else {
+        var passWord = this.$refs.passWord.value;
+        var bodys = {
+          mobile:this.$router.history.current.query.mobile,
+          password: passWord,
+          _jsonp: true,
+          _jsonpCallback: "onBack"
+        };
+        forgetApi.newPass(bodys).then(r => {
+          if (r.statusCode == "200" && r.status) {
+            // 接口访问成功，执行
+            this.hide_alert = !this.hide_alert;
+            this.test_mag = "修改成功!";
+            
+          } else if (!r.status) {
+            // 返回错误信息
+            this.hide_alert = !this.hide_alert;
+            this.test_mag = r.errorMessage;
+          }
+        });
+      }
+    },
+    alertShow() {},
+    alertHide() {
+      if (this.test_mag == "修改成功!") {
+        this.$router.push({
+          path: "/login/login"
+        });
+      }
+    }
+  }
+};
+</script>
+<style lang="less">
+.modifypass {
+  width: 100%;
+  height: 100vh;
+  background-color: #fff;
+  font-size: 0.28rem;
+  .login_msg {
+    width: 100%;
+    height: 1rem;
+    line-height: 1rem;
+    overflow: hidden;
+    background-color: #f41a14;
+    .login_back {
+      width: 0.22rem;
+      height: 1rem;
+      position: absolute;
+      left: 0.2rem;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .login_sign {
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: 0;
+      top: 0;
+      margin: auto;
+      text-align: center;
+      font-size: 0.32rem;
+    }
+  }
+  .login_content {
+    .login_logo {
+      text-align: center;
+      > img {
+        width: 1.33rem;
+        margin: 0.75rem auto 0.7rem;
+      }
+    }
+    .login_box {
+      margin-top: 0.85rem;
+      padding-left: 0.3rem;
+      padding-right: 0.3rem;
+      overflow: hidden;
+      font-size: 0.28rem;
+      .login_phone {
+        margin: 0 0.3rem;
+        height: 0.8rem;
+        border: 1px solid #999;
+        border-radius: 5px;
+        padding-left: 10px;
+        box-sizing: border-box;
+        margin-bottom: 0.4rem;
+        .weui-cells {
+          width: 100%;
+          height: 100%;
+          margin-top: 0;
+        }
+        .weui-cell {
+          padding: 0 15px;
+        }
+        .weui-icon-clear {
+          font-size: 0.28rem;
+        }
+        .vux-input-icon.weui-icon-warn:before,
+        .vux-input-icon.weui-icon-success:before {
+          font-size: 0.42rem;
+        }
+        input {
+          height: 0.8rem;
+          outline: none;
+          border: none;
+          line-height: 100%;
+          font-size: 0.28rem;
+        }
+      }
+      .login_code {
+        margin: 0 0.3rem;
+        .login_pass {
+          width: 3.1rem;
+          height: 0.8rem;
+          line-height: 0.8rem;
+          border: 1px solid #999;
+          border-radius: 5px;
+          padding-left: 10px;
+          box-sizing: border-box;
+          margin-bottom: 0.4rem;
+          .weui-cells {
+            width: 100%;
+            height: 100%;
+            line-height: 100%;
+            display: flex;
+            margin-top: 0;
+          }
+          .weui-cell {
+            flex: 1;
+            padding: 0 15px;
+          }
+          .weui-icon-clear {
+            font-size: 0.28rem;
+          }
+          .vux-input-icon.weui-icon-warn:before,
+          .vux-input-icon.weui-icon-success:before {
+            font-size: 0.42rem;
+          }
+          input {
+            height: 0.8rem;
+            outline: none;
+            border: none;
+            /*height: .8rem;*/
+            line-height: 100%;
+            font-size: 0.28rem;
+          }
+          .show_pass {
+            display: block;
+            width: 20%;
+            height: 100%;
+            background: url(../../../static/imgs/eye.png) no-repeat center
+              center;
+            background-size: 0.5rem;
+          }
+          .hide_pass {
+            display: block;
+            width: 20%;
+            height: 100%;
+            background: url(../../../static/imgs/y_pwd.png) no-repeat center
+              center;
+            background-size: 0.5rem;
+          }
+        }
+        .login_xbtn {
+          width: 3rem;
+          height: 0.8rem;
+          margin: 0;
+          border-radius: 0.1rem;
+          font-size: 0.32rem;
+          background: #f41a14;
+          border-color: #eee;
+          color: #fff;
+        }
+      }
+      .forgot_Pass {
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+        color: #f41a14;
+      }
+    }
+    .login_sub {
+      margin: 0 auto;
+      margin-top: 2.14rem;
+      width: 92%;
+      height: 0.96rem;
+      line-height: 0.96rem;
+      font-size: 0.32rem;
+      color: #fff;
+      background: #f41a14;
+      border-radius: 10px;
+    }
+    .login_ {
+      font-size: 0.24rem;
+      line-height: 18px;
+      color: #282828;
+      margin-top: 0.3rem;
+      text-align: center;
+      .login_select {
+        display: inline-block;
+        width: 0.32rem;
+        height: 0.32rem;
+        vertical-align: -15%;
+        margin-right: 5px;
+        background: url(../../../static/imgs/selected.png) no-repeat center;
+        background-size: 100% 100%;
+      }
+      .login_cancel {
+        display: inline-block;
+        width: 0.32rem;
+        height: 0.32rem;
+        vertical-align: -15%;
+        margin-right: 5px;
+        background-color: #f41a14;
+        background: #f41a14;
+        border-radius: 0.03rem;
+      }
+      .login_agreement {
+        color: #f41a14;
+        text-decoration: underline;
+      }
+    }
+    .login_userpass {
+      margin: 0.8rem 0 0.4rem;
+      text-align: center;
+      color: #fca806;
+    }
+    .login_footer {
+      .login_field {
+        width: 90%;
+        margin: 0 auto;
+        border: none;
+        border-top: 1px solid #eee;
+        text-align: center;
+        legend {
+          display: inline-block;
+          color: #999;
+          font-size: 0.28rem;
+          padding: 0 10px;
+        }
+      }
+      .login_ways {
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 0.44rem;
+        color: #999;
+        font-size: 0.26rem;
+        .third_party_img {
+          text-align: center;
+          > img {
+            width: 0.87rem;
+          }
+        }
+      }
+    }
+  }
+}
+</style>
+

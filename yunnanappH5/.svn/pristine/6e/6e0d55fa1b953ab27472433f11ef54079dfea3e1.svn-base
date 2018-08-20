@@ -1,0 +1,325 @@
+<template>
+    <div class="UpdatePhone">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="colorfff city_text">更新手机号</span>
+        </div>
+        <div class="setphone_content bgfff">
+            <p class="perW100 _cus_textCenter setphone_tip">
+                已向手机号  发送验证码
+            </p>
+             <div class="login_code _cus_flexContent _cus_jusContent">
+                <div class="login_pass ">
+                    <group class="_wangjcus_flexContent _cus_fleAlignCen perH100 ">
+                        <x-input  title="" type="text" required v-model="idCode.code" placeholder="请输入验证码"></x-input>
+                    </group>
+                </div>
+                <x-Button :disabled="xbuttondis" type="button" class="login_xbtn" @click.native="xbtn_setinter">{{xbtn_msg}}</x-Button>
+            </div>
+        </div>
+         <x-Button :disabled="xbuttondis2" type="button" class="login_sub" @click.native="Signout">确认更换</x-Button>
+         <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+    </div>
+</template>
+<script>
+    import { HttpService } from '../../services/http.js'
+    import { coreApi} from '../../services/coreApi.js'
+    export default {
+        data(){
+            return {
+                xbuttondis2:false,
+                xbuttondis:false,
+                hide_alert:false,
+                readyPhone: false,
+                goback:0,
+                xbtn_msg:'点击发送验证码',
+                test_mag:'',
+                setinterlval: 60,
+                idCode:{
+                    code:''
+                },
+                inter:60,
+                mobile:''
+            }
+        },
+        created(){
+
+        },
+        methods:{
+            city_back(){
+                this.$router.go(-1)
+            },
+            Signout(){
+                console.log(this.idCode.code)
+                if(this.idCode.code == ''){
+                    this.hide_alert = ! this.hide_alert
+                    this.test_mag = '请输入验证码!'
+                }else{
+
+                    //1更换手机号逻辑 2绑定手机号逻辑
+                    let status = this.$router.currentRoute.query.status; 
+                    this.mobile = this.$router.currentRoute.query.tel; 
+                    if(status == 1){
+
+                        var bodys = {
+                            mobile:this.mobile,
+                            shortMessageCode:this.idCode.code,
+                            _jsonp:true,
+                            _jsonpCallback:"onBack"
+                        }
+                        coreApi.newMobile(bodys).then( r =>{
+                              
+                            if(r.statusCode == '200' && r.status){
+                                // 接口访问成功，执行
+                                this.hide_alert = ! this.hide_alert
+                                this.test_mag = '修改成功!'
+                                this.readyPhone = true
+                            }else if(!r.status){
+                                // 返回错误信息
+                                this.hide_alert = ! this.hide_alert;
+                                this.test_mag = r.errorMessage;
+                            }
+                        })
+                    }else if(status == 2){
+
+                        var bodys = {
+                            mobile:this.mobile,
+                            shortMessageCode:this.idCode.code,
+                            _jsonp:true,
+                            _jsonpCallback:"onBack"
+                        }
+                        coreApi.userSetBindingMobile(bodys).then( r =>{
+                              
+                            if(r.statusCode == '200' && r.status){
+                                // 接口访问成功，执行
+                                this.hide_alert = ! this.hide_alert
+                                this.test_mag = '成功绑定!'
+                                this.readyPhone = true
+                            }else if(!r.status){
+                                // 返回错误信息
+                                this.hide_alert = ! this.hide_alert;
+                                this.test_mag = r.errorMessage;
+                            }
+                        })
+                    } 
+                    
+                }
+            },
+             xbtn_setinter(){
+                let queryTel = this.$router.history.current.query;
+                let phone =queryTel.tel != ''?queryTel.tel.replace(/\s+/g, ""):false,
+                reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+                if(!phone){
+                    this.hide_alert = ! this.hide_alert
+                    this.test_mag = '没有获取手机号!'
+                    this.xbuttondis = true
+                    
+                    // 返回后一页获取手机号
+                    this.goback = -1
+                }else if(!reg1.test(phone)){
+                    this.hide_alert = ! this.hide_alert
+                    this.test_mag = '此手机号无效!'
+                }else{ 
+                    this.xbuttondis = true
+                    this.setInterval()
+                }
+            },
+            setInterval(){
+                this.xbtn_msg = '重新发送' + this.setinterlval
+                if(this.setinterlval != 0){
+                    this.timeout = window.setTimeout(() => {
+                        this.setinterlval --
+                        this.setInterval()
+                    }, 1000);
+                }
+                 
+                if(this.setinterlval == 0){
+                    window.clearTimeout(this.timeout)
+                    this.setinterlval = 60
+                    this.xbuttondis = false
+                    this.xbtn_msg = '点击发送验证码'
+                }
+            },
+            alertShow(){
+
+            },
+            alertHide(){
+                this.$router.push({
+                    'path':'/mymodule/userset'
+                })
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .UpdatePhone{
+        height: 100vh;
+        background-color: #fff;
+        font-size: 0.28rem;
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            overflow: hidden;
+            color: #fff;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #f41a14;
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .setphone_content{
+            overflow: hidden;
+            font-size: .28rem;
+            .login_code{
+                    margin: 0 .3rem;
+                    .login_pass{
+                        width: 3.1rem;
+                        height: .8rem;
+                        line-height: .8rem;
+                        border: 1px solid #999;
+                        border-radius: 5px;
+                        padding-left: 10px;
+                        box-sizing: border-box;
+                        margin-bottom: .4rem;
+                        .weui-cells{
+                        	width: 100%;
+                        	height: 100%;
+                            line-height: 100%;
+                            display: flex;
+	                    	margin-top:0;
+	                    }
+	                    .weui-cell{
+                            flex: 1;
+	                    	padding:0 15px;
+	                    }
+	                    .weui-icon-clear{
+	                    	font-size: .28rem;
+	                    }
+	                    .vux-input-icon.weui-icon-warn:before, .vux-input-icon.weui-icon-success:before{
+	                    	font-size: .42rem;
+	                    }
+	                    input{
+	                    	height: .8rem;
+	                    	outline: none;
+	                    	border: none;
+	                    	/*height: .8rem;*/
+	                    	line-height: 100%;
+	                    	font-size: .28rem;
+                        }
+                        .show_pass{
+                            display: block;
+                            width: 20%;
+                            height: 100%;
+                            background: url(../../../static/imgs/eye.png) no-repeat center center;
+                            background-size: .5rem;
+                        }
+                        .hide_pass{
+                            display: block;
+                            width: 20%;
+                            height: 100%;
+                            background: url(../../../static/imgs/y_pwd.png) no-repeat center center;
+                            background-size: .5rem;
+                        }
+                    }
+                    .login_xbtn{
+                        width: 3rem;
+                        height: 0.8rem;
+                        margin: 0;
+                        border-radius: .1rem;
+                        font-size: .32rem;
+                        background: #f41a14;
+                        border-color: #eee;
+                        color: #fff;
+                    }
+                }
+             .setphone_tip{
+                margin: .85rem 0;
+            }
+        }
+        .login_sub{
+            margin: 0 .3rem;
+            margin-top: 2.14rem;
+            margin-bottom: 0.2rem;
+            width: calc(100vw - .6rem);
+            height: 0.96rem;
+            line-height: 0.96rem;
+            font-size: .32rem;
+            color: #fff;
+            background: #f41a14;
+            border-radius: 10px;
+        }
+    }    
+</style>

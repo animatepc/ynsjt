@@ -1,0 +1,660 @@
+
+#my-player, body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+#dialog {
+  position: fixed;
+  top: .3rem;
+  left: .3rem;
+  right: .3rem;
+  text-align: center;
+  z-index: 201;
+}
+
+#tabs {
+  padding: 0;
+  position: fixed;
+  top: 2rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+#my-player {
+  position: fixed;
+  top: 0;
+  height: 2rem;
+  z-index: 200;
+  left: 0;
+}
+
+div#two {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 2.2em;
+}
+
+div#one {
+  position: absolute;
+  top: 2.2em;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: .4em;
+  padding-right: 0;
+}
+
+.WS.ui-btn {
+  margin: 0;
+  width: 31.7%;
+  margin-right: .4em;
+  margin-bottom: .4em;
+  float: left;
+}
+
+#twoBox {
+  padding: 0;
+  height: 100%;
+}
+
+#twoBox > ul {
+  height: 100%;
+  border-radius: 0;
+  overflow: auto;
+}
+
+#twoBox .ui-btn {
+  border-radius: 0;
+}
+
+.video-js .vjs-volume-panel.vjs-volume-panel-horizontal, .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover, .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:active, .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-slider-active {
+  width: 4em;
+}
+
+.full #my-player {
+  height: auto;
+  bottom: 0;
+  transform: rotate(90deg);
+  transform-style: preserve-3d;
+}
+
+.full #my-player .vjs-tech {
+  z-index: -1;
+  transform: translateZ(0px);
+}
+
+.vjs-volume-control {
+  display: none !important;
+}
+
+.video-js .vjs-tech {
+  /*object-fit: fill;*/
+  /*width: 40%;*/
+  /*left: 30%;*/
+}
+
+.h_tc.video-js .vjs-tech {
+  object-fit: fill;
+  width: 100%;
+  height: 100%;
+}
+
+.h_100.video-js .vjs-tech {
+  width: 100%;
+}
+
+.h_75.video-js .vjs-tech {
+  width: 75%;
+  left: 12.5%;
+}
+
+.h_50.video-js .vjs-tech {
+  width: 50%;
+  left: 25%;
+}
+
+#play * {
+  box-sizing: border-box;
+}
+
+.video-lockBox {
+  position: absolute;
+  display: none;
+  width: 4em;
+  height: 4em;
+  left: 2em;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  z-index: 204;
+}
+
+.video-lockShadow {
+  z-index: 203;
+  position: absolute;
+  display: none;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
+
+.video-lock .video-lockShadow {
+  display: block;
+}
+
+.video-lockBox:after {
+  content: ' ';
+  background: url(../images/u536.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: .45rem;
+  display: block;
+}
+
+.video-lock .video-lockBox:after {
+  content: ' ';
+  background: url(../images/u538.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: .45rem;
+  display: block;
+}
+
+.video-dialog, .video-range-dialog {
+  background: rgba(0, 0, 0, .6);
+  position: absolute;
+  height: .8rem;
+  width: 2.5rem;
+  top: .5rem;
+  left: 0;
+  right: 0;
+  color: #fff;
+  border-radius: .3rem;
+  padding: .1rem .3rem;
+  margin: auto;
+}
+
+.togglePlayerBox {
+  background: rgba(0, 0, 0, .6);
+  position: absolute;
+  z-index: 200;
+  height: .8rem;
+  width: .8rem;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.vjs-paused .togglePlayerImage {
+  background: url('../images/u476.png');
+  background-size: 50%;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.vjs-playing .togglePlayerImage {
+  background: url('../images/u486.png');
+  background-size: 50%;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.rangeDialogText {
+  margin-bottom: .25rem;
+  text-align: center;
+  font-size: .3rem
+}
+
+.rangeDialogInput {
+  height: .03rem;
+}
+
+.rangeDialogContent {
+  height: 100%;
+  background: #08b3bb;
+}
+
+.video-js .togglePlayerBox {
+  display: none;
+}
+
+.vjs-controls-disabled .video-tools {
+  display: block;
+}
+
+.video-js .video-tools {
+  display: none;
+}
+
+.vjs-has-started .video-tools, .vjs-has-started .togglePlayerBox, .full .video-lockBox, .full .video-brightness, .full .video-volume {
+  display: block;
+}
+
+.full .video-lockBox {
+  opacity: .7;
+}
+
+.vjs-has-started.vjs-user-inactive.vjs-playing .video-tools, .vjs-has-started.vjs-user-inactive.vjs-playing .togglePlayerBox {
+  visibility: visible;
+  display: none;
+  transition: visibility 1s, opacity 1s;
+}
+
+.video-qxdBox {
+  position: absolute;
+  left: 75%;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(43, 51, 63, 0.7);
+  z-index: 204;
+}
+
+.video-qxdBox button {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.video-boxShadow {
+  z-index: 203;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
+
+.video-settingBox {
+  padding: 10px;
+  position: absolute;
+  left: 60%;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(43, 51, 63, 0.7);
+  z-index: 205;
+}
+
+.video-selectPDBox {
+  font-size: 16px;
+  padding: 10px 0;
+  position: absolute;
+  left: 55%;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(43, 51, 63, 0.7);
+  z-index: 206;
+}
+
+.full .video-selectPDBox {
+  left: 70%;
+}
+
+.video-fenxiangBox {
+  position: absolute;
+  left: 50%;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(43, 51, 63, 0.7);
+  z-index: 206;
+}
+
+.video-tools {
+  transition: visibility 0.1s, opacity 0.1s;
+  background-color: rgba(43, 51, 63, 0.7);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: .5rem;
+}
+
+.vjs-control-bar, .video-tools {
+  z-index: 210;
+}
+
+.video-qxdBoxShow .video-tools, .video-qxdBoxShow .vjs-control-bar,
+.video-settingBoxShow .video-tools, .video-settingBoxShow .vjs-control-bar,
+.video-selectPDBoxShow .video-tools, .video-selectPDBoxShow .vjs-control-bar,
+.video-fenxiangBoxShow .video-tools, .video-fenxiangBoxShow .vjs-control-bar,
+.video-lock .video-tools, .video-lock .vjs-control-bar,
+.video-lock .video-brightness,
+.video-lock .video-volume,
+.video-qxdBox,
+.video-boxShadow,
+.video-settingBox,
+.video-selectPDBox,
+.video-fenxiangBox,
+.video-brightness,
+.video-volume {
+  display: none;
+}
+
+.video-qxdBoxShow .video-qxdBox, .video-qxdBoxShow .video-boxShadow,
+.video-settingBoxShow .video-settingBox, .video-settingBoxShow .video-boxShadow,
+.video-selectPDBoxShow .video-selectPDBox, .video-selectPDBoxShow .video-boxShadow,
+.video-fenxiangBoxShow .video-fenxiangBox, .video-fenxiangBoxShow .video-boxShadow {
+  display: block;
+}
+
+.full .pageBack {
+  display: block;
+}
+
+.pageBack {
+  width: .5rem;
+  height: .5rem;
+  display: none;
+  padding: .08rem;
+  float: left;
+}
+
+.pageBack img {
+  width: 60%;
+  display: block;
+}
+
+.shocang {
+  font-size: .14rem;
+  padding: .1rem;
+  float: right;
+  display: block;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.fenxiang {
+
+  font-size: .14rem;
+  padding: .1rem;
+  float: right;
+  display: block;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.pindao {
+
+  font-size: .14rem;
+  padding: .1 remx;
+  float: right;
+  display: block;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+span.ui-btn-inner {
+  display: none !important;
+}
+
+.ui-page.ui-body-c.ui-page-active {
+  height: 100%;
+}
+
+.full .vjs-fullscreen-control .vjs-icon-placeholder:before {
+  content: "\f109";
+}
+
+.full #tabs {
+  margin-top: 100%;
+}
+
+.tablist-left {
+  width: 25%;
+  display: inline-block;
+}
+
+.tablist-content {
+  height: 100%;
+  overflow: auto;
+  position: absolute;
+  left: 25%;
+  right: 0;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.jmdTime {
+  width: 4em;
+}
+
+.jmdBtn {
+  width: 6em;
+}
+
+.jmdHK {
+  margin: 0;
+  padding: .3em;
+}
+
+#twoBox .ui-table-columntoggle-btn {
+  display: none;
+}
+
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+  background: none;
+  text-shadow: none;
+}
+
+.ui-page-theme-a {
+
+}
+
+.vjs-control.ui-btn {
+  background: none;
+  text-shadow: none;
+  color: #fff;
+}
+
+.typeList .ui-btn, .wsList .ui-btn, .typeList .ui-btn:hover, .wsList .ui-btn:hover {
+  background: none;
+  color: #ccc;
+  text-shadow: none;
+  display: block;
+  width: 100%;
+  padding: .07rem 0;
+}
+
+.typeList {
+  height: 100%;
+  margin: 0;
+  overflow: auto;
+  padding-top: 0;
+  width: 30%;
+  display: inline-block;
+  /*padding: 0 3em;*/
+}
+
+.wsList {
+  height: 100%;
+  margin: 0;
+  overflow: auto;
+  padding-top: 0;
+  width: 70%;
+  display: inline-block;
+  /*padding: 0 3em;*/
+  vertical-align: top;
+}
+
+.fx_btn {
+  width: 33%;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  height: .75rem;
+  position: relative;
+}
+
+.fx_btn img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.hm_btn {
+  width: 25%;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  height: .5rem;
+  position: relative;
+  margin: 10px auto 0;
+}
+
+.hm_btn img {
+  width: .3rem;
+  height: .3rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: .6rem;
+  bottom: 0;
+  margin: auto;
+}
+
+.video-hfmr {
+  width: 100%;
+  padding: .1rem 0;
+}
+
+.video-fBox {
+  height: 1.5rem;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.video-brightness {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: .36rem;
+  bottom: .38rem;
+  z-index: 199;
+}
+
+/*  .video-volume{
+position:absolute;
+right:0;
+left: 50%;
+top: 36px;
+bottom: 38px;
+z-index: 199;
+}*/
+.video-settingBox .ui-slider input {
+  display: none;
+}
+
+.video-hm {
+  white-space: nowrap;
+  margin-bottom: .3rem;
+}
+
+.video-settingBox-ld + div {
+  margin: 0 .15rem;
+}
+
+input.video-settingBox-ld {
+  /* width: 90%; */
+  /*height: 100%;*/
+}
+
+.ldTextBox, .ylTextBox {
+  white-space: nowrap;
+  float: left;
+  line-height: .5rem;
+}
+
+.ldInputBox, .ylInputBox {
+  width: 100%;
+  float: right;
+  line-height: .5rem;
+  display: flex;
+
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: " ";
+  clear: both;
+}
+
+.video-ydt {
+  display: none;
+}
+
+.full .frist .video-ydt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  background: url('../images/uydt.jpg');
+  background-size: cover;
+}
+
+nput, button, select, textarea {
+  outline: none;
+}
+
+textarea {
+  font-size: 13px;
+  resize: none;
+}
+
+
+input[type="range"]::-webkit-slider-thumb {
+  /*::-webkit-slider-thumb是代表给滑块的样式进行变更*/
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; /*//这三个是去掉滑块原有的默认样式，划重点！！*/
+  -webkit-box-shadow:0 0 2px ; /*设置滑块的阴影*/
+  width: .3rem;
+  height: .3rem;
+  background:#fff;
+  border-radius: 50%;
+}
+
+
+.slider-block{ /*设置滑块下面那条线的样式*/
+  outline: none; /*去掉点击时出现的外边框*/
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; /*这三个是去掉那条线原有的默认样式，划重点！！*/
+  width: 100%;
+  height: 0.1rem;
+  background:rgba(255,255,255,.3);
+  /*这三个是设置滑块下面那条线的样式*/
+}
+@media screen and (min-width: 375px) {
+  body {
+      background-color:lightblue;
+  }
+}

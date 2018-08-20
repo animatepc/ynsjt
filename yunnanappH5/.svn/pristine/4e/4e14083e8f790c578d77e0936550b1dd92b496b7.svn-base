@@ -1,0 +1,19 @@
+const paths = [
+  '/webapp-yrt'
+  ];
+  
+  const useStrategy = {
+    target:"http://yntvapp.4kb.cn",
+    changeOrigin: true,
+    pathRewrite:{
+      '^/webapp-yrt': '/webapp-yrt',
+    }
+  };
+  
+  const proxyTableObj = {};
+  
+  paths.forEach(path => {
+    proxyTableObj[path] = Object.assign({}, useStrategy)
+  });
+  module.exports = proxyTableObj;
+  

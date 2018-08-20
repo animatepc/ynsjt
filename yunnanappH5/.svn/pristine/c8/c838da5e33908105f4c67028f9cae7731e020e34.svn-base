@@ -1,0 +1,25 @@
+import {HttpService} from './http';
+/**
+ * 封装视频相关的请求及数据处理
+ */
+
+export const gloabApi = {
+  api: {
+    myVideoList:'/myVideo/myVideoList.do',
+    updateUserName:'/home/info/changeNickName.do',
+    homeMessage:'/home/message/list.do',
+    homeFeedback:'/home/feedback/list.do'
+  },
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  },
+}

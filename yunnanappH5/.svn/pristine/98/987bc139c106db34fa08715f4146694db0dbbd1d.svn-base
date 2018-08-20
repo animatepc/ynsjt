@@ -1,0 +1,12 @@
+<template>
+    <div class="home">
+        这里是==>视频展示页
+    </div>
+</template>
+<script>
+    
+</script>
+<style lang="less">
+
+</style>
+

@@ -1,0 +1,431 @@
+<template>
+    <div class="special_details">
+        <div class="videodetails_back" @click="city_back">
+            <i class="videodetails_icon" ></i>
+        </div>    
+        <div class="videodetails_video _cus_posRelative">
+            <div class="video">
+            	<img v-bind:src="newsdetails_msg.projectMainImg" alt="" />
+            </div>
+            <p class="special_title"> {{newsdetails_msg.title}} </p>
+        </div>
+        <div class="videodetails_introduce">
+        	<scroller
+            :lock-x="true"
+            :scrollbarY="true"
+            :bounce="true"
+            style="min-height: calc(100vh - 3.48rem);max-height: calc(100vh - 4.48rem);">
+        	<div class="_cus_overHidden video_content">
+	            <div class="_cus_overHidden">
+	                <p class="_cus_flexContent _cus_jusContent _cus_fleAlignCen _cus_overHidden">
+	                    <span>
+	                        <span> {{newsdetails_msg.createTimeStr}} </span>
+	                    </span>
+	                    <span class="">
+	                    	<span class="_cus_flexContent _cus_fleAlignCen __cus_fl">
+			                    <span>3</span>
+			                    <i class="news_watch"></i>
+			                    <img src="../../../static/imgs/collect.png" style="width: 0.4rem;" alt="" class="special_icon">
+			                </span>
+		                    <span class="__cus_fl" @click="isIcon = !isIcon">
+		                    	简介 
+		                    	<i class="video_icon" :class="isIcon?'video_icon_action':''"> 
+								  {{newsdetails_msg.introduction}}	
+							    </i>
+		                    </span>
+	                    </span>
+	                    
+	                </p>
+	                <div class="video_introduce _cus_overHidden" :class="isIcon?'Block':'None'">
+	                    <span></span>
+	                </div>
+	                
+	            </div>
+	            <div v-for="lab in newslists" class="sepcialRec">
+                <p class="news_footer_title"> {{lab.title}} </p>
+                <ul class="home_list _cus_overHidden">
+                  <li v-for="(item,keys) in lab.contentList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                      <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                          <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                          <label class="source-label">{{item.listTitle}}</label>
+                          <div class="tabImg" v-if="item.urlList.length > 0" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="item.type=='tabList'?'_cus_posRelative':''">
+                              <img class="" :src="item.urlList[0]" alt="">
+                              <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                          </div>
+                           <div  v-if="item.urlList.length > 0" v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate" style="padding-bottom:0.5rem">
+                              <ul class="" style="display:flex;justify-content:space-between">
+                                  <li v-for="(img,keys) in item.urlList" :key="keys" >
+                                      <img :src="img" alt="" style="width:2.15rem;height:1.44rem">
+                                  </li>
+                              </ul>
+                          </div>
+                          <p class="home_time _cus_overHidden color999" :class="item.type == 'tabList' || item.type ==  'tabAudio' || item.type ==  'tabTranslate'?'_cus_posAbsolute perW100':''">
+                             <span v-show="item.type =='tabTranslate'" class="source-handle-title">置顶</span>
+                              <span class="__cus_fl">
+                                  <span>{{item.source}}</span>
+                                  <span class="">{{item.createTimeStr}}</span>
+                             </span>
+                              <span class="__cus_fr">
+                                  <span>{{item.virtualClickTimes}}</span>
+                                  <span class="new_watch"></span>
+                              </span>
+                          </p>
+                      </div>
+                      <div v-if="item.urlList.length > 0" v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                          <img :src="item.urlList[0]" alt="">
+                          <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                      </div>
+                  </li>
+              </ul>
+              </div>
+	           
+        	</div>
+        	</scroller>
+        </div>
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http.js";
+import { newsApi } from "../../services/newsapi.js";
+export default {
+  data() {
+    return {
+      isIcon: false,
+      newsdetails_msg: {},
+      newslists: []
+    };
+  },
+  mounted() {
+    this.getNewsList();
+  },
+  methods: {
+    getNewsList() {
+      let params = this.$router.history.current.query;
+      params = Object.assign(params, {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      });
+      newsApi.getNewsDetails(params).then(r => {
+        if (r.status && r.statusCode == "200") {
+          this.newsdetails_msg = r.data;
+          let data = r.data.contentProjectList;
+           data.map(i=>{
+            i.contentList.map(types=>{
+             switch(types.contentType){
+                  case '30':
+                      types['type'] = 'tabVideo'
+                  break;
+                  case '10':
+                      types['type'] = 'list'
+                  break;
+                   case '40':
+                      types['type'] = 'tabAudio'
+                  break;
+                   case '20':
+                      types['type'] = 'tabTranslate'
+                  break;
+                  case '60':
+                      types['type'] = 'tab'
+                  break;
+                  case '50':
+                      types['type'] = 'tabList'
+                  break;
+              }
+            })
+           
+          })
+          this.newslists = data;
+          console.log(this.newslists)
+        } else {
+          this.newsdetails_msg = {};
+        }
+      });
+    },
+    city_back() {
+      this.$router.go(-1);
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case '30':
+            path = '/videodetails' 
+        break;
+        case '10':
+             path = '/newsdetails'
+        break;
+        case '20':
+             path = '/atlasdetails' 
+        break;
+        case '40':
+             path = '/audiodetails' 
+        break;
+        case '60':  
+             path = '/specialdetails'
+        break;
+        case '50':
+            items.seriesType == "0"?path = '/programdetails':items.seriesType == "10" ? path = '/videochannel':''
+        break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      this.getNewsList();
+      this.$router.push({
+        path: `/public${path}`,
+        query: Json
+      });
+    }
+  }
+};
+</script>
+<style lang="less">
+.special_details {
+  height: 100vh;
+  overflow: hidden;
+  font-size: 0.28rem;
+  .videodetails_back {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    position: fixed;
+    left: 0.2rem;
+    top: 0.2rem;
+    z-index: 1000;
+    .videodetails_icon {
+      width: 0.36rem;
+      height: 0.36rem;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+    }
+  }
+  .videodetails_video {
+    padding: 0;
+    width: 100%;
+    z-index: 99;
+    background: #fff;
+    min-height: 3rem;
+    border: 2px solid #eee;
+    .video {
+      width: 100%;
+      min-height: 3rem;
+      > img {
+        width: 100%;
+      }
+    }
+    .special_title {
+      background-color: #fff;
+      line-height: 0.48rem;
+      padding: 0.3rem;
+      border-bottom: 2px solid #eee;
+    }
+  }
+  .videodetails_introduce {
+    background-color: #fff;
+    color: #999;
+    .video_content {
+      > .new_wrap {
+        left: 0;
+        bottom: 0;
+        color: #b3b3b3;
+        overflow: hidden;
+        padding: 0 0.3rem 0.3rem 0.3rem;
+        line-height: 0.34rem;
+        > span:last-child {
+          > img {
+            width: 0.3rem;
+            height: 0.3rem;
+            display: block;
+            float: left;
+            margin-left: 0.03rem;
+            margin-right: 0.5rem;
+            transform: rotate(0deg) !important;
+          }
+        }
+      }
+      > div:nth-of-type(1) {
+        > p {
+          padding: 0 0.3rem;
+          overflow: hidden;
+          min-height: 0.84rem;
+          line-height: 0.84rem;
+          .video_icon {
+            display: inline-block;
+            width: 0.22rem;
+            height: 0.22rem;
+            transform: rotate(90deg);
+            transition: all 0.5s;
+            background: url("../../../static/imgs/arroe.png") no-repeat;
+            background-size: contain;
+          }
+          .video_icon_action {
+            transform: rotate(180deg);
+          }
+        }
+        .video_introduce {
+          height: 0.5rem;
+        }
+        .Block {
+          display: block;
+        }
+        .None {
+          display: none;
+        }
+        .news_watch {
+          display: inline-block;
+          width: 0.29rem;
+          height: 0.2rem;
+          display: inline-block;
+          vertical-align: middle;
+          margin: 0 0.2rem;
+          background: url(../../../static/imgs/eye.png) no-repeat left center;
+          background-size: 100%;
+        }
+        .special_icon {
+          margin: 0 0.3rem;
+        }
+      }
+      .sepcialRec{
+        overflow: hidden;
+        .news_footer_title {
+          width: 100%;
+          height: 0.96rem;
+          display: block;
+          line-height: 0.96rem;
+          padding: 0 0.3rem;
+          box-sizing: border-box;
+          border-bottom: 2px solid #eee;
+          color: #000000;
+        }
+        .home_list {
+        padding-top: 0.1rem;
+        background-color: #fff;
+        > li {
+          padding: 0.2rem 0.3rem;
+          border-bottom: 2px solid #eeeeee;
+          box-sizing: border-box;
+          .source-handle-title {
+            margin-right: 0.15rem;
+            margin-top: 0.033rem;
+            float: left;
+            color: #f41a14;
+            border: 2px solid #f41a14;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 0.1rem;
+            font-size: 0.24rem;
+            border-radius: 0.1rem;
+          }
+          .source-label {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            text-align: justify;
+            line-height: 0.48rem;
+          }
+          .tabImg {
+            width: 100%;
+            height: 3.4rem;
+            margin-top: 0.1rem;
+            margin-bottom: 0.3rem;
+            > img {
+              vertical-align: middle;
+              width: 100%;
+              height: 100%;
+              z-index: 1;
+            }
+            > .video_playicon {
+              width: 1.06rem;
+              height: 1.06rem;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-top: -0.58rem;
+              margin-left: -0.58rem;
+              background: url(../../../static/imgs/playicon.png) no-repeat left
+                center;
+              background-size: 100%;
+              z-index: 2;
+            }
+          }
+          > .tabTranslate {
+            width: 100%;
+            height: 1.44rem;
+            margin-bottom: 0.3rem;
+            > li {
+              img {
+                float: left;
+                width: 2.2rem;
+                height: 1.44rem;
+                display: block;
+              }
+            }
+          }
+          .home_time {
+            bottom: 0;
+            margin-top: 0.3rem;
+            font-size: 0.2rem;
+            .new_watch {
+              margin-left: 0.15rem;
+              width: 0.29rem;
+              height: 0.2rem;
+              display: inline-block;
+              background: url(../../../static/imgs/eye.png) no-repeat left
+                center;
+              background-size: 100%;
+            }
+            .source-handle-title {
+              margin-right: 0.15rem;
+              margin-top: 0.033rem;
+              float: left;
+              color: #f41a14;
+              border: 2px solid #f41a14;
+              text-align: center;
+              line-height: 1.5;
+              padding: 0 0.1rem;
+              font-size: 0.24rem;
+              border-radius: 0.1rem;
+            }
+          }
+          .imageNews-img {
+            width: 2.2rem;
+            height: 1.44rem;
+            margin-left: 0.2rem;
+            position: relative;
+            > img {
+              width: 100%;
+              height: 100%;
+            }
+            > .audio_icon {
+              width: 0.66rem;
+              height: 0.66rem;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-top: -0.38rem;
+              margin-left: -0.38rem;
+              background: url(../../../static/imgs/audio.png) no-repeat left
+                center;
+              background-size: contain;
+              z-index: 89;
+            }
+          }
+        }
+      }
+      }
+    }
+  }
+}
+</style>
+

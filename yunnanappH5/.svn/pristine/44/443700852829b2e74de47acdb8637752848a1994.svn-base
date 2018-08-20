@@ -1,0 +1,33 @@
+export default {
+  saveImgInfo:(state,imgObject)=>{
+  	Array.prototype.imgObject = imgObject
+    imgObject?( state.imgObj=Array.prototype.imgObject):[]
+  },
+  saveSearchPath:(state,PathObj)=>{
+    PathObj?( state.PathObject=Object.assign(state.cityObj,PathObject)):{}
+    PathObj?localStorage.setItem('PathObj',JSON.stringify(PathObj)):{}
+  },
+  // 城市列表
+  saveCityObj:(state,cityObject)=>{
+    // console.log(cityObject)
+    cityObject?( state.cityObj=Object.assign(state.cityObj,cityObject)):{}
+    cityObject?localStorage.setItem('cityObj',JSON.stringify(cityObject)):{}
+  },
+  clearCityObj(state) {
+      if (state.cityObj.areaCode !='') {
+        localStorage.removeItem('cityObj')
+        state.cityObj = {}
+      }
+  },
+  // 图集推荐
+  saveExtendObj:(state,extendObject)=>{
+    extendObject?( state.extendArr = extendObject):[]
+    extendObject?localStorage.setItem('extendObj',JSON.stringify(extendObject)):{}
+  },
+  clearExtendObj(state) {
+    if (state.extendObj && state.extendObj.length > 0) {
+        localStorage.removeItem('extendObj')
+        state.extendObj = []
+    }
+  }
+}

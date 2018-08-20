@@ -1,0 +1,544 @@
+<template>
+    <div class="login">
+        <div class="login_msg _cus_flexContent _cus_fleAlignCen">
+            <i class="login_back" @click="login_back"></i>
+            <span class="colorfff _cus_posAbsolute login_sign">登录</span>
+        </div>
+        <div class="login_content perH100 _cus_overHiddenH">
+            <div class="login_logo">
+                <img src="../../../static/imgs/logo.png" alt="" >
+            </div>
+            <div class="login_box">
+                <div v-if="!signin_mode">
+                    <div class="login_phone _cus_overHidden">
+                        <group class="_cus_flexContent _cus_fleAlignCen perH100 ">
+                            <x-input mask="999 9999 9999" type="text" keyboard="number" :max="13" is-type="china-mobile" :should-toast-error="false" v-model="idCode.phone" placeholder="请输入手机号码"></x-input>
+                        </group>
+                    </div>
+                    <div class="login_code _cus_flexContent _cus_jusContent">
+                        <div class="login_pass _cus_overHidden">
+                            <group class="_wangjcus_flexContent _cus_fleAlignCen perH100 ">
+                                <x-input  title="" type="text" required v-model="idCode.code" placeholder="请输入验证码"></x-input>
+                            </group>
+                        </div>
+                        <x-Button :disabled="xbuttondis" :class="!xbuttondis?'login_xbtn':'login_disabled'" @click.native="xbtn_setinter">{{xbtn_msg}}</x-Button>
+                    </div>
+                    <x-Button :disabled="xbuttondis2" type="button" class="login_sub" @click.native="Submission">提交</x-Button>
+                    <p class="login_">
+                        <i :class="selected?'login_select':'login_cancel'" @click="selected_mask"></i>
+                        我已阅读并同意"<router-link target="span" to="/login/agreement" class="login_agreement">用户协议和隐私条款</router-link>"
+                    </p>
+                </div>
+                <div v-else>
+                    <div class="login_phone _cus_overHidden">
+                        <group class="_cus_flexContent _cus_fleAlignCen perH100 ">
+                            <x-input mask="999 9999 9999" type="text" keyboard="number" :max="13" is-type="china-mobile" :should-toast-error="false" required v-model="idPass.phone" placeholder="请输入手机号码"></x-input>
+                        </group>
+                    </div>
+                    <div class="login_code _cus_flexContent _cus_jusContent">
+                        <div class="login_pass _cus_overHidden" style="width: 100%">
+                            <group class="_cus_flexContent _cus_fleAlignCen perH100 perW100 _cus_posRelative">
+                                <x-input :type="hidePass?'text':'password'" title="" :show-clear="false" v-model="idPass.pass" placeholder="请输入密码"></x-input>
+                                <i class="" @click="handle_hidePass" :class="hidePass?'hide_pass':'show_pass'"></i>
+                            </group>
+                        </div>
+                    </div>
+                    <p class="login_code forgot_Pass _cus_textRight">
+                        <router-link to="/login/forgetpass" target="span" class="">忘记密码 ?</router-link>
+                    </p>
+                    <x-Button class="login_sub" type="button" @click.native="Submission">提交</x-Button>
+                </div>
+                <p class="login_userpass">
+                    <span @click="signin" v-text="!signin_mode?'使用账户密码登录 >':'使用手机短信快捷登录 >'"></span>
+                </p>
+                <div class="login_footer">
+                    <fieldset class="login_field">
+                        <legend>第三方登录</legend>
+                    </fieldset>
+                    <ul class="login_ways _cus_flexContent">
+                        <li class="third_party_img _cus_flex1" @click="qqLogin">
+                            <img src="../../../static/imgs/qq.png" alt="">
+                            <p>QQ登录</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1"  @click="wxLogin">
+                            <img src="../../../static/imgs/wechat.png" alt="">
+                            <p>微信登录</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1"  @click="zfbLogin">
+                            <img src="../../../static/imgs/zhi.png" alt="">
+                            <p>支付宝登录</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1"  @click="wbLogin">
+                            <img src="../../../static/imgs/weibo.png" alt="">
+                            <p>微博登录</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+    </div>
+</template>
+<script>
+// es6 引入AJAX
+import { HttpService } from "../../services/http.js";
+import { loginApi } from "../../services/loginapi.js";
+import { UserService } from "../../services/user.js";
+import { adapted } from "../../common/js/adapted.js";
+import { coreApi } from "../../services/coreApi.js";
+import { loginService } from '../../common/js/bridgeLogin.js';
+import { log } from "util";
+export default {
+  data() {
+    return {
+      xbuttondis: false,
+      xbuttondis2: false,
+      xbtn_msg: "点击发送验证码",
+      setinterlval: 60,
+      selected: true,
+      signin_mode: false,
+      hidePass: false,
+      hide_alert: false,
+      test_mag: "请输入手机号",
+      timeout: null,
+      idCode: {
+        phone: "",
+        code: ""
+      },
+      idPass: {
+        phone: "",
+        pass: ""
+      },
+      Model:''
+    };
+  },
+  mounted() {
+    this.Model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':''
+  },
+  methods: {
+    // QQ登录
+    qqLogin() {
+      loginService.loginQQ(this.Model,this.$router, 'login')
+    },
+    //微信登录
+    wxLogin() {
+      loginService.loginWX(this.Model,this.$router, 'login')
+    },
+    //支付宝登录
+    zfbLogin() {
+      loginService.loginZFB(this.Model,this.$router, 'login')
+    },
+    //微博登录
+    wbLogin() {
+       loginService.loginWB(this.Model,this.$router, 'login')
+    },
+    getValiLoginUser() {
+      // 请求data
+      let bodys = {
+        account: this.idPass.phone.replace(/\s+/g, ""),
+        password: this.idPass.pass,
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+      loginApi.valiLoginUser(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          UserService.save(r.user);
+          //登陆成功
+          this.$router.replace({
+            path: "/mymodule/signin"
+          });
+        } else {
+          this.hide_alert = true;
+          this.test_mag = r.errorMessage;
+        }
+      });
+    },
+    getLoginCode() {
+      // 请求data
+      let bodys = {
+        mobile: this.idCode.phone.replace(/\s+/g, ""),
+        _json: false, //参数类型 formdata/json
+        _jsonp: true, //dataType: jsonp true/false
+        _jsonpCallback: "onBack" //请求接口返回的callback
+      };
+      // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+      loginApi.getloginCode(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 暂无提示
+        }
+      });
+    },
+    getLoginCode_phone() {
+      let bodys = {
+        mobile: this.idCode.phone.replace(/\s+/g, ""),
+        shortMessageCode: this.idCode.code,
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      this.xbuttondis2 = true;
+      loginApi.valiloginCode(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          this.hide_alert = false;
+          UserService.save(r.user);
+          if(r.user.nickName == '' && !r.user.nickName){
+            this.$router.push({
+              path: "/login/setpersonal"
+            });
+          }else{
+             this.$router.push({
+              path: "/mymodule/signin"
+            });
+          }
+          
+        } else if (!r.status) {
+          this.hide_alert = true;
+          this.test_mag = r.errorMap.shortMessageCode ||  r.errorMessage;
+        }
+        this.xbuttondis2 = false;
+      });
+    },
+    login_back() {
+      this.$router.replace({
+        path: "/system/home"
+      });
+    },
+    selected_mask() {
+      // this.selected = !this.selected;
+      this.selected ? (this.xbuttondis2 = false) : (this.xbuttondis2 = true);
+    },
+    signin() {
+      this.signin_mode = !this.signin_mode;
+    },
+    handle_hidePass() {
+      this.hidePass = !this.hidePass;
+    },
+    Submission() {
+      if (!this.signin_mode) {
+        let phone = this.idCode.phone.replace(/\s+/g, ""),
+          reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+        if (this.idCode.phone == "") {
+          this.hide_alert = true;
+          this.test_mag = "请输入手机号！";
+        } else if (!reg1.test(phone)) {
+          this.hide_alert = true;
+          this.test_mag = "请输入正确的手机号!";
+        } else if (this.idCode.code == "") {
+          this.hide_alert = true;
+          this.test_mag = "请输入短信验证码！";
+        } else {
+          this.hide_alert = false;
+          this.getLoginCode_phone();
+        }
+      } else {
+        let phone = this.idPass.phone.replace(/\s+/g, ""),
+          reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+        if (this.idPass.phone == "") {
+          this.hide_alert = true;
+          this.test_mag = "请输入手机号！";
+        } else if (!reg1.test(phone)) {
+          this.hide_alert = true;
+          this.test_mag = "请输入正确的手机号!";
+        } else if (this.idPass.pass == "") {
+          this.hide_alert = true;
+          this.test_mag = "请输入密码！";
+        } else {
+          this.hide_alert = false;
+          this.getValiLoginUser();
+        }
+      }
+    },
+    xbtn_setinter() {
+      let phone = this.idCode.phone.replace(/\s+/g, ""),
+        reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+      if (this.idCode.phone == "") {
+        this.hide_alert = true;
+        this.test_mag = "请输入手机号！";
+      } else if (!reg1.test(phone)) {
+        this.hide_alert = true;
+        this.test_mag = "请输入正确的手机号!";
+      } else {
+        this.xbuttondis = true;
+        this.getLoginCode();
+        this.setInterval();
+      }
+    },
+    setInterval() {
+      this.xbtn_msg = "重新发送" + this.setinterlval;
+      if (this.setinterlval != 0) {
+        this.timeout = window.setTimeout(() => {
+          this.setinterlval--;
+          this.setInterval();
+        }, 1000);
+      }
+      if (this.setinterlval == 0) {
+        window.clearTimeout(this.timeout);
+        this.setinterlval = 60;
+        this.xbuttondis = false;
+        this.xbtn_msg = "点击发送验证码";
+      }
+    },
+    alertShow() {
+      // 弹窗显示
+    },
+    alertHide() {
+      // 弹窗隐藏
+      this.hide_alert = false;
+    }
+  },
+  destroyed() {
+    clearTimeout(this.timeout);
+  }
+};
+</script>
+<style lang="less">
+.login {
+  width: 100%;
+  height: 100vh;
+  background-color: #fff;
+  font-size: 0.28rem;
+  .login_msg {
+    width: 100%;
+    height: 1rem;
+    line-height: 1rem;
+    overflow: hidden;
+    background-color: #f41a14;
+    .login_back {
+      width: 0.22rem;
+      height: 1rem;
+      line-height: 1rem;
+      margin-left: 0.2rem;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .login_sign {
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: 0;
+      top: 0;
+      margin: auto;
+      text-align: center;
+      font-size: 0.32rem;
+    }
+  }
+  .login_content {
+    .login_logo {
+      text-align: center;
+      > img {
+        width: 1.33rem;
+        margin: 0.75rem auto 0.7rem;
+      }
+    }
+    .login_box {
+      overflow: hidden;
+      font-size: 0.28rem;
+      >div:nth-child(1){
+        min-height: 4.5rem;
+      }
+      .login_phone {
+        margin: 0 0.3rem;
+        height: 0.8rem;
+        border: 1px solid #999;
+        border-radius: 5px;
+        padding: 0 .1rem;
+        box-sizing: border-box;
+        margin-bottom: 0.4rem;
+        .weui-cells {
+          width: 100%;
+          height: 100%;
+          margin-top: 0;
+        }
+        .weui-cell {
+          padding: 0 15px;
+        }
+        .weui-icon-clear {
+          font-size: 0.28rem;
+        }
+        .vux-input-icon.weui-icon-warn:before,
+        .vux-input-icon.weui-icon-success:before {
+          font-size: 0.42rem;
+        }
+        input {
+          height: 0.8rem;
+          outline: none;
+          border: none;
+          line-height: 100%;
+          font-size: 0.28rem;
+        }
+      }
+      .login_code {
+        margin: 0 0.3rem;
+        .login_pass {
+          width: 3.1rem;
+          height: 0.8rem;
+          line-height: 0.8rem;
+          border: 1px solid #999;
+          border-radius: 5px;
+          padding: 0 .1rem;
+          box-sizing: border-box;
+          margin-bottom: 0.4rem;
+          .weui-cells {
+            width: 100%;
+            height: 100%;
+            line-height: 100%;
+            display: flex;
+            margin-top: 0;
+          }
+          .weui-cell {
+            flex: 1;
+            padding: 0 15px;
+          }
+          .weui-icon-clear {
+            font-size: 0.28rem;
+          }
+          .vux-input-icon.weui-icon-warn:before,
+          .vux-input-icon.weui-icon-success:before {
+            font-size: 0.42rem;
+          }
+          input {
+            height: 0.8rem;
+            outline: none;
+            border: none;
+            /*height: .8rem;*/
+            line-height: 100%;
+            font-size: 0.28rem;
+          }
+          .show_pass {
+            display: block;
+            width: 20%;
+            height: 100%;
+            background: url(../../../static/imgs/eye.png) no-repeat center
+              center;
+            background-size: 0.5rem;
+          }
+          .hide_pass {
+            display: block;
+            width: 20%;
+            height: 100%;
+            background: url(../../../static/imgs/y_pwd.png) no-repeat center
+              center;
+            background-size: 0.5rem;
+          }
+        }
+        .login_xbtn {
+          width: 3rem;
+          height: 0.8rem;
+          margin: 0;
+          border-radius: 0.1rem;
+          font-size: 0.32rem;
+          background-color: #f41a14;
+          border-color: #eee;
+          color: #fff;
+        }
+        .login_disabled{
+          width: 3rem;
+          height: 0.8rem;
+          margin: 0;
+          border-radius: 0.1rem;
+          font-size: 0.32rem;
+          background-color: #eeeeee;
+          border-color: #eee;
+          color: #fff;
+        }
+      }
+      .forgot_Pass {
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+        color: #f41a14;
+      }
+    }
+    .login_sub {
+      margin: 0 auto;
+      margin-top: 0.3rem;
+      margin-bottom: 0.2rem;
+      width: 4.9rem;
+      height: 0.96rem;
+      line-height: 0.96rem;
+      font-size: 0.32rem;
+      color: #fff;
+      background: #f41a14;
+      border-radius: 10px;
+    }
+    .login_ {
+      font-size: 0.24rem;
+      line-height: 18px;
+      color: #282828;
+      margin-top: 0.3rem;
+      text-align: center;
+      .login_select {
+        display: inline-block;
+        width: 0.32rem;
+        height: 0.32rem;
+        vertical-align: -15%;
+        margin-right: 5px;
+        background: url(../../../static/imgs/selected.png) no-repeat center;
+        background-size: 100% 100%;
+      }
+      .login_cancel {
+        display: inline-block;
+        width: 0.32rem;
+        height: 0.32rem;
+        vertical-align: -15%;
+        margin-right: 5px;
+        background-color: #f41a14;
+        background: #f41a14;
+        border-radius: 0.03rem;
+      }
+      .login_agreement {
+        color: #f41a14;
+        text-decoration: underline;
+      }
+    }
+    .login_userpass {
+      margin: 0.8rem 0 0.4rem;
+      text-align: center;
+      color: #fca806;
+    }
+    .login_footer {
+      .login_field {
+        width: 90%;
+        margin: 0 auto;
+        border: none;
+        border-top: 1px solid #eee;
+        text-align: center;
+        legend {
+          display: inline-block;
+          color: #999;
+          font-size: 0.28rem;
+          padding: 0 10px;
+        }
+      }
+      .login_ways {
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 0.44rem;
+        color: #999;
+        font-size: 0.26rem;
+        .third_party_img {
+          text-align: center;
+          > img {
+            width: 0.87rem;
+          }
+        }
+      }
+    }
+  }
+  .weui-cells{
+    &:before{
+      border-width: 0px;
+    }
+    &:after{
+      border-width: 0px;
+    }
+  }
+}
+</style>

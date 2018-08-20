@@ -1,0 +1,161 @@
+<template>
+    <div class="myPhoto">
+    	 <scroller
+	        :lock-x="true"
+	        :scrollbarY="true"
+	        :bounce="true"
+	        :use-pulldown="true"
+	        :use-pullup="true"
+	        :pulldown-config="{downContent: '下拉刷新', upContent: '释放后更新'}"
+	        :pullup-config="{upContent:'上拉加载更多', downContent: '释放后加载'}"
+	        ref="myScroller"
+	        :scroll-bottom-offset="40"
+	        style="height: 100%">
+    	<div class="_cus_overHidden">
+    		<ul class="myPhoto_list" v-for="item in newMsg">
+				<li>
+					<img class="head_photo" :src="item.userAvatar" alt=""/>
+					<div class="myPhoto_posted">
+						<p class="_cus_flexContent _cus_jusContent">
+							<span>{{item.nickName}}</span>
+							<span>{{item.createTimeStr}}</span>
+						</p>
+						<p>{{item.content}}</p>
+						<ul class="myPhoto_img _cus_overHidden">
+							<li class="__cus_fl" v-for="img in item.urlList" @click="img_back(img)">
+								<img :src="img" alt="" class=""/>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+    	</div>
+		</scroller>
+    </div>
+</template>
+<script>
+
+	//引用ajax
+	import { HttpService } from '../../services/http.js'
+	import { myPhotoApi } from '../../services/myPhotoApi.js'
+
+	import { mapMutations, mapState } from 'vuex'
+    export default{
+    	data(){
+    		return {
+    			// imgArr:[{
+    			// 	'imgUrl':require('../../../static/imgs/image_left.png'),
+    			// },{
+    			// 	'imgUrl':require('../../../static/imgs/image_right1.png'),
+    			// },{
+    			// 	'imgUrl':require('../../../static/imgs/image_right2.png'),
+				// }]
+				 newMsg:[
+                    // {'news':1},
+                ]
+    		}
+		},
+		mounted(){
+            this.getMyPhotoList();
+        },
+    	computed:{
+    		...mapState(['imgObj'])
+    	},
+    	methods:{
+
+			//获取我拍列表
+           getMyPhotoList(){
+            // 请求data
+            let bodys = {
+				//mobile:this.idCode.phone.replace(/\s+/g,''),
+				_json: false, //参数类型 formdata/json
+                _jsonp:true, //dataType: jsonp true/false
+                _jsonpCallback:'onBack' //请求接口返回的callback
+            }
+            // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+            myPhotoApi.getMyPhotoList(bodys).then(r=>{
+                if(r.statusCode == '200' && r.status){
+                    // 暂无提示
+                    //alert("接口调用成功");
+                    console.log("接口调用成功");
+                    this.newMsg=r.list;
+                }else{
+                    alert("接口调用失败");
+                    console.log("接口调用失败");
+                }
+            })
+		   },
+		   
+    		...mapMutations({
+    			setImgArr:'saveImgInfo'
+    		}),
+    		img_back(Obj){
+    			this.$nextTick(()=>{
+    				this.setImgArr(Obj)
+					this.$router.push({
+	    				'path':'/myphoto/mypreview'
+		    		})
+    			})
+				
+    		}
+    	},
+    }
+</script>
+<style lang="less">
+	.myPhoto{
+		height: (100vh - 15rem);
+		background: #fff;
+		.myPhoto_list{
+		    display: flex;
+		    width: 100%;
+		    background: #fff;
+		    >li{
+		    	padding: 0.3rem;
+		    	display: flex;
+	    	    border-bottom: 2px solid #eee;
+		    	>.head_photo{
+		    	    width: 0.7rem;
+				    height: 0.7rem;
+				    border-radius: 50%;
+				    margin-right: 0.4rem;
+				    overflow: hidden;
+				    background-color: #666;
+			    }
+			    >.myPhoto_posted{
+		    	    width: 85%;
+		    	    >p:first-child{
+		    	    	width: 100%;
+					    color: #666666;
+					    box-sizing: border-box;
+					    padding: 0 0.2rem 0.2rem 0;
+					    margin-top: .1rem;
+		    	    }
+		    	    >p{
+	    	    	    display: -webkit-box;
+					    -webkit-box-orient: vertical;
+					    -webkit-line-clamp: 3;
+					    overflow: hidden;
+					    text-overflow: ellipsis;
+					    line-height: .3rem;
+		    	    }
+		    	    >.myPhoto_img{
+		    	    	>li{
+		    	    		width: 1.7rem;
+						    height: 1.7rem;
+						    border: 2px solid #ccc;
+						    margin-top: .2rem;
+						    overflow: hidden;
+						    >img{
+						    	height: 100%;
+						    }
+		    	    	}
+		    	    	>li:nth-child(n+2){
+		    	    		margin-left: .2rem;
+		    	    	}
+		    	    }
+			    }
+		    }
+		}	
+	}
+</style>
+

@@ -1,0 +1,65 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import store from './store'
+import fastclick from 'fastclick'
+import LazyLoad from 'vue-lazyload'
+import Bridge from './common/js/bridge.js'
+import $ from 'jquery'
+import {
+        LoadingPlugin,
+        Popup,
+        Scroller,
+        Tab,
+        TabItem,
+        Alert,
+        Confirm,
+        XInput,
+        XButton,
+        Group,
+        Toast,
+        ToastPlugin,
+        XTextarea,
+        Swiper
+      } from 'vux'
+
+Vue.config.productionTip = false
+
+window.addEventListener('DOMContentLoaded',function(){
+    fastclick.attach( document.body );
+},false );
+
+Vue.use(LazyLoad,{
+	error: '../static/imgs/error.png',
+  loading: './static/imgs/loading.gif',
+  preLoad: 1,
+  attempt: 1
+})
+Vue.use(LoadingPlugin)
+Vue.use(ToastPlugin)
+
+Vue.component('popup', Popup)
+Vue.component('scroller', Scroller)
+Vue.component('tab', Tab)
+Vue.component('tab-item', TabItem)
+Vue.component('alert', Alert)
+Vue.component('confirm', Confirm)
+Vue.component('xInput', XInput)
+Vue.component('xButton', XButton)
+Vue.component('group', Group)
+Vue.component('toast', Toast)
+Vue.component('xTextarea',XTextarea)
+Vue.component('swiper',Swiper)
+import './assets/css/reset.css'
+Vue.prototype.$bridge = Bridge
+Vue.prototype.$ = $
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  components: { App },
+  template: '<App/>',
+  store
+})

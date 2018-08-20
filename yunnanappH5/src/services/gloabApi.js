@@ -1,0 +1,27 @@
+import {HttpService} from './http';
+/**
+ * 封装个人中心相关的请求及数据处理
+ */
+
+export const gloabApi = {
+  api: {
+    myVideoList:'/myVideo/myVideoList.do',
+    updateUserName:'/home/info/changeNickName.do',
+    homeMessage:'/home/message/list.do',
+    homeFeedback:'/home/feedback/list.do'
+  },
+
+  //我的 ->关于我们
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  },
+}

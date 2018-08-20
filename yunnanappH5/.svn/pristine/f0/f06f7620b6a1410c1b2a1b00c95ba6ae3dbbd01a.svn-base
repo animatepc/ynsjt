@@ -1,0 +1,50 @@
+<template>
+    <div class="menu perW100">
+        <ul class="memu-list _cus_flexContent _cus_jusContent _cus_fleAlignCen">
+            <li v-for="(item,keys) in iconArr" :key="keys" class="_cus_textCenter" @click="handle_active(keys)">
+                <span class="menu_icon Block" :style="{'background-image':headerPath == keys?'url('+item.iconImgAct+')':'url('+item.iconImg+')'}"></span>
+                <span :class="headerPath == keys?'menu_active':''">{{item.tabName}}</span>
+            </li>
+        </ul>
+    </div>
+</template>
+<script>
+    export default {
+        data(){
+            return {
+                indexActive:0,
+            }
+        },
+        props:{
+            'headerPath':{
+                type:Number,
+                default:0
+            }
+        },
+        created(){
+            this.iconArr = [
+                {'tabName':'首页','iconImg':'../../static/imgs/nav_1.png','iconImgAct':'../../static/imgs/nav1_1.png'},
+                {'tabName':'视频','iconImg':'../../static/imgs/nav_2.png','iconImgAct':'../../static/imgs/nav1_2.png'},
+                {'tabName':'我拍','iconImg':'../../static/imgs/nav_3.png','iconImgAct':'../../static/imgs/nav1_3.png'},
+                {'tabName':'云上TV','iconImg':'../../static/imgs/nav_4.png','iconImgAct':'../../static/imgs/nav1_4.png'},
+                {'tabName':'我的','iconImg':'../../static/imgs/nav_5.png','iconImgAct':'../../static/imgs/nav1_5.png'}
+            ]
+        },
+        methods:{
+            handle_active(keys){
+                let activeArr = [
+                    '/system/home',
+                    '/multimedia/video',
+                    '/myphoto/shootlist',
+                    '/cloudtv/livebroadcast',
+                    '/mymodule/signin'
+                ]
+                this.indexActive = keys
+                this.$router.push({
+                    'path':activeArr[this.indexActive]
+                })
+            }
+        }
+    }
+</script>
+<style lang="less" src="./menu.less"></style>

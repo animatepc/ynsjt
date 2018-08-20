@@ -1,0 +1,258 @@
+<template>
+	<div class="atlasDetails">
+		<div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="cityBack"></span>
+            <span class="city_text"><span class="mypreview_indexs">{{indexs}}</span>/{{imgList.length }}</span>
+            <i @click="clickCollection()" :class="isCollection==1?'collectActive':'collect'"></i>
+            <!-- <span class="">  {{indexs}}</span> -->
+        </div>
+        	<swiper-view ref="swiperObj" @swiped="swiped" :list="imgList" :show-dots="false" height="100vh"  @on-index-change="swiperChange" class="swiper_atlas" ></swiper-view>
+        <confirm
+            class="confirm_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-confirm="onConfirm"
+            @on-cancel="onCancel">
+            <span>{{test_mag}}</span>
+        </confirm> 
+        <toast :value="toast.toastShow" type="text" width="auto" :text="toast.toastText" position="bottom" class="toast_alert"></toast>	
+        </div>
+</template>
+
+<script>
+import { HttpService } from "../../services/http.js";
+import { newsApi } from "../../services/newsapi.js";
+import { commonApi } from "../../common/js/common.js";
+import { mapMutations } from "vuex";
+import swiperView from "../../base/swiper/swiper/swiper.vue";
+
+export default {
+  components: {
+    swiperView
+  },
+  data() {
+    return {
+      indexs: 1,
+      isCollection: 0,
+      imgList: [],
+      hide_alert: false,
+      test_mag: "请确定是否登录?",
+      toast: {
+        toastShow: false,
+        toastText: "收藏成功"
+      },
+      startX: "",
+      extendData: []
+    };
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.path == "/system/home") {
+      to.meta.keepAlive = true;
+    } else if (to.path == "/public/searchlist") {
+      to.meta.keepAlive = true;
+    } else if(to.path == "/multimedia/video"){
+      to.meta.keepAlive = true;
+    } else if(to.path == "/mymodule/mycollection"){
+      to.meta.keepAlive = true;
+    } else if(to.path == "/mymodule/recordhist"){
+      to.meta.keepAlive = true;
+    } else {
+      to.meta.keepAlive = false;
+    }
+    next();
+  },
+  mounted() {
+    this.getNewsList();
+  },
+  methods: {
+    ...mapMutations({
+      setExtendObj: "saveExtendObj"
+    }),
+    clickCollection() {
+      this.toast.toastShow = false;
+      var id = this.$router.history.current.query.id;
+      let bodys = {
+        _json: false, //参数类型 formdata/json
+        _jsonp: true, //dataType: jsonp true/false
+        _jsonpCallback: "onBack" //请求接口返回的callback
+      };
+      bodys.refType = this.$router.history.current.query.refType;
+      bodys.refId = id;
+      commonApi.Collection(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          this.toast.toastShow = true;
+          this.isCollection = this.isCollection == 1 ? 0 : 1;
+          this.toast.toastText =
+            this.isCollection == 1 ? "收藏成功!" : "取消收藏成功!";
+        } else {
+          this.hide_alert = !this.hide_alert;
+          this.test_mag = r.errorMessage;
+        }
+      });
+    },
+    getNewsList() {
+      let params = this.$router.history.current.query;
+      // let params = {};
+      newsApi.getNewsDetails(params).then(r => {
+        this.isCollection = r.isCollection;
+        this.extendData = r.associatedList;
+        if (r.status && r.statusCode == "200") {
+          let imgObj = r.list;
+          this.imglength = imgObj.length;
+          imgObj.map(i => {
+            i.img = i.atlasPhoto;
+            i.title = i.photoInstructions;
+          });
+          this.imgList = imgObj;
+        } else {
+          this.imgList = [];
+        }
+      });
+    },
+    cityBack() {
+      this.$router.go(-1);
+    },
+    swiperChange(index) {
+      this.indexs = index + 1;
+    },
+    swiped(index) {
+      if (
+        this.indexs == this.imgList.length &&
+        this.$refs.swiperObj.swiper._start.x > 1
+      ) {
+        console.log(this.extendData);
+        if (this.extendData.length > 0) {
+          let extend = this.extendData;
+          extend.map(i => {
+            switch (i.contentType) {
+              case "30":
+                i["type"] = "tabVideo";
+                break;
+              case "10":
+                i["type"] = "list";
+                break;
+              case "40":
+                i["type"] = "tabAudio";
+                break;
+              case "20":
+                i["type"] = "tabTranslate";
+                break;
+              case "60":
+                i["type"] = "tab";
+                break;
+              case "50":
+                i["type"] = "tabList";
+                break;
+            }
+          });
+          this.setExtendObj(extend);
+          this.$router.push({
+            path: `/public/atlasextend`,
+            query:this.$router.history.current.query
+          });
+        }
+      }
+    },
+    onCancel() {
+      console.log("已取消");
+    },
+    onConfirm() {
+      this.$router.push({
+        path: "/login/login"
+      });
+    }
+  }
+};
+</script>
+
+<style lang="less">
+.atlasDetails {
+  background-color: #000;
+  height: calc(100vh - 1rem);
+  margin-top: 1rem;
+  font-size: 0.28rem;
+  color: #000;
+  overflow: hidden;
+  .searchVal {
+    width: 100%;
+    height: 1rem;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    text-align: center;
+    background: #fff;
+    z-index: 2;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/atlas_left_arrow.png") center center
+        no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_box {
+      height: 0.6rem;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: 0.3rem 0.3rem;
+        z-index: 1;
+        top: 0;
+        left: 1.5rem;
+        bottom: 0;
+        margin: auto;
+      }
+    }
+    .search_city {
+      height: 0.5rem;
+      line-height: 0.5rem;
+      //              margin: 0 0.3rem;
+      margin-right: 0.3rem;
+    }
+    .city_text {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+      .mypreview_indexs {
+        color: #f41a14;
+      }
+    }
+  }
+  .swiper_content {
+    overflow: hidden;
+  }
+  .vux-img {
+    background-size: contain !important;
+    background-position: center !important;
+  }
+  .collect {
+    position: absolute;
+    right: 5%;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+  .collectActive {
+    position: absolute;
+    right: 5%;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+}
+</style>

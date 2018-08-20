@@ -1,0 +1,20 @@
+@import "./_var"; 
+.colorFun(@n:@defaultFont){
+  color:@n
+}
+//中间隔有变量调用.borderTopFun(1px;@c:red) 或者.borderTopFun(1px）.borderTopFun(1px;solid;red）
+.borderTopFun(@w:1px;@s:solid;@c:@mainBorder){
+  border-top: @w @s @c;
+}
+.borderLeftFun(@w:1px;@s:solid;@c:@mainBorder){
+  border-left: @w @s @c;
+}
+.borderBottomFun(@w:1px;@s:solid;@c:@mainBorder){
+  border-bottom: @w @s @c;
+}
+.borderRightFun(@w:1px;@s:solid;@c:@mainBorder){
+  border-right: @w @s @c;
+}
+.bgColorFun(@bg:@mainBG){
+  background-color: @bg;
+}

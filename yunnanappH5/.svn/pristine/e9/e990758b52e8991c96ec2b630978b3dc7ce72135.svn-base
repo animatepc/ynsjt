@@ -1,0 +1,497 @@
+<template>
+         <scroller
+         v-if="scrollerMsg"
+            v-show="scrollerMsg.isShow"
+            v-model="scrollerMsg.scrollerStatus"
+            lock-x
+            scrollbar-y
+            class="scroller"
+            ref="scroller"
+            :bounce="scrollerMsg.isbounce"
+            :use-pullup="scrollerMsg.showUp"
+            :use-pulldown="true"
+            :pulldown-config="scrollerMsg.downObj"
+            :pullup-config="scrollerMsg.upobj" 
+            @on-pulldown-loading="selPullDown"
+            @on-pullup-loading="selPullUp">
+           <div class="_cus_overHidden">
+              <ul class="scroll_program_list _cus_overHidden" v-if=" types == 'channelDetails'">
+                  <li v-for="item in dataList" @click="Details_back(item)">
+                    <img :src="item.listImgOne" alt="" class="Block"/>
+                    <label for="">{{item.listTitle}}</label>
+                  </li>
+                </ul>
+                <ul v-if="types == 'myintegration'" class="">
+                    <li class="myintegration_list" v-for="item in dataList">
+                        <div>
+                            <span>{{item.createTimeStr}}</span>
+                            <span>{{item.reason}}</span>
+                        </div>
+                        <span class="myIntegration_tip">{{item.amount}}</span>
+                    </li> 
+                </ul>
+                  <ul class="video_list _cus_overHidden" v-if="types == 'videoList'">
+	                    <li v-for="(item,keys) in dataList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+	                        <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative" >
+	                            <span v-show="item.tab" class="source-handle-title">{{item.tab}}</span>
+	                            <label class="source-label">{{item.listTitle}}</label>
+	                            <div class="tabImg" v-show="item.type =='tab' || item.type =='tab_video'" :class="item.type=='tablist'?'_cus_posRelative':''">
+	                                <img class="" :src="item.imgurl" alt="">
+	                                <i class="video_playicon" v-show="item.type =='tab_video'"></i>
+	                            </div>
+	                            
+	                            <p class="home_time _cus_overHidden color999" :class="item.type =='tablist'?'_cus_posAbsolute perW100':''">
+	                                <span class="__cus_fl">
+	                                    <span>{{item.soure}}</span>
+	                                    <span class="">{{item.createTimeStr}}</span>
+	                                    
+	                                </span>
+	                                <span class="__cus_fr">
+	                                    <span>{{item.virtualClickTimes}}</span>
+	                                    <span class="new_watch"></span>
+	                                </span>
+	                            </p>
+	                        </div>
+	                        <div v-show="item.type == 'tablist'" class="_cus_overHidden __cus_fr imageNews-img">
+	                            <img :src="item.imgurl" alt="">
+	                        </div>
+	                    </li> 
+	                </ul>
+				        	<ul class="video_program_list _cus_overHidden" v-if="types =='videoBox'">
+				        		<li v-for="(item,keys) in dataList" :key="keys" @click="Details_back(item)">
+				        			<img :src="item.imgurl" alt="" class="Block"/>
+				        			<label for="">{{item.listTitle}}</label>
+				        		</li>
+				        	</ul>
+                  <ul class="myPhoto_list" v-if="types == 'myPhoto_list'">
+                    <li v-for="item in dataList">
+                      <img class="head_photo" :src="item.userAvatar" alt=""/>
+                      <div class="myPhoto_posted">
+                        <p class="_cus_flexContent _cus_jusContent">
+                          <span>{{item.nickName}}</span>
+                          <span>{{item.createTimeStr}}</span>
+                        </p>
+                        <p class="my_p_se">{{item.content}}</p>
+                        <ul class="myPhoto_img _cus_overHidden">
+                          <li class="__cus_fl" v-for="(img,index) in item.urlList" @click="img_back(item.urlList)">
+                            <img :src="img" alt="" class=""/>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ul>
+                  <ul class="myPhoto_list" v-if="types == 'myPicture_list'">
+                    <li v-for="(item,keys) in dataList">
+                      <img class="head_photo" :src="item.userAvatar" alt=""/>
+                      <div class="myPhoto_posted">
+                        <p class="_cus_flexContent _cus_jusContent">
+                          <span>{{item.nickName}}</span>
+                          <span>{{item.createTimeStr}}</span>
+                        </p>
+                        <p class="my_p_se">{{item.content}}</p>
+                        <ul class="myPhoto_img _cus_overHidden">
+                          <li class="__cus_fl" v-for="(img,index) in item.urlList">
+                            <div class="">
+                              <img :src="img" alt="" class="" @click="img_back(item.urlList)"/>
+                            </div>
+                            <div>
+                              <span :class="item.checkStatus == '2'?'ready_status':item.checkStatus == '3'?'error_status':''">{{item.checkStatus =='1'?'待审核':item.checkStatus == '2'?'已审核':item.checkStatus == '3'?'未通过':''}}</span>
+                              <span @click="clearMsg(item)">删除</span>
+                            </div>
+                            <div v-show="item.checkStatus == '3'">
+                              <p>驳回原因</p>
+                              <p>{{item.remarks}}</p>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ul>
+                <ul class="home_list _cus_overHidden" v-if=" types != 'channelDetails' && types != 'myintegration' && types !='videoList' && types !='videoBox' && types !='myPicture_list'">
+                    <li v-if="dataList.length > 0" v-for="(item,keys) in dataList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                        <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                            <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                            <label class="source-label">{{item.listTitle}}</label>
+                            <div class="tabImg _cus_posRelative" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="item.type=='tabList'?'_cus_posRelative':''">
+                              <div class="list_live" v-show="item.isLive == '1'" :class="item.liveStatus == '0'?'live_state':item.liveStatus == '20'?'live_state':'live_loading'">{{item.liveStatus == '0'?'未开始':item.liveStatus == '10'?'直播中':item.liveStatus == '20'?'已结束':item.liveStatus == '30'?'直播预告':item.liveStatus == '40'?'直播回看':''}}</div>
+                                <img class="" v-if="item.urlList" :src="item.urlList[0]" alt="">
+                                <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                            </div>
+                                <div v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate" style="padding-bottom:0.5rem">
+                                <ul class="" style="display:flex;justify-content:space-between">
+                                    <li v-for="(img,keys) in item.urlList" :key="keys" >
+                                        <img :src="img" alt="" style="width:2.1rem;height:1.44rem">
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="home_time _cus_overHidden color999" :class="item.type == 'tabList' || item.type ==  'tabAudio' || item.type ==  'tabTranslate'?'_cus_posAbsolute perW100':''">
+                                <span v-show="item.type =='tabTranslate'" class="source-handle-title">置顶</span>
+                                <span class="__cus_fl">
+                                    <span>{{item.source}}</span>
+                                    <span class="">{{item.createTimeStr}}</span>
+                                </span>
+                                <span class="__cus_fr">
+                                    <span>{{item.virtualClickTimes}}</span>
+                                    <span class="new_watch"></span>
+                                </span>
+                            </p>
+                        </div>
+                        <div v-if="item.urlList.length>0" v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                            <img v-if="item.urlList" :src="item.urlList[0]" alt="">
+                            <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </scroller>
+</template>
+<script>
+import { mapMutations, mapState } from "vuex";
+export default {
+  props: ["scrollerMsg", "dataList", "newsList", "setHeight", "types"],
+  computed: {
+    ...mapState(["imgObj"])
+  },
+  methods: {
+    selPullDown() {
+      setTimeout(() => {
+        this.scrollerMsg.scrollerStatus.pulldownStatus = "disabled";
+        this.$nextTick(() => {
+          this.scrollerMsg.scrollerStatus.pulldownStatus = "disabled"
+            ? (this.scrollerMsg.scrollerStatus.pulldownStatus = "default")
+            : "";
+          this.$refs.scroller.reset();
+        });
+        this.$emit("pullDown", {
+          i: this.scrollerMsg.PageIndex
+        });
+      }, 1000);
+    },
+    selPullUp() {
+      this.scrollerMsg.PageIndex++;
+      this.$emit("pullUp", {
+        i: this.scrollerMsg.PageIndex
+      });
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = "/videodetails";
+          break;
+        case "10":
+          path = "/newsdetails";
+          break;
+        case "20":
+          path = "/atlasdetails";
+          break;
+        case "40":
+          path = "/audiodetails";
+          break;
+        case "60":
+          path = "/specialdetails";
+          break;
+        case "50":
+          //  path = '/videochannel'
+          path = "/programdetails";
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      this.$router.push({
+        path: `/public${path}/${items.id}`,
+        query: Json
+      });
+    },
+    reset() {
+      this.$refs.scroller.reset();
+    },
+    ...mapMutations({
+      setImgArr: "saveImgInfo"
+    }),
+    img_back(Obj) {
+      this.$nextTick(() => {
+        this.setImgArr(Obj);
+        this.$router.push({
+          path: "/myphoto/mypreview"
+        });
+      });
+    },
+    clearMsg(item){
+      this.$emit('clearMsg',item)
+    }
+  }
+};
+</script>
+<style lang="less">
+.scroller {
+  .myintegration_list {
+    padding: 0 0.3rem;
+    height: 0.95rem;
+    line-height: 0.95rem;
+    overflow-y: visible;
+    font-size: 0.28rem;
+    color: #000;
+    background: #fff;
+    border-bottom: 2px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    > div {
+      > span:first-child {
+        display: inline-block;
+        width: 2rem;
+      }
+    }
+    > span:last-child {
+      color: #fc5b45;
+      text-align: right;
+    }
+  }
+  .home_list {
+    padding-top: 1rem;
+    > li {
+      padding: 0.2rem 0.3rem;
+      border-bottom: 2px solid #eeeeee;
+      box-sizing: border-box;
+      .source-handle-title {
+        margin-right: 0.15rem;
+        margin-top: 0.033rem;
+        float: left;
+        color: #f41a14;
+        border: 2px solid #f41a14;
+        text-align: center;
+        line-height: 1.5;
+        padding: 0 0.1rem;
+        font-size: 0.24rem;
+        border-radius: 0.1rem;
+      }
+      .source-label {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-align: justify;
+        line-height: 0.48rem;
+      }
+      .tabImg {
+        width: 100%;
+        height: 3.4rem;
+        margin-top: 0.1rem;
+        margin-bottom: 0.3rem;
+        > img {
+          vertical-align: middle;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+        > .video_playicon {
+          width: 1.06rem;
+          height: 1.06rem;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -0.58rem;
+          margin-left: -0.58rem;
+          background: url(../../../static/imgs/playicon.png) no-repeat left
+            center;
+          background-size: 100%;
+          z-index: 2;
+        }
+      }
+      > .tabTranslate {
+        width: 100%;
+        height: 1.44rem;
+        margin-bottom: 0.3rem;
+        > li {
+          img {
+            float: left;
+            width: 2.2rem;
+            height: 1.44rem;
+            display: block;
+          }
+        }
+      }
+      .home_time {
+        bottom: 0;
+        margin-top: 0.3rem;
+        font-size: 0.2rem;
+        .new_watch {
+          margin-left: 0.15rem;
+          width: 0.29rem;
+          height: 0.2rem;
+          display: inline-block;
+          background: url(../../../static/imgs/eye.png) no-repeat left center;
+          background-size: 100%;
+        }
+        .source-handle-title {
+          margin-right: 0.15rem;
+          margin-top: 0.033rem;
+          float: left;
+          color: #f41a14;
+          border: 2px solid #f41a14;
+          text-align: center;
+          line-height: 1.5;
+          padding: 0 0.1rem;
+          font-size: 0.24rem;
+          border-radius: 0.1rem;
+        }
+      }
+      .imageNews-img {
+        width: 2.2rem;
+        height: 1.44rem;
+        margin-left: 0.2rem;
+        position: relative;
+        > img {
+          width: 100%;
+          height: 100%;
+        }
+        > .audio_icon {
+          width: 0.66rem;
+          height: 0.66rem;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -0.38rem;
+          margin-left: -0.38rem;
+          background: url(../../../static/imgs/audio.png) no-repeat left center;
+          background-size: contain;
+          z-index: 89;
+        }
+      }
+    }
+  }
+  .video_program_list {
+    overflow: hidden;
+    > li {
+      width: 48%;
+      margin-right: 4%;
+      margin-bottom: 0.3rem;
+      float: left;
+      > img {
+        width: 100%;
+        height: 2rem;
+      }
+    }
+    > li:nth-of-type(2n) {
+      margin-right: 0;
+    }
+  }
+  .myPhoto_list {
+    display: flex;
+    width: 100%;
+    background: #fff;
+    display: block;
+    padding: 5px;
+    > li {
+      padding: 0.3rem;
+      display: flex;
+      border-bottom: 1px solid #eee;
+      width: 100%;
+      float: left;
+      > .head_photo {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        margin-right: 0.4rem;
+        overflow: hidden;
+        background-color: #666;
+      }
+      > .myPhoto_posted {
+        width: 85%;
+        > p:first-child {
+          width: 100%;
+          color: #666666;
+          box-sizing: border-box;
+          padding: 0.2rem 0.1rem 0.33rem 0;
+          margin-top: 0.1rem;
+          > span:nth-of-type(2) {
+            float: right;
+          }
+        }
+        >ul:nth-of-type(1){
+          > li {
+              // width: 1.7rem;
+              // height: 1.7rem;
+              // border: 1px solid #ccc;
+              // margin-top: 0.2rem;
+              overflow: hidden;
+              > img {
+                max-width: 100%;
+              }
+            }
+        }
+        > p {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 0.3rem;
+        }
+        > .myPhoto_img {
+          > li {
+            width: 100%;
+            margin-top: 0.2rem;
+            overflow: hidden;
+            > div:nth-child(1) {
+              width: 1.7rem;
+              height: 1.7rem;
+              border: 1px solid #ccc;
+              margin-top: 0.2rem;
+              overflow: hidden;
+              > img {
+                height: 100%;
+                width: 100%;
+              }
+            }
+            > div:nth-of-type(2) {
+              margin-top: 0.1rem;
+              overflow: hidden;
+              > span:nth-of-type(1) {
+                float: left;
+              }
+              > span:nth-of-type(2) {
+                float: right;
+              }
+            }
+            > div:nth-of-type(3) {
+              margin-top: 0.3rem;
+              background-color: #f4f4f4;
+              padding: 0.1rem 0.1rem 0.3rem 0.15rem;
+              border-radius: 4px;
+              > p:nth-child(1) {
+                width: 100%;
+                color: #666666;
+                padding: 0.2rem 0.1rem 0.33rem 0;
+                box-sizing: border-box;
+              }
+              > p:nth-of-type(2) {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 24px;
+              }
+            }
+          }
+          > li:nth-child(n + 2) {
+            margin-left: 0.2rem;
+          }
+        }
+      }
+    }
+  }
+  .ready_status {
+    color: green;
+  }
+  .error_status {
+    color: #f41a14;
+  }
+}
+</style>
+

@@ -1,0 +1,417 @@
+import $ from 'jquery';
+
+const hookAjax = $ => {
+  if ($.hooked) {
+    return;
+  }
+  let doc = $(document);
+  $.ajaxSetup({
+    global: true,
+    cache: false
+  });
+  doc.ajaxSend(function (evt, jqXHR, opts) {
+    if (opts.hasOwnProperty('async') && !opts.async) {
+    }
+    if (opts.showLoading) {
+      $('#globalLoading').show();
+    }
+  });
+  doc.ajaxStop(function () {
+    $('#globalLoading').hide();
+  });
+  $.hooked = true;
+};
+
+const instaceHolder = {};
+
+const getInstance = () => {
+  if (!instaceHolder.instance) {
+    instaceHolder.instance = new HttpService();
+  }
+  return instaceHolder.instance;
+};
+
+const errorHandler = r => {
+  if (r.errorCode == 403) {
+    console.log(r.message);
+    return location.replace('#/home');
+  } else if(r.errorCode == 603) {
+    console.log(r.message);
+  }
+};
+
+export class HttpService {
+  constructor() {
+
+  }
+
+  _get(url, params, noCache, showLoading,contentType) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+    let options = {
+        url: url,
+        method: 'GET',
+        data: params,
+        showLoading: showLoading,
+        dataType: 'json',
+        contentType:contentType||'application/x-www-form-urlencoded',
+        //cache: !noCache, // 不需要缓存了
+        /*    beforeSend: function(xhr){xhr.setRequestHeader('xtoken', 'c0dabe81-dc08-444e-b3ce-c86c6d8ee18f');},*/
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(xhr.responseJSON);
+        }
+      }
+    if (params._json) {
+	    options.contentType = 'application/json';
+	    delete options._json;
+	    options.data = JSON.stringify(params);
+	  }
+	  // if (body._html) {
+	  //   console.log(body)
+	  //   options.contentType = 'text/html;charset=utf-8';
+	  //   delete body._html;
+	  //   console.log(body)
+	  // }
+	  if(params._jsonp){
+	       	options.dataType = 'jsonp';
+	       	options['jsonp'] = 'callback';
+	       	options['jsonpCallback'] = params._jsonpCallback
+					delete params._jsonp
+	        delete params.jsonpCallback
+      }
+    $.ajax(options)
+    });
+  }
+  _getAddToken(url, params, noCache, showLoading,token) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: url,
+        method: 'GET',
+        data: params,
+        showLoading: showLoading,
+        dataType: 'json',
+        headers:token?{"access_token": token}:'',
+        //cache: !noCache, // 不需要缓存了
+        /*    beforeSend: function(xhr){xhr.setRequestHeader('xtoken', 'c0dabe81-dc08-444e-b3ce-c86c6d8ee18f');},*/
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(error);
+        }
+      })
+    });
+  }
+  _getAddSessionId(url, params, noCache, showLoading,sessionId) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: url,
+        method: 'GET',
+        data: params,
+        showLoading: showLoading,
+        dataType: 'json',
+        beforeSend: function(xhr){xhr.setRequestHeader('sessionId',sessionId);},
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(xhr.responseJSON);
+        }
+      })
+    });
+  }
+  _post(url, body, cache, showLoading) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      let options = {
+        url: url,
+        type: 'POST',
+        data: body,
+        dataType:'json',
+        showLoading: showLoading,
+        //cache: cache, // 不需要缓存了
+        success: (r,textStatus, request) => {
+          var id=request.getResponseHeader('sessionId');
+          r.cusId=id;
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            r.cusId=id;
+            errorHandler(r);
+            return reject(r);
+          }
+          if ('errorCode' in r && r.errorCode == 0) {
+            r.cusId=id;
+            return resolve(r.data);
+          }
+
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(xhr.responseJSON);
+        }
+      };
+      if (body._json) {
+        options.contentType = 'application/json';
+        delete body._json;
+        options.data = JSON.stringify(body);
+      }
+      // if (body._html) {
+      //   console.log(body)
+      //   options.contentType = 'text/html;charset=utf-8';
+      //   delete body._html;
+      //   console.log(body)
+      // }
+       if(body._jsonp){
+	       	options.dataType = 'jsonp';
+	       	options['jsonp'] = 'callback';
+	       	options['jsonpCallback'] = body._jsonpCallback
+					delete body._jsonp
+	        delete body.jsonpCallback
+      	}
+      $.ajax(options)
+    });
+  }
+  _postAddToken(url, body, cache, showLoading,token,contentType) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      let options = {
+        url: url,
+        method: 'POST',
+        data: body,
+        dataType: 'json',
+        showLoading: showLoading,
+        headers:token?{"access_token": token}:'',
+        contentType:contentType||'application/x-www-form-urlencoded',
+        //cache: cache, // 不需要缓存了
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(error);
+        }
+      };
+      if (body._json) {
+        options.contentType = 'application/json';
+        delete body._json;
+        options.data = JSON.stringify(body);
+      }
+      if (body._html) {
+        options.dataType = 'html';
+        delete body._html;
+        options.data = body;
+      }
+      // if (body._html) {
+      //   console.log(body)
+      //   options.contentType = 'text/html;charset=utf-8';
+      //   delete body._html;
+      //   console.log(body)
+      // }
+      $.ajax(options)
+    });
+  }
+  _postAddSessionId(url, body, cache, showLoading,sessionId,contentType) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      let options = {
+        url: url,
+        method: 'POST',
+        data: body,
+        dataType: 'json',
+        showLoading: showLoading,
+        beforeSend: function(xhr){xhr.setRequestHeader('sessionId',sessionId);},
+        contentType:contentType||'application/x-www-form-urlencoded',
+        //cache: cache, // 不需要缓存了
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(xhr.responseJSON);
+        }
+      };
+      if (body._json) {
+        options.contentType = 'application/json';
+        delete body._json;
+        options.data = JSON.stringify(body);
+      }
+      // if (body._html) {
+      //   console.log(body)
+      //   options.contentType = 'text/html;charset=utf-8';
+      //   delete body._html;
+      //   console.log(body)
+      // }
+      $.ajax(options)
+    });
+  }
+  //  只发送 数组或字符串
+  _postText(url, body, cache, showLoading) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      let options = {
+        url: url,
+        method: 'POST',
+        data: body,
+        showLoading: showLoading,
+        contentType: 'application/json',
+        //cache: cache, // 不需要缓存了
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(error);
+        }
+      };
+      if (body._json) {
+        options.contentType = 'application/json';
+        delete body._json;
+        options.data = JSON.stringify(body);
+      }
+      $.ajax(options)
+    });
+  }
+
+
+  _postForm(url, formData, showLoading) {
+    hookAjax($); // 之所以放在这里是因为在construct阶段，loading组件还没有渲染出来
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: url,
+        method: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        dataType: 'json',
+        showLoading: showLoading,
+        success: r => {
+          if (!r) {
+            return reject('服务器没有返回数据');
+          }
+          if ('errorCode' in r && r.errorCode != 0) {
+            errorHandler(r);
+            return reject(r);
+          }
+          if ('errorCode' in r && r.errorCode == 0) {
+            return resolve(r.data);
+          }
+          resolve(r);
+        },
+        error: (xhr, textStatus, error) => {
+          reject(error);
+        }
+      })
+    });
+  }
+
+  static get(url, params, noCache, showLoading) {
+    return getInstance()._get(url, params, noCache, showLoading);
+  }
+
+  static post(url, body, cache, showLoading) {
+    // 默认的contentType是application/x-www-form-urlencoded
+    // 如果想发送application/json，需要在body中增加_json:true，如 {id:1, _json:true}
+    return getInstance()._post(url, body, cache, showLoading);
+  }
+  static postAddToken(url, body, cache, showLoading,token,contentType) {
+    // 默认的contentType是application/x-www-form-urlencoded
+    // 如果想发送application/json，需要在body中增加_json:true，如 {id:1, _json:true}
+    return getInstance()._postAddToken(url, body, cache, showLoading,token,contentType);
+  }
+  static postAddSessionId(url, body, cache, showLoading,sessionId,contentType) {
+    // 默认的contentType是application/x-www-form-urlencoded
+    // 如果想发送application/json，需要在body中增加_json:true，如 {id:1, _json:true}
+    return getInstance()._postAddSessionId(url, body, cache, showLoading,sessionId,contentType);
+  }
+  static getAddToken(url, body, cache, showLoading,token){
+    return getInstance()._getAddToken(url, body, cache, showLoading,token);
+  }
+  static getAddSessionId(url, body, cache, showLoading,sessionId){
+    return getInstance()._getAddSessionId(url, body, cache, showLoading,sessionId);
+  }
+
+  static postText(url, body, cache, showLoading) {
+    // 直接发送 数组或字符串
+    return getInstance()._postText(url, body, cache, showLoading);
+  }
+
+
+  static postForm(url, formData, showLoading) {
+    // 直接提交包含文件的formData
+    return getInstance()._postForm(url, formData, showLoading);
+  }
+}
+
+// HttpService.post('/',{a:1,b:{c:2},_json:true});
+
+//HttpService.post('/',{a:1,b:{c:2},_json:true});

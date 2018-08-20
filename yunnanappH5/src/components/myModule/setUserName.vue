@@ -1,0 +1,248 @@
+<template>
+    <div class="setusername">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="colorfff city_text">设置用户名</span>
+            <span class="username_ready" @click="username_ready">完成</span>
+        </div>
+        <ul class="userinfo_content">
+            <li class="userinfo_name">
+               <group class="_cus_flexContent _cus_fleAlignCen perH100 perW100 _cus_posRelative">
+                    <x-input type="text" title="" v-model="idCode.name" placeholder="请输入用户名" ref="nickName"></x-input>
+                </group>
+            </li>
+        </ul>
+        <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+    </div>
+</template>
+<script>
+
+//引用ajax
+import { HttpService } from '../../services/http.js'
+import { coreApi } from '../../services/coreApi.js'
+
+    export default {
+        data(){
+            return {
+                hide_alert:false,
+                test_mag:'请输入用户名',
+                idCode:{
+                    name:''
+                },
+                Signin:false,
+            }
+        },
+        mounted(){
+           // this.updateUserName();
+           this.getInfoUser();
+        },
+        methods:{
+            getInfoUser(){
+                let nickName = this.$router.currentRoute.query.nickName; 
+                this.idCode.name = nickName; 
+            },
+            city_back(){
+                this.$router.go(-1)
+            },
+            username_ready(){
+                let pass = this.idCode.name.replace(/\s+/g, ""),
+                reg1 = /^[\u4e00-\u9fa5a-zA-Z0-9\-_]{4,15}$/
+                if(this.idCode.name ==''){
+                    this.hide_alert = true
+                    this.test_mag = '请输入用户名!'
+                }else if(!reg1.test(pass)){
+                    this.hide_alert = true
+                    this.test_mag = '请输入4-15个中、英文、数字、下划线组成!'
+                }else{
+                    this.updateUserName();
+                     this.hide_alert = ! this.hide_alert
+                    this.test_mag = '正在修改,请稍候!'
+                    
+                }
+            },
+             //设置用户名
+           updateUserName(){
+            // 请求data
+            let bodys = {
+                nickName:this.idCode.name,
+                _json: false, //参数类型 formdata/json
+                _jsonp:true, //dataType: jsonp true/false
+                _jsonpCallback:'onBack' //请求接口返回的callback
+            }
+            // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+            coreApi.updateUserName(bodys).then(r=>{
+                if(r.statusCode == '200' && r.status){
+                    // 暂无提示
+                    this.hide_alert = true
+                    this.test_mag = '修改成功！'
+                    this.Signin = true
+                    // console.log("接口调用成功");
+                }else{
+                    this.hide_alert = true
+                    this.test_mag = r.errorMessage
+                    // console.log("接口调用失败");
+                }
+            })
+           },
+            alertShow(){
+
+            },
+            alertHide(){
+                if(this.Signin){
+                    this.$router.push({
+                        'path':'/mymodule/signin'
+                    })
+                }
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .setusername{
+        background-color: #fff;
+        margin-top: 1rem;
+        font-size: 0.28rem;
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #f41a14;
+            z-index: 2;
+            .username_ready{
+                position: absolute;
+                right: .3rem;
+            }
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .userinfo_content{
+            font-size: .28rem;
+            >.userinfo_name{    
+                    height: .8rem;
+                    line-height: .8rem;
+                    border: 1px solid #999;
+                    border-radius: 5px;
+                    padding-left: 10px;
+                    box-sizing: border-box;
+                    margin-bottom: .4rem;
+                    .weui-cells{
+                        width: 100%;
+                        height: 100%;
+                        line-height: 100%;
+                        display: flex;
+                        margin-top:0;
+                    }
+                    .weui-cell{
+                        flex: 1;
+                        padding:0 15px;
+                    }
+                    .weui-icon-clear{
+                        font-size: .28rem;
+                    }
+                    .vux-input-icon.weui-icon-warn:before, .vux-input-icon.weui-icon-success:before{
+                        font-size: .42rem;
+                    }
+                    input{
+                        width: 80%;
+                        height: .8rem;
+                        outline: none;
+                        border: none;
+                        /*height: .8rem;*/
+                        line-height: 100%;
+                        font-size: .28rem;
+                    }
+                    .show_pass{
+                        display: block;
+                        width: 20%;
+                        height: 100%;
+                        background: url(../../../static/imgs/eye.png) no-repeat center center;
+                        background-size: .5rem;
+                    }
+                    .hide_pass{
+                        display: block;
+                        width: 20%;
+                        height: 100%;
+                        background: url(../../../static/imgs/y_pwd.png) no-repeat center center;
+                        background-size: .5rem;
+                    }
+                }
+        }
+    }    
+</style>

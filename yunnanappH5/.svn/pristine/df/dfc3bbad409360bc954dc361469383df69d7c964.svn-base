@@ -1,0 +1,12 @@
+export class historyService{
+  static save(data){
+    sessionStorage.history=JSON.stringify(data)
+  }
+  static get() {
+    return JSON.parse(sessionStorage.history || null);
+  }
+
+  static clear() {
+    delete sessionStorage.history; 
+  }
+}

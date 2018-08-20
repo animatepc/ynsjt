@@ -1,0 +1,127 @@
+import {HttpService} from './http';
+/**
+ * 封装个人中心相关的请求及数据处理
+ */
+import { sms } from './commonApi.js'
+
+export const coreApi = {
+  api: {
+    myVideoList:sms+'/myVideo/myVideoList.do',
+    updateUserName:sms+'/home/info/changeNickName.do',
+    homeMessage:sms+'/home/message/list.do', 
+    homeFeedback:sms+'/home/feedback/list.do',
+    getUserPointInfo:sms+'/home/info/getUserPointInfo.do',
+    getUserPointLog:sms+'/home/info/getUserPointLog.do',
+    getPointList:sms+'/home/info/getPointList.do',
+    logOff:sms+'/logOff.do',
+    userSetIndex:sms+'/userSet/userSetIndex.do',
+    bindingMobile:sms+'sms/bindingMobile.do',
+    userSetBindingMobile:sms+'userSet/bindingMobile.do',
+    changeNext:sms+'sms/changeNext.do',
+    newMobile:sms+'userSet/newMobile.do',
+    changePassword:sms+'sms/changePassword.do',
+    newPassword:sms+'/userSet/newPassword.do',  
+    uploadLocalImage:sms+'/home/info/uploadImageByBase64.do',
+    addFeedback:sms+'/home/feedback/add.do',
+    getMyCollectionList:sms+'/home/collection/list.do',
+    clearAllCollection:sms+'/home/collection/deleteAll.do',
+    clearAllHistory:sms+'/home/history/deleteAll.do',
+    getMyRecordHistList:sms+'/home/history/list.do',
+    getInfoUser:sms +'/home/info/index.do',
+    validateInfoPassword:sms+'/userSet/validateInfo.do'
+  },
+  //我的-->我的收藏-->列表
+  getMyCollectionList(body){
+    return HttpService.post(this.api.getMyCollectionList, body, false, false)
+  },
+  //我的-->我的收藏-->清空
+  clearAllCollection(body){
+    return HttpService.post(this.api.clearAllCollection, body, false, false)
+  },
+  //我的-->我的收藏-->列表
+  getMyRecordHistList(body){
+    return HttpService.post(this.api.getMyRecordHistList, body, false, false)
+  },
+  //我的-->我的收藏-->列表
+  clearAllHistory(body){
+    return HttpService.post(this.api.clearAllHistory, body, false, false)
+  },
+  //我的-->我的我拍-->列表
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  //我的-->个人信息-->修改用户名
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  //个人中心-->意见反馈
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  //个人中心-->我的消息
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  }, 
+  //我的-->我的积分-->我的积分上半部分
+  getUserPointInfo(body){
+    return HttpService.post(this.api.getUserPointInfo, body, false, false)
+  },
+  //我的-->我的积分-->我的积分下半部分
+  getUserPointLog(body){
+    return HttpService.post(this.api.getUserPointLog, body, false, false)
+  },
+  //我的-->我的积分-->积分规则
+  getPointList(body){
+    return HttpService.post(this.api.getPointList, body, false, false)
+  },
+  //退出登录
+  logOff(body){
+    return HttpService.get(this.api.logOff, body, false, false,false)
+  },
+  //我的-->账户设置主页
+  userSetIndex(body){
+    return HttpService.get(this.api.userSetIndex, body, false, false,false) 
+  },
+  //我的-->绑定手机号-->发送验证码
+  bindingMobile(body){
+    return HttpService.post(this.api.bindingMobile, body, false, false) 
+  },
+  //我的-->绑定手机号-->手机号+验证码验证码
+  userSetBindingMobile(body){
+    return HttpService.post(this.api.userSetBindingMobile, body, false, false) 
+  },
+  //我的-->修改手机号-->发送验证码
+  changeNext(body){
+    return HttpService.post(this.api.changeNext, body, false, false) 
+  },
+  //我的-->修改手机号-->手机号+验证码验证
+  newMobile(body){
+    return HttpService.post(this.api.newMobile, body, false, false) 
+  },
+  //我的-->修改密码-->发送验证码
+  changePassword(body){
+    return HttpService.post(this.api.changePassword, body, false, false)
+  },
+  //我的-->修改密码-->手机号+验证码验证
+  validateInfoPassword(body){
+    return HttpService.post(this.api.validateInfoPassword, body, false, false)
+  },
+  //我的-->修改密码-->确认修改
+  newPassword(body){
+    return HttpService.post(this.api.newPassword, body, false, false)
+  },
+  //我的-->个人信息-->上传图片
+  uploadLocalImage(body){
+    return HttpService.post(this.api.uploadLocalImage, body, false, false)
+  },
+  //个人中心-->意见反馈-->添加反馈
+  getaddFeedback(body){
+  return HttpService.post(this.api.addFeedback, body, false, false)
+  },
+  //个人中心获取当前登录用户
+  getInfoUser(body){
+  return HttpService.post(this.api.getInfoUser, body, false, false)
+  }
+}
+
+

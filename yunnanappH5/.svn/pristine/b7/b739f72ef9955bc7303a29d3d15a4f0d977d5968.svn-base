@@ -1,0 +1,50 @@
+<template>
+    <div class="loginIndex">
+        <router-view></router-view>
+    </div>
+</template>
+<script>
+	
+</script>
+<style lang="less">
+	.loginIndex{
+		.login_alert{    
+		    .weui-dialog{
+		        border-radius: .12rem;
+		        max-width: 80%; 
+		    }
+		     @media screen and (min-width: 1024px){
+			    .weui-dialog {
+			        width: 70% !important;
+			    }
+			}
+		    .weui-dialog__bd, .weui-dialog__hd, .weui-dialog__ft{
+		        font-size: .32rem;
+		    }
+		    .dialog__hd{
+		        border:none;
+		    }
+		    .weui-dialog__ft{
+		        width: 1.8rem;
+		        height: 1.2rem;
+		        line-height: .8rem;
+		        margin: 0 auto;
+		        padding-bottom: .4rem;
+		        >a{
+		            display: block;
+		            color: #fff;
+		            background-color: #f41a14;
+		            border: none;
+		            box-shadow: none;
+		            font-weight: 500;
+		            -webkit-border-radius: 4px;
+		            border-radius: .12rem;
+		            margin: 0;
+		            cursor: pointer;
+		        }
+		    }
+		}
+	}
+	
+</style>
+

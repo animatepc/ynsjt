@@ -1,0 +1,129 @@
+
+._layout(12);
+
+._layout(@n, @i: 1) when (@i =< @n) {
+  @cur:@i*5;
+  ._cus_h@{cur}{
+    height: ((@i*100)+0px);
+  }
+  ._cus_w@{cur}{
+    width: ((@i*100)+0px);
+  }
+  ._cus_m@{cur} {
+    margin: ((@i*5)+0px);
+  }
+  ._cus_mt@{cur} {
+    margin-top: ((@i*5)+0px);
+  }
+  ._cus_mb@{cur} {
+    margin-bottom: ((@i*5)+0px);
+  }
+  ._cus_mh@{cur} {
+    margin-top: ((@i*5)+0px);
+    margin-bottom: ((@i*5)+0px);
+  }
+  ._cus_ml@{cur} {
+    margin-left: ((@i*5)+0px);
+  }
+  ._cus_mr@{cur} {
+    margin-right: ((@i*5)+0px);
+  }
+  ._cus_mw@{cur} {
+    margin-left: ((@i*5)+0px);
+    margin-right: ((@i*5)+0px);
+  }
+  ._cus_p@{cur} {
+    padding: ((@i*5)+0px);
+  }
+  ._cus_pt@{cur} {
+    padding-top: ((@i*5)+0px);
+  }
+  ._cus_pb@{cur} {
+    padding-bottom: ((@i*5)+0px);
+  }
+  ._cus_ph@{cur} {
+    padding-top: ((@i*5)+0px);
+    padding-bottom: ((@i*5)+0px);
+  }
+  ._cus_pl@{cur} {
+    padding-left: ((@i*5)+0px);
+  }
+  ._cus_pr@{cur} {
+    padding-right: ((@i*5)+0px);
+  }
+  ._cus_pw@{cur} {
+    padding-left: ((@i*5)+0px);
+    padding-right: ((@i*5)+0px);
+  }
+  ._layout(@n, (@i + 1));
+}
+._cus_textCenter{
+  text-align: center;
+}
+._cus_textLeft{
+  text-align: left;
+}
+._cus_textRight{
+  text-align: right;
+}
+._cus_flexContent{
+  display: flex;
+}
+._cus_fleAlignCen{
+  align-items: center;
+}
+._cus_justifyCen{
+  justify-content: center;
+}
+._cus_fleAlignCen{
+  align-items: center;
+}
+._cus_jusContent{
+  justify-content: space-between;
+}
+.cus_alignContent{
+  align-content: space-between;
+}
+._cus_direction{
+  flex-direction: column;
+}
+._cus_flex1{
+  flex: 1;
+}
+._cus_posRelative{
+  position: relative;
+}
+._cus_posAbsolute{
+  position: absolute;
+}
+._cus_posFixed{
+  position: fixed;
+}
+._cus_mlrAuto{
+  margin: auto;
+}
+.__cus_fl{
+  float: left;
+}
+.__cus_fr{
+  float: right;
+}
+._cus_overHidden{
+  overflow: hidden;
+}
+._cus_overHiddenW{
+  overflow-x: hidden;
+}
+._cus_icoago{
+  display: block;
+  width: 0.16rem;
+  height: 0.16rem;
+  float: right;
+  margin-left: 0.1rem;
+  border-color: #ccc;
+  border-style: solid;
+  margin-top: 0.4rem;
+  border-width: 0 0.03rem 0.03rem 0;
+  margin-right: 0.2rem;
+  transform: rotate(-45deg);
+}

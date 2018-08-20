@@ -1,0 +1,56 @@
+import {HttpService} from './http';
+/**
+ * 封装视频相关的请求及数据处理
+ */
+let sms = 'http://localhost:8080/webapp-yrt/'
+export const videoApi = {
+  api: {
+    myVideoList:sms+'/myVideo/myVideoList.do',
+    updateUserName:sms+'/home/info/changeNickName.do',
+    homeMessage:sms+'/home/message/list.do',
+    homeFeedback:sms+'/home/feedback/list.do',
+    video:sms+'/content/list.do',
+    recom:sms+'/home/recom/recom.do',
+    shortVideo:sms+'/content/list.do',
+    columnVideoList:sms+'/content/columnList.do',
+    columnDateList:sms+'/watch/list.do',
+    watchList:sms+'/watch/list.do',
+    channelList:sms+'watch/programList.do'
+  },
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  },
+  //短视频
+  video(body){
+    return HttpService.post(this.api.video, body, false, true)
+  },
+  //推荐位
+  recom(body){
+    return HttpService.post(this.api.recom, body, false, false)
+  },
+  //视频-->品牌栏目
+  getColumnVideoList(body){
+  return HttpService.post(this.api.columnVideoList, body, false, false)
+  },
+  //视频-->品牌栏目-->栏目数据
+  getColumnDateList(body){
+  return HttpService.post(this.api.columnDateList, body, false, false)
+  },
+  //视频-->品牌栏目-->频道、节目
+  watchList(body){
+  return HttpService.post(this.api.watchList, body, false, false)
+  },
+  //视频-->品牌栏目-->频道、节目-->详情
+  channelList(body){
+  return HttpService.post(this.api.channelList, body, false, false)
+  }
+}

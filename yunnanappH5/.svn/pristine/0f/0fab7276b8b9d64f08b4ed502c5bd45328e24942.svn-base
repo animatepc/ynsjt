@@ -1,0 +1,19 @@
+import {HttpService} from './http'
+/*
+    封装我拍相关的业务逻辑
+*/ 
+let sms = 'http://dinglinfeng.4kb.cn/webapp-yrt/'
+// let sms = 'http://yntvapp.4kb.cn/webapp-yrt/'
+   export const myPhotoApi= {
+    api: {
+ 
+      myPhotoList:sms+'/myVideo/list.do'
+
+    },
+   
+   //我的我拍-->列表
+    getMyPhotoList(body){
+      return HttpService.post(this.api.myPhotoList, body, false, false)
+      }, 
+  }
+  

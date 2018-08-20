@@ -1,0 +1,402 @@
+<template>
+    <div class="myIntegration _cus_overHidden  _cus_flexContent _cus_direction">
+       <div class="myIntegration_head _cus_flexContent _cus_fleAlignCen">
+                <span class="search_back" @click="city_back"></span>
+                <router-link target="span" to="/mymodule/integrationrule" class="colorfff city_text">积分规则</router-link>
+            </div>
+        <!-- <div class="_cus_overHidden"> -->
+           
+            <div class="signin_msg">
+                <div class="signin_img" @click="set_userinfo">
+                    <img class="head_photo" :src="nowIcon?nowIcon:'../../static/imgs/normal_avatar.png'" alt="">
+                    <span class="head_leve">{{nowLevel}}</span>
+                </div>
+                <p class="signin_btn" @click="mask_alert">
+                    <span>积分：{{count}}</span>
+                    <span>距离下一等级还差：{{point}}</span>
+                </p>
+            </div>
+        <!-- </div> -->
+        <div class="myIntegration_content perW100">  
+             <scroller
+                :lock-x="false"
+                :lock-y="true"
+                :scrollbarX="false"
+                style="width: auto;"
+                ref="myIntegration_list">
+                <div class="myIntegration_list" :style="countlen">
+                    <ul ref="myIntegration_width" :style="countlen">
+                        <li v-for="(item,keys) in list" :key="keys">
+                            <p>{{item.levelName }}</p>
+                            <div>
+                                <p></p>
+                                <i :class="level * (keys+1) * 100 > prgessBox * 100?'exceed':'notexceed'"></i>
+                            </div>
+                            <p>{{item.pointsMax }}</p>
+                        </li>
+                    </ul>
+                    <div class="prgessbox" ref="prgessbox" :style="`width:${ prgessBox * 100}%`"></div>
+                </div>
+             </scroller>
+             <p class="myIntegration_tip">《左右滑动查看全部等级》</p>
+        </div>
+        <div class="myIntegration_default">
+            <p>积分记录</p>
+        </div>
+         <div class="myIntegration_box bgfff" style="height: calc(100vh - 6rem - .73rem )">
+            <scroller-view style="height: calc(100vh - 6rem - .73rem);" :scrollerMsg="scrollerMsg" @pullDown="selPulldown" @pullUp="selPullup" :dataList="pointLogList" :types="types" ref="scroller"></scroller-view>
+          </div>
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http.js";
+import { coreApi } from "../../services/coreApi.js";
+import scrollerView from "../../base/scroller/scroller.vue";
+export default {
+  components: {
+    scrollerView
+  },
+  data() {
+    return {
+      scrollerMsg: {
+        PageIndex: 1, //页码从第一页开始
+        PageSize: 5, //煤业显示的条数
+        isShow: true, //是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+        showloading: false,
+        textloading: "加载中",
+        showUp: true,
+        isbounce: true,
+        lists: [],
+        downObj: {
+          content: "请上拉刷新数据",
+          pullUpHeight: 60,
+          height: 40,
+          autoRefresh: false,
+          downContent: "请上拉刷新数据",
+          upContent: "请上拉刷新数据",
+          loadingContent: "加载中...",
+          clsPrefix: "xs-plugin-pullup-"
+        },
+        upobj: {
+          content: "请上拉刷新数据",
+          pullUpHeight: 60,
+          height: 40,
+          autoRefresh: false,
+          downContent: "请上拉刷新数据",
+          upContent: "请上拉刷新数据",
+          loadingContent: "加载中...",
+          clsPrefix: "xs-plugin-pullup-"
+        },
+        isShowLoading: false,
+        textLoading: "加载中",
+        scrollerStatus: {
+          pulldownStatus: "default",
+          pullupStatus: "default"
+        }
+      },
+      list: [],
+      nowIcon: "",
+      nowLevel: "",
+      point: "",
+      count: "",
+      pointLogList: [],
+      types: "",
+      prgessBox: "",
+      countlen: "",
+      level: ""
+    };
+  },
+  mounted() {
+    this.getList();
+  },
+  methods: {
+    getList() {
+      var bodys = {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      coreApi.getUserPointInfo(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 接口访问成功，执行
+          this.list = r.list; //等级列表
+          this.nowIcon = r.nowIcon; //当前积分图标
+          this.nowLevel = r.nowLevel; //当前积分等级名称
+          this.point = r.point; //距离下一等级还差分数
+          this.count = r.count; //总积分
+          // let widths = this.$refs.myIntegration_width.children.length,
+          //   arrwidth = this.$refs.myIntegration_width.children[0].clientWidth;
+          this.countlen = `width: calc(((100vw - .2rem ) / 3) * ${
+            this.list.length
+          })`;
+          this.prgessBox =
+          this.count / this.list[this.list.length - 1].pointsMax;
+          this.level = 1 / this.list.length;
+          this.getUserPointLog(true); //下半部分积分列表
+        } else if (!r.status) {
+          // 返回错误信息
+          this.list = [];
+        }
+      });
+    },
+    getUserPointLog(isEmpty) {
+      //下半部分积分列表
+      this.scrollerMsg.showloading = true;
+      var pointLog = {
+        i: this.scrollerMsg.PageIndex,
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      coreApi.getUserPointLog(pointLog).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 接口访问成功，执行
+          var data = r.list;
+          if (isEmpty) {
+            this.pointLogList = [];
+            this.scrollerMsg.show = false;
+          } else {
+            //isEmpty为false时，也就是向上滚动刷新selPullUp ()方法被被调用的时候
+            if (data && data.length === 0) {
+              this.scrollerMsg.showToast = true;
+              this.scrollerMsg.isShowLoading = false;
+              this.scrollerMsg.scrollerStatus.pullupStatus = "disabled"; // 禁用下拉
+              return;
+            }
+            this.scrollerMsg.isShow = false;
+          }
+          this.types = "myintegration";
+          data.map((i,keys)=>{
+            this.pointLogList.push(i)
+          })
+          this.scrollerMsg.isShow = true;
+          this.scrollerMsg.showloading = false;
+          if (!isEmpty) {
+            this.scrollerMsg.scrollerStatus.pullupStatus = "default";
+            this.$nextTick(() => {
+              this.$refs.scroller.reset();
+            });
+          }
+        } else if (!r.status) {
+          // 返回错误信息
+          this.pointLogList = [];
+        }
+      });
+    },
+    city_back() {
+      this.$router.go(-1);
+    },
+    set_userinfo() {},
+    mask_alert() {},
+    selPulldown(index) {
+      if (index.i == 1) {
+        this.scrollerMsg.PageIndex = 1;
+        this.getUserPointLog(true);
+      } else {
+        this.scrollerMsg.PageIndex = index.i;
+        this.getUserPointLog(false);
+      }
+    },
+    selPullup(index) {
+      this.scrollerMsg.PageIndex = index.i;
+      this.getUserPointLog(false);
+    }
+  }
+};
+</script>
+<style lang="less">
+.myIntegration {
+  height: 100vh;
+  .myIntegration_head {
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+
+    line-height: 1rem;
+    text-align: center;
+    z-index: 1;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .city_text {
+      position: absolute;
+      right: 0.3rem;
+      text-align: right;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+    }
+  }
+  .signin_msg {
+    width: 100%;
+    // height: 3rem;
+    color: #fff;
+    padding: 0.4rem 0.3rem 0.2rem 0.3rem;
+    background-color: #f0151a;
+    text-align: center;
+    box-sizing: border-box;
+    .signin_img {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: inline-block;
+      position: relative;
+      .head_photo {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+      .head_leve {
+        display: inline-block;
+        padding: 0.1rem;
+        font-size: 0.22rem;
+        background: #fdc243;
+        border-radius: 0.1rem;
+        color: #fff;
+        position: absolute;
+        right: -5%;
+        bottom: -5%;
+      }
+    }
+    .signin_btn {
+      font-size: 0.3rem;
+      > span {
+        margin-top: 0.1rem;
+        display: block;
+        height: 0.3rem;
+        line-height: 0.3rem;
+      }
+    }
+  }
+  .myIntegration_content {
+    background: #fff;
+    padding: 0.3rem 0.1rem;
+    height: 3rem;
+    .myIntegration_list {
+      overflow: hidden;
+      font-size: 0.32rem;
+      > ul {
+        overflow: hidden;
+        height: 1.8rem;
+        > li {
+          float: left;
+          width: calc((100vw - 0.2rem) / 3);
+          height: 1.8rem;
+          > p {
+            position: relative;
+            text-align: right;
+          }
+          > div {
+            height: 0.1rem;
+            background: #e7e7e7;
+            margin: 0.37rem 0;
+            position: relative;
+            > p {
+              position: absolute;
+              left: 0;
+              top: 0;
+              height: 0.1rem;
+              background: #fd2803;
+              width: 0%;
+            }
+            > i {
+              width: 0.3rem;
+              height: 0.3rem;
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              right: 0;
+              margin: auto;
+              background: url("../../../static/imgs/level_1.png") no-repeat;
+              background-size: contain;
+              z-index: 3001;
+            }
+            .exceed {
+              width: 0.3rem;
+              height: 0.3rem;
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              right: 0;
+              margin: auto;
+              background: url("../../../static/imgs/level_1.png") no-repeat;
+              background-size: contain;
+              z-index: 3001;
+            }
+            .notexceed {
+              width: 0.3rem;
+              height: 0.3rem;
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              right: 0;
+              margin: auto;
+              background: url("../../../static/imgs/level_2.png") no-repeat;
+              background-size: contain;
+              z-index: 3001;
+            }
+          }
+        }
+      }
+      .prgessbox {
+        width: 0;
+        height: 0.1rem;
+        background-color: #f0151a;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+      }
+    }
+    .myIntegration_tip {
+      color: #fc5b45;
+      font-size: 0.28rem;
+      text-align: center;
+      margin-top: 0.1rem;
+    }
+  }
+  .myIntegration_default {
+    > p {
+      width: 95%;
+      height: 0.73rem;
+      line-height: 0.73rem;
+      padding-left: 5%;
+      background: #f4f4f4;
+      font-size: 0.32rem;
+      color: #666;
+    }
+    .myIntegration_box {
+      background-color: #fff;
+    }
+    .myintegration_list {
+      padding: 0 0.3rem;
+      height: 0.95rem;
+      line-height: 0.95rem;
+      overflow-y: visible;
+      font-size: 0.28rem;
+      color: #000;
+      background: #fff;
+      border-bottom: 2px solid #eee;
+      // display: flex;
+      justify-content: space-between;
+      > div {
+        > span:first-child {
+          display: inline-block;
+          width: 2rem;
+        }
+      }
+      > span:last-child {
+        color: #fc5b45;
+        text-align: right;
+      }
+    }
+  }
+}
+</style>
+

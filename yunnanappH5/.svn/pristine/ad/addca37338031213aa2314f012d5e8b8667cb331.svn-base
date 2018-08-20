@@ -1,0 +1,49 @@
+<template>
+  <div id="app">
+    <router-view/>
+    <div id="globalLoading" style="display: none;">
+      <ui-loading></ui-loading>
+    </div>
+  </div>
+</template>
+
+<script>
+import {adapted} from './common/js/adapted.js'
+import uiLoading from './base/loading/loading.vue';
+export default {
+  name: 'App',
+  components:{
+  	uiLoading
+  },
+  created(){
+// 	adapted.orientation(document,window)
+// 	adapted.dpr()
+    adapted.plusReady(this)
+    let browser = adapted.browser()
+    if(browser.versions.ios){
+        console.log('当前终端为ios')
+    }else if(browser.versions.android){
+        console.log('当前终端为android')
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "./less/_global";
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  -webkit-overflow-scrolling:touch;
+}
+#globalLoading{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3111;
+}
+</style>

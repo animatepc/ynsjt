@@ -1,0 +1,6 @@
+@import "../less/_global";
+.index{
+    margin-top: 1rem;
+
+   
+}

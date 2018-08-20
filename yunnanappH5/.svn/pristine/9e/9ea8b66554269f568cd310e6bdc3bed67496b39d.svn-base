@@ -1,0 +1,125 @@
+<template>
+    <div ref="header" class="header _cus_flexContent _cus_fleAlignCen _cus_justifyCen" :class="headerPath == 2?'_cus_posRelative':''" v-if="headerPath != 3 && headerPath != 4">
+        <div class="colorfff _cus_posRelative _cus_overHidden search_box" @click.prevent.stop="touchVal" :class="headerPath == 2?'search_photo':'_cus_flex1'">
+            <span class="_cus_posAbsolute search_icon"></span>
+            <input type="text" class="_cus_posAbsolute search_mode" placeholder="搜索" disabled>
+        </div>
+        <div class="colorfff search_city _cus_overHidden" @click="select_city" v-show=" headerPath == 0">
+            
+            <span class="_cus_flexContent">
+                <i class="inlineBlock menu_location"></i>
+                <span>{{city}}</span>
+            </span>
+        </div>
+        <span class="gobroke" :class="headerPath == 2?'_cus_posAbsolute':''" v-if="headerPath == 2" @touchstart="addphoto">+</span>
+        <confirm
+            class="confirm_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-confirm="onConfirm">
+            <span>{{test_mag}}</span>
+        </confirm>
+    </div>
+</template>
+<script>
+import { mapGetters } from "vuex";
+import { HttpService } from "../services/http.js";
+import { coreApi } from "../services/coreApi.js";
+export default {
+  data() {
+    return {
+      search_popup: false,
+      city_popup: false,
+      city: "云南省",
+      cityObj: {},
+      hide_alert: false,
+      loading:true,
+      test_mag:''
+    };
+  },
+  props: {
+    headerPath: {
+      type: Number,
+      default: 0
+    }
+  },
+  computed: {
+    ...mapGetters(["getCityObj"])
+  },
+  mounted() {
+    this.cityObj = Object.assign(this.cityObj, this.getCityObj);
+    this.city = this.cityObj.areaName || "云南省";
+  },
+  methods: {
+    touchVal() {
+      let recomSetCode = "";
+      if (this.headerPath == 0) {
+        //首页点击搜索
+        recomSetCode = "YNSJTXW";
+      } else if (this.headerPath == 1) {
+        //视频点击搜索
+        recomSetCode = "YNSJTSP";
+      } else if (this.headerPath == 2) {
+        //我拍点击搜索
+        recomSetCode = "YNSJTWP";
+      }
+      this.$router.push({
+        path: "/public/searchmsg",
+        query: { recomSetCode: recomSetCode }
+      });
+    },
+    search_back() {
+      this.$router.push({
+        path: "/public/screencity"
+      });
+    },
+    addphoto() {
+      let bodys = {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+      coreApi.getInfoUser(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          //登陆成功
+          if (r.loginStatus) {
+            // this.userId = r.data.userId;
+            this.$router.push({
+                path: "/myphoto/releasephoto"
+            });
+          } else {
+            this.hide_alert = !this.hide_alert;
+            this.test_mag = "请先登录！";
+            this.loading = false;
+          }
+        } else {
+          this.hide_alert = !this.hide_alert;
+          this.test_mag = "请先登录！";
+          this.loading = false;
+        }
+      });
+    },
+    onHide() {},
+    onShow() {},
+    select_city() {
+      this.$router.push({
+        path: "/public/screencity"
+      });
+    },
+    city_back() {
+      this.city_popup = false;
+    },
+    onConfirm() {
+      // 弹窗隐藏
+      if (!this.loading) {
+        this.$router.push({
+          path: "/login/login"
+        });
+      }
+    }
+  }
+};
+</script>
+<style lang="less" src="./header.less">
+</style>
+

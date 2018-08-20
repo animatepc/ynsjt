@@ -1,0 +1,51 @@
+<template>
+    <div class="scroller">
+         <scroller
+            v-show="scrollerMsg.isShow"
+            v-model="scrollerMsg.scrollerStatus"
+            lock-x
+            scrollbar-y
+            ref="scroller"
+            :bounce="scrollerMsg.isbounce"
+            :use-pullup="scrollerMsg.showUp"
+            :use-pulldown="true"
+            :pulldown-config="scrollerMsg.downObj"
+            :pullup-config="scrollerMsg.upobj" 
+            @on-pulldown-loading="selPullDown"
+            @on-pullup-loading="selPullUp">
+            <!-- style="height: calc(100vh - 1rem - .88rem - .98rem)" -->
+           <slot></slot>
+        </scroller>
+    </div>
+</template>
+<script>
+// 1
+    export default {
+        props:['scrollerMsg'],
+        methods:{
+            selPullDown(){
+                setTimeout(()=>{
+                        this.scrollerMsg.scrollerStatus.pulldownStatus = 'disabled'
+                        this.$nextTick(() => {
+                            this.scrollerMsg.scrollerStatus.pulldownStatus = 'disabled'?this.scrollerMsg.scrollerStatus.pulldownStatus = 'default':''
+                            this.$refs.scroller.reset()
+                        })
+                        this.$emit('pullDown',{
+                            i: this.scrollerMsg.PageIndex
+                        })
+                    },1000)
+                
+            },
+            selPullUp(){
+                this.scrollerMsg.PageIndex++;
+                this.$emit('pullUp',{
+                    i: this.scrollerMsg.PageIndex
+                })
+            }
+        }
+    }
+</script>
+<style lang="less">
+
+</style>
+

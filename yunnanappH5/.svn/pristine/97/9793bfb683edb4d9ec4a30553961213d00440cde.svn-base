@@ -1,0 +1,22 @@
+import {HttpService} from './http';
+let sms = 'http://yntvapp.4kb.cn/webapp-yrt/'
+/**
+ * 封装登录相关的请求及数据处理
+ */
+
+export const loginApi = {
+  api: {
+    loginOrReg:sms+'sms/loginOrReg.do',
+    valiloginCode:sms+'register.do',
+    valiLoginUser:sms+'accountLogin.do'
+  },
+  getloginCode(body){ //输入手机号获取验证码
+    return HttpService.post(this.api.loginOrReg, body, false, false)
+  },
+  valiloginCode(body){ //输入手机号与验证码进行验证
+    return HttpService.post(this.api.valiloginCode, body, false, false)
+  },
+   valiLoginUser(body){ //输入手机号与密码进行验证
+    return HttpService.get(this.api.valiLoginUser, body, false, false,false)
+  }
+}

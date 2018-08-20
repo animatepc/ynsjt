@@ -1,0 +1,42 @@
+@import "../less/_global";
+.index{
+    margin-top: 1rem;
+    .popup_content{
+        padding-top: .3rem;
+        ul{
+          overflow-y: scroll;
+          padding: .3rem .3rem;
+          li{
+            margin-left: .3rem;
+            >img{
+              width: 80%;
+            }
+            >span{
+              font-size: .24rem;
+              white-space: nowrap;
+            }
+          }
+          li:nth-of-type(1){
+            margin-left: 0;
+          }
+        }
+        .login_field {
+          width: 90%;
+          margin: 0 auto;
+          border: none;
+          border-top: 1px solid #eee;
+          text-align: center;
+          legend {
+            display: inline-block;
+            color: #999;
+            font-size: 0.28rem;
+            padding: 0 10px;
+          }
+        }
+        .weui-btn_default{
+          height: .8rem;
+          font-size: .24rem;
+        }
+      }
+   
+}

@@ -1,0 +1,55 @@
+<template>
+    <div class="index" ref="index">
+        <m-header :header-path="pathWatch"></m-header>
+        <router-view :class="pathWatch != 3 && pathWatch != 4?'content-box':''"></router-view>
+        <m-footer :header-path="pathWatch"></m-footer>
+    </div>
+</template>
+<script>
+import mFooter from './menu.vue'
+import mHeader from './header.vue'
+    export default {
+        data(){
+            return {
+                // 0代表首页,1代表视频,2代表我拍,3代表云上TV,4代表我的
+                pathWatch:0
+            }
+        },
+        components:{
+            'm-footer':mFooter,
+            'm-header':mHeader
+        },
+        created(){
+            let routerPath = this.$router.history.current.fullPath;
+            this.mask_router(routerPath)
+            console.log(routerPath)
+        },
+        watch:{
+            '$route'(to,from){
+                this.mask_router(to.path)
+            }
+        },
+        methods:{
+            mask_router(items){
+                switch(items){
+                    case '/system/home':
+                    this.pathWatch = 0
+                    break;
+                    case '/multimedia/video':
+                    this.pathWatch = 1
+                    break;
+                    case '/myphoto/shootlist':
+                    this.pathWatch = 2
+                    break;
+                    case '/cloudtv/livebroadcast':
+                    this.pathWatch = 3
+                    break;
+                    case '/mymodule/signin':
+                    this.pathWatch = 4
+                    break;
+                }
+            }
+        }
+    }
+</script>
+<style lang="less" src="./index.less"></style>

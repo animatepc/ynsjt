@@ -1,0 +1,142 @@
+<template>
+    <div class="myPhoto">
+		<scroller class="newsMessage_content bgfff perH100" style="height: 100%" types="myPhoto_list" @pullDown="selPulldown" @pullUp="selPullup" :scrollerMsg="scrollerMsg" :dataList="newMsg" ref="scroller"></scroller>
+    </div>
+</template>
+<script>
+//引用ajax
+import { HttpService } from "../../services/http.js";
+import { myPhotoApi } from "../../services/myPhotoApi.js";
+import Scroller from "../../base/scroller/scroller.vue";
+export default {
+  components: {
+    Scroller
+  },
+  data() {
+    return {
+      scrollerMsg: {
+        PageIndex: 1, //页码从第一页开始
+        PageSize: 5, //每页显示的条数
+        isShow: false, //是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+        showloading: false,
+        textloading: "加载中",
+        showUp: true,
+        isbounce: true,
+        lists: [],
+        downObj: {
+          content: "请上拉刷新数据",
+          pullUpHeight: 60,
+          height: 40,
+          autoRefresh: false,
+          downContent: "请上拉刷新数据",
+          upContent: "请上拉刷新数据",
+          loadingContent: "加载中...",
+          clsPrefix: "xs-plugin-pullup-"
+        },
+        upobj: {
+          content: "请上拉刷新数据",
+          pullUpHeight: 60,
+          height: 40,
+          autoRefresh: false,
+          downContent: "请上拉刷新数据",
+          upContent: "请上拉刷新数据",
+          loadingContent: "加载中...",
+          clsPrefix: "xs-plugin-pullup-"
+        },
+        isShowLoading: false,
+        textLoading: "加载中",
+        scrollerStatus: {
+          pulldownStatus: "default",
+          pullupStatus: "default"
+        }
+      },
+      newMsg: []
+    };
+  },
+  mounted() {
+    this.getMyPhotoList(true);
+  },
+  methods: {
+    selPulldown(index) {
+      if (index.i == 1) {
+        this.scrollerMsg.PageIndex = 1;
+        this.getMyPhotoList(true);
+      } else {
+        this.scrollerMsg.PageIndex = index.i;
+        this.getMyPhotoList(false);
+      }
+    },
+    selPullup(index) {
+      this.scrollerMsg.PageIndex = index.i;
+      this.getMyPhotoList(false);
+	},
+    //获取我拍列表
+    getMyPhotoList(isEmpty) {
+      // 请求data
+      let bodys = {
+        i: this.scrollerMsg.PageIndex
+      };
+      // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+      myPhotoApi.getMyPhotoList(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          var data = r.list;
+          if (isEmpty) {
+            this.newMsg = [];
+            this.scrollerMsg.show = false;
+          } else {
+            //isEmpty为false时，也就是向上滚动刷新selPullUp ()方法被被调用的时候
+            if (data && data.length === 0) {
+              this.scrollerMsg.showToast = true;
+              this.scrollerMsg.isShowLoading = false;
+              this.scrollerMsg.scrollerStatus.pullupStatus = "disabled"; // 禁用下拉
+              return;
+            }
+            this.scrollerMsg.isShow = false;
+          }
+          for (var i = 0; i < data.length; i++) {
+            switch (data[i].contentType) {
+              case "30":
+                data[i]["type"] = "tabVideo";
+                break;
+              case "10":
+                data[i]["type"] = "list";
+                break;
+              case "40":
+                data[i]["type"] = "tabAudio";
+                break;
+              case "20":
+                data[i]["type"] = "tabTranslate";
+                break;
+              case "60":
+                data[i]["type"] = "tab";
+                break;
+              case "50":
+                data[i]["type"] = "tabList";
+                break;
+            }
+            this.newMsg.push(data[i]);
+          }
+          this.scrollerMsg.isShow = true;
+          this.scrollerMsg.showloading = false;
+          if (!isEmpty) {
+            this.scrollerMsg.scrollerStatus.pullupStatus = "default";
+            this.$nextTick(() => {
+              this.$refs.scroller.reset();
+            });
+          }
+        } else {
+          alert("接口调用失败");
+          console.log("接口调用失败");
+        }
+      });
+    }
+  }
+};
+</script>
+<style lang="less">
+.myPhoto {
+  height: calc(100vh - 2rem);
+  background: #fff;
+}
+</style>
+

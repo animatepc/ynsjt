@@ -1,0 +1,12 @@
+
+import { HttpService } from '../../services/http.js'
+let sms =  'http://yntvapp.4kb.cn/webapp-yrt'
+export const commonApi = {
+    api:{
+        collection:sms+'/home/collection/add.do'
+    },
+    Collection(bodys){
+        return HttpService.post(this.api.collection,bodys,false,true)
+    }
+};
+  

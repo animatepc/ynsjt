@@ -1,0 +1,194 @@
+<template>
+    <div class="signin bgf8f8f8">
+        <div  class="_cus_flexContent _cus_direction">
+            <div class="signin_msg">
+                <div class="signin_img" @click.prevent="set_userinfo">
+                    <img :src="userAvatar?userAvatar:'../../../static/imgs/normal_avatar.png'" alt="">
+                </div>
+                <p class="signin_btn">
+                    <span v-if="loginMsg">{{nickName}}</span>
+                    <span v-else @click="mask_alert">点击登录</span>
+                </p>
+            </div>
+            <ul class="_cus_overHidden _cus_flex1 bgf8f8f8">
+                <li class="signin_list _cus_flexContent _cus_jusContent" 
+                    :class="keys == 0 || keys == 1 || keys == 4?'singnin_mb':''"
+                    v-for="(item,keys) in signinBtn"
+                    :key="keys"
+                    @click.prevent="fuc_Jump(item.jump)">
+                    <span style="width:95%">
+                        <i class="singnin_icon" :style="'background-image:url'+'('+item.signin_icon+')'"></i>
+                        <label for="" class="singnin_lab">{{item.signin_label}}</label> 
+                    </span>
+                    <span style="width:5%">
+                        {{item.userLevel}}
+                    </span>
+                    <i class="_cus_icoago" @click="signin_mask(item,keys)"></i>
+                </li>
+            </ul>
+        </div>
+        <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+    </div>
+</template>
+<script>
+    import { UserService } from '../../services/user.js'
+    import { coreApi } from '../../services/coreApi.js'
+    export default {
+        data(){
+            return {
+                userInfo:{},
+                nickName:'',
+                userAvatar:'',
+                nowLevel:'',
+                hide_alert:false,
+                test_mag:'',
+                loginMsg:{}
+            }
+        },
+        created(){
+            this.signinBtn = [
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_0.png'),'signin_label':'我的积分等级','jump':'/mymodule/myintegration','userLevel':''},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_1.png'),'signin_label':'我的消息','jump':'/mymodule/newsmessage'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_2.png'),'signin_label':'我的我拍','jump':'/mymodule/mypicture'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_3.png'),'signin_label':'我的收藏','jump':'/mymodule/mycollection'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_4.png'),'signin_label':'历史记录','jump':'/mymodule/recordhist'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_5.png'),'signin_label':'账户设置','jump':'/mymodule/userset'  },
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_6.png'),'signin_label':'意见反馈','jump':'/mymodule/feedback'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_7.png'),'signin_label':'关于我们', jump: '/mymodule/aboutuser'},
+            ]
+        },
+        mounted(){
+            this.getInfoUser();
+        },
+        methods:{
+            getInfoUser(){
+                let bodys = {
+                    _jsonp:true,
+                    _jsonpCallback:"onBack"
+                }
+                // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+                coreApi.getInfoUser(bodys).then(r=>{
+                    if(r.statusCode == '200' && r.status){
+                        //登陆成功
+                        if(r.loginStatus){
+                            this.nickName = r.data.nickName;
+                            this.userAvatar = r.data.userAvatar;
+                            this.nowLevel = r.nowLevel;
+                            this.signinBtn[0].userLevel = this.nowLevel;
+                            this.loginMsg = Object.assign(this.loginMsg,r)
+                        }else{
+                            this.hide_alert = ! this.hide_alert
+                            this.test_mag = "请先登录！";
+                        } 
+                       
+                    }else{ 
+                        this.hide_alert = ! this.hide_alert
+                        this.test_mag = "请先登录！";;
+                    }
+                })
+            },
+            mask_alert(){
+                // this.$vux.alert.show({
+                //     title: 'VUX is Cool',
+                //     content: this.$t('Do you agree?'),
+                //     onShow () {
+                //         console.log('Module: I\'m showing')
+                //     },
+                //     onHide () {
+                //         console.log('Module: I\'m hiding now')
+                //     }
+                // })
+                this.$router.push({
+                    'path':'/login/login'
+                })
+            },
+            signin_mask(item,keys){
+                console.log(item+'..'+keys)
+            },
+            set_userinfo(){
+
+                this.$router.push({
+                    'path':'/mymodule/userinfo',
+                    'query':{nickName:this.nickName,userAvatar:this.userAvatar}
+                })
+            },
+            fuc_Jump(back){
+                this.$router.push({
+                    'path': back
+                })
+            },
+            alertShow(){
+                // 弹窗显示       
+            },
+            alertHide(){
+                // 弹窗隐藏
+                // alert(1)
+                this.$router.push({
+                            'path':'/login/login'
+                })
+            }
+        }
+    }
+</script>
+<style lang="less">
+.signin{
+    height: calc(100vh - .98rem);
+    overflow:scroll;
+    font-size: 0.28rem;
+    .signin_msg{
+        width: 100%;
+        height: 3rem;
+        color: #fff;
+        padding: 0 0.3rem;
+        padding-top: .4rem;
+        background-color: #f0151a;
+        text-align: center;
+        box-sizing: border-box;
+        .signin_img{
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0 auto;
+            >img{
+                border-radius: 50%;
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .signin_btn{
+            margin-top: 0.3rem;
+        }
+    } 
+    .signin_list{
+        padding: 0 0.3rem;
+        height: .95rem;
+        line-height: .95rem;
+        overflow-y:visible;
+        font-size: 0.28rem;
+        color: #282828;
+        background: #fff;
+        border-bottom: 2px solid #eee;
+        >span{
+            .singnin_icon{
+                display: inline-block;
+                width: 0.27rem;
+                height: 0.25rem;
+                margin-right: 0.1rem;
+                background-repeat: no-repeat; 
+                background-size: 100%;
+            }
+        }
+    }
+    .singnin_mb{
+        margin-bottom: 0.2rem;    
+    }
+}
+    
+</style>
+

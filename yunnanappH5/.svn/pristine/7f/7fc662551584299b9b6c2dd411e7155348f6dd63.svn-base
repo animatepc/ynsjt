@@ -1,0 +1,38 @@
+<template>
+    <div class="scroller">
+         <scroller
+            v-show="scrollerMsg.isShow"
+            v-model="scrollerMsg.scrollerStatus"
+            lock-x
+            scrollbar-y
+            ref="scroller"
+            :bounce="scrollerMsg.isbounce"
+            :use-pullup="scrollerMsg.showUp"
+            :use-pulldown="true"
+            :pulldown-config="scrollerMsg.downObj"
+            :pullup-config="scrollerMsg.upobj" 
+            @on-pulldown-loading="selPullDown"
+            @on-pullup-loading="selPullUp">
+            <!-- style="height: calc(100vh - 1rem - .88rem - .98rem)" -->
+           <slot></slot>
+        </scroller>
+    </div>
+</template>
+<script>
+// 1
+    export default {
+        props:['scrollerMsg'],
+        methods:{
+            selPullDown(){
+                this.$emit('pullDown','keys')
+            },
+            selPullUp(){
+                this.$emit('pullUp','keys')
+            }
+        }
+    }
+</script>
+<style lang="less">
+
+</style>
+

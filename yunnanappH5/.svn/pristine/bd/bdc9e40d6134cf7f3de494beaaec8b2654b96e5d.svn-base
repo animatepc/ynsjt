@@ -1,0 +1,90 @@
+<template>
+    <div class="scroller">
+         <scroller
+         v-if="scrollerMsg"
+            v-show="scrollerMsg.isShow"
+            v-model="scrollerMsg.scrollerStatus"
+            lock-x
+            scrollbar-y
+            ref="scroller"
+            :bounce="scrollerMsg.isbounce"
+            :use-pullup="scrollerMsg.showUp"
+            :use-pulldown="true"
+            :pulldown-config="scrollerMsg.downObj"
+            :pullup-config="scrollerMsg.upobj" 
+            @on-pulldown-loading="selPullDown"
+            @on-pullup-loading="selPullUp">
+            <!-- style="height: calc(100vh - 1rem - .88rem - .98rem)" -->
+           <slot></slot>
+        </scroller>
+    </div>
+</template>
+<script>
+// 1
+    export default {
+        data(){
+            return {
+                scrollerMsg:{
+                    PageIndex: 1,//页码从第一页开始
+                    PageSize: 5,//煤业显示的条数
+                    isShow: true,//是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+                    showloading: false,
+                    textloading: '加载中',
+                    showUp: true,
+                    isbounce: true,
+                    lists: [],
+                    downObj: {
+                        content: '请上拉刷新数据',
+                        pullUpHeight: 60,
+                        height: 40,
+                        autoRefresh: false,
+                        downContent: '请上拉刷新数据',
+                        upContent: '请上拉刷新数据',
+                        loadingContent: '加载中...',
+                        clsPrefix: 'xs-plugin-pullup-'
+                    },
+                    upobj: {
+                        content: '请上拉刷新数据',
+                        pullUpHeight: 60,
+                        height: 40,
+                        autoRefresh: false,
+                        downContent: '请上拉刷新数据',
+                        upContent: '请上拉刷新数据',
+                        loadingContent: '加载中...',
+                        clsPrefix: 'xs-plugin-pullup-'
+                    },
+                    isShowLoading: false,
+                    textLoading: '加载中',
+                    scrollerStatus: {
+                        pulldownStatus :'default',
+                        pullupStatus: 'default'
+                    }
+                }
+            }
+        },
+        methods:{
+            selPullDown(){
+                // setTimeout(()=>{
+                //         this.scrollerMsg.scrollerStatus.pulldownStatus = 'disabled'
+                //         this.$nextTick(() => {
+                //             this.scrollerMsg.scrollerStatus.pulldownStatus = 'disabled'?this.scrollerMsg.scrollerStatus.pulldownStatus = 'default':''
+                //             this.$refs.scroller.reset()
+                //         })
+                //     },1000)
+                this.$emit('pullDown',2)
+            },
+            selPullUp(){
+                this.scrollerMsg.PageIndex++;
+                this.$emit('pullUp',
+               {
+                        i: this.scrollerMsg.PageIndex
+                    }
+                )
+            }
+        }
+    }
+</script>
+<style lang="less">
+
+</style>
+

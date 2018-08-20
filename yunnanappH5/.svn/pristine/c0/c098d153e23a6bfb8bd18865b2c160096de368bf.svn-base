@@ -1,0 +1,21 @@
+const paths = [
+'/sms/',
+'/'
+];  
+
+const useStrategy = {
+    // target:'http://dinglinfeng.4kb.cn/webapp-yrt',
+    target:"http://yntvapp.4kb.cn/webapp-yrt",
+    changeOrigin: true,
+    pathRewrite:{
+      '^/sms': 'sms',
+      '^/': '/'
+    }
+};
+
+const proxyTableObj = {};
+
+paths.forEach(path => {
+    proxyTableObj[path] = Object.assign({}, useStrategy)
+});
+module.exports = proxyTableObj;

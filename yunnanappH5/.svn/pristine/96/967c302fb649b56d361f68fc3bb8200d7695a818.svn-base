@@ -1,0 +1,235 @@
+<template>
+         <scroller
+            v-show="scrollerMsg.isShow"
+            v-model="scrollerMsg.scrollerStatus"
+            lock-x
+            scrollbar-y
+            class="scroller"
+            ref="scroller"
+            :bounce="scrollerMsg.isbounce"
+            :use-pullup="scrollerMsg.showUp"
+            :use-pulldown="true"
+            :pulldown-config="scrollerMsg.downObj"
+            :pullup-config="scrollerMsg.upobj" 
+            @on-pulldown-loading="selPullDown"
+            @on-pullup-loading="selPullUp">
+           <div class="_cus_overHidden">
+                <ul class="home_list _cus_overHidden">
+                    <li v-if="dataList.length > 0" v-for="(item,keys) in dataList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                        <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                            <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                            <label class="source-label">{{item.listTitle}}</label>
+                            <div class="tabImg" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="item.type=='tabList'?'_cus_posRelative':''">
+                                <img class="" v-if="item.urlList" :src="item.urlList[0]" alt="">
+                                <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                            </div>
+                                <div v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate" style="padding-bottom:0.5rem">
+                                <ul class="" style="display:flex;justify-content:space-between">
+                                    <li v-for="(img,keys) in item.urlList" :key="keys" >
+                                        <img :src="img" alt="" style="width:2.1rem;height:1.44rem">
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="home_time _cus_overHidden color999" :class="item.type == 'tabList' || item.type ==  'tabAudio' || item.type ==  'tabTranslate'?'_cus_posAbsolute perW100':''">
+                                <span v-show="item.type =='tabTranslate'" class="source-handle-title">置顶</span>
+                                <span class="__cus_fl">
+                                    <span>{{item.source}}</span>
+                                    <span class="">{{item.createTimeStr}}</span>
+                                </span>
+                                <span class="__cus_fr">
+                                    <span>{{item.virtualClickTimes}}</span>
+                                    <span class="new_watch"></span>
+                                </span>
+                            </p>
+                        </div>
+                        <div v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                            <img v-if="item.urlList" :src="item.urlList[0]" alt="">
+                            <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </scroller>
+</template>
+<script>
+// 1
+export default {
+  props: ["scrollerMsg", "dataList","newsList","setHeight"],
+  methods: {
+    selPullDown() {
+      setTimeout(() => {
+        this.scrollerMsg.scrollerStatus.pulldownStatus = "disabled";
+        this.$nextTick(() => {
+          this.scrollerMsg.scrollerStatus.pulldownStatus = "disabled"
+            ? (this.scrollerMsg.scrollerStatus.pulldownStatus = "default")
+            : "";
+          this.$refs.scroller.reset();
+        });
+        this.$emit("pullDown", {
+          i: this.scrollerMsg.PageIndex
+        });
+      }, 1000);
+    },
+    selPullUp() {
+      this.scrollerMsg.PageIndex++;
+      this.$emit("pullUp", {
+        i: this.scrollerMsg.PageIndex
+      });
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = "/videodetails";
+          break;
+        case "10":
+          path = "/newsdetails";
+          break;
+        case "20":
+          path = "/atlasdetails";
+          break;
+        case "40":
+          path = "/audiodetails";
+          break;
+        case "60":
+          path = "/specialdetails";
+          break;
+        case "50":
+          //  path = '/videochannel'
+          path = "/programdetails";
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      this.$router.push({
+        path: `/public${path}`,
+        query: Json
+      });
+    },
+    reset() {
+      this.$refs.scroller.reset();
+    }
+  }
+};
+</script>
+<style lang="less">
+.scroller {
+  .home_list {
+    > li {
+      padding: 0.2rem 0.3rem;
+      border-bottom: 2px solid #eeeeee;
+      box-sizing: border-box;
+      .source-handle-title {
+        margin-right: 0.15rem;
+        margin-top: 0.033rem;
+        float: left;
+        color: #f41a14;
+        border: 2px solid #f41a14;
+        text-align: center;
+        line-height: 1.5;
+        padding: 0 0.1rem;
+        font-size: 0.24rem;
+        border-radius: 0.1rem;
+      }
+      .source-label {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-align: justify;
+        line-height: 0.48rem;
+      }
+      .tabImg {
+        width: 100%;
+        height: 3.4rem;
+        margin-top: 0.1rem;
+        margin-bottom: 0.3rem;
+        > img {
+          vertical-align: middle;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+        > .video_playicon {
+          width: 1.06rem;
+          height: 1.06rem;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -0.58rem;
+          margin-left: -0.58rem;
+          background: url(../../../static/imgs/playicon.png) no-repeat left
+            center;
+          background-size: 100%;
+          z-index: 2;
+        }
+      }
+      > .tabTranslate {
+        width: 100%;
+        height: 1.44rem;
+        margin-bottom: 0.3rem;
+        > li {
+          img {
+            float: left;
+            width: 2.2rem;
+            height: 1.44rem;
+            display: block;
+          }
+        }
+      }
+      .home_time {
+        bottom: 0;
+        margin-top: 0.3rem;
+        font-size: 0.2rem;
+        .new_watch {
+          margin-left: 0.15rem;
+          width: 0.29rem;
+          height: 0.2rem;
+          display: inline-block;
+          background: url(../../../static/imgs/eye.png) no-repeat left center;
+          background-size: 100%;
+        }
+        .source-handle-title {
+          margin-right: 0.15rem;
+          margin-top: 0.033rem;
+          float: left;
+          color: #f41a14;
+          border: 2px solid #f41a14;
+          text-align: center;
+          line-height: 1.5;
+          padding: 0 0.1rem;
+          font-size: 0.24rem;
+          border-radius: 0.1rem;
+        }
+      }
+      .imageNews-img {
+        width: 2.2rem;
+        height: 1.44rem;
+        margin-left: 0.2rem;
+        position: relative;
+        > img {
+          width: 100%;
+          height: 100%;
+        }
+        > .audio_icon {
+          width: 0.66rem;
+          height: 0.66rem;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -0.38rem;
+          margin-left: -0.38rem;
+          background: url(../../../static/imgs/audio.png) no-repeat left center;
+          background-size: contain;
+          z-index: 89;
+        }
+      }
+    }
+  }
+}
+</style>
+

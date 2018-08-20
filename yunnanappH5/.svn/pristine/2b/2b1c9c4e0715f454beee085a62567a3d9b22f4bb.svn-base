@@ -1,0 +1,349 @@
+<template>
+    <div class="videodetails">
+        <div class="videodetails_back" @click="city_back">
+            <i class="videodetails_icon" ></i>
+        </div>    
+        <div class="videodetails_video _cus_posRelative">
+            <div class="video">
+              <!-- <img :src="newsdetails_msg.listShareImg">   -->
+            </div> 
+            <p class="new_wrap perW100 _cus_flexContent _cus_jusContent _cus_posAbsolute">
+                <span>
+                    <span>{{newsdetails_msg.liveTimeStr}}</span>
+                    <p>{{newsdetails_msg.title}}</p>
+                </span>
+                <span>
+                    <img src="../../../static/imgs/collect.png" alt=""  @click="clickCollection">
+                    <span>{{newsdetails_msg.virtualClickTimes}}</span>
+                    <i class="news_watch"></i>
+                </span>
+            </p>
+        </div>
+        <div class="videodetails_introduce">
+        	<scroller
+            :lock-x="true"
+            :scrollbarY="false"
+            :bounce="false"
+            style="height: calc(100vh - 5.8rem);">
+        	<div class="_cus_overHidden video_content">
+	            <div class="_cus_overHidden">
+	                <p class="_cus_flexContent _cus_jusContent _cus_fleAlignCen _cus_overHidden">
+	                    <span>
+	                        <span>{{newsdetails_msg.createTimeStr}}</span>
+	                        <span>{{newsdetails_msg.source}}</span>
+	                    </span>
+	                    <span class="" @click="isIcon = !isIcon">
+	                    	简介 
+	                    	<i class="video_icon" :class="isIcon?'video_icon_action':''"></i>
+	                    </span>
+	                </p>
+	                <div class="video_introduce _cus_overHidden" :class="isIcon?'Block':'None'">
+	                    <span>{{newsdetails_msg.introduction}}</span>
+	                </div>
+	                <p class="news_footer_title">新闻推荐</p>
+	            </div>
+	            <ul class="home_list _cus_overHidden">
+                        <li v-for="(item,keys) in newslists" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                            <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                                <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                                <label class="source-label">{{item.listTitle}}</label>
+                                <div class="tabImg" v-if="item.urlList.length > 0" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="item.type=='tabList'?'_cus_posRelative':''">
+                                    <img class="" :src="item.urlList[0]" alt="">
+                                    <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                                </div>
+                                 <div  v-if="item.urlList.length > 0" v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate" style="padding-bottom:0.5rem">
+                                    <ul class="" style="display:flex;justify-content:space-between">
+                                        <li v-for="(img,keys) in item.urlList" :key="keys" >
+                                            <img :src="img" alt="" style="width:2.15rem;height:1.44rem">
+                                        </li>
+                                    </ul>
+                                </div>
+                                <p class="home_time _cus_overHidden color999" :class="item.type == 'tabList' || item.type ==  'tabAudio' || item.type ==  'tabTranslate'?'_cus_posAbsolute perW100':''">
+                                   <span v-show="item.type =='tabTranslate'" class="source-handle-title">置顶</span>
+                                    <span class="__cus_fl">
+                                        <span>{{item.source}}</span>
+                                        <span class="">{{item.createTimeStr}}</span>
+                                    </span>
+                                    <span class="__cus_fr">
+                                        <span>{{item.virtualClickTimes}}</span>
+                                        <span class="new_watch"></span>
+                                    </span>
+                                </p>
+                            </div>
+                            <div v-if="item.urlList.length > 0" v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                                <img :src="item.urlList[0]" alt="">
+                                <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                            </div>
+                        </li>
+                    </ul>
+        	</div>
+        	</scroller>
+        </div>
+        <confirm
+            class="confirm_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-confirm="onConfirm"
+            @on-cancel="onCancel">
+            <span>{{test_mag}}</span>
+        </confirm> 
+        <toast :value="toast.toastShow" type="text" width="auto" :text="toast.toastText" position="bottom" class="toast_alert"></toast>	
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http.js";
+import { newsApi } from "../../services/newsApi.js";
+import { commonApi } from "../../common/js/common.js";
+export default {
+  data() {
+    return {
+      isIcon: false,
+      newsdetails_msg: {},
+      newslists: [],
+      videoAddress: "",
+      liveStatus: "",
+      hide_alert: false,
+      test_mag: "请确定是否登录?",
+      toast: {
+        toastShow: false,
+        toastText: "收藏成功"
+      }
+    };
+  },
+  mounted() {
+    this.getNewsList();
+  },
+  methods: {
+    onConfirm() {
+      this.$router.push({
+        path: "/login/login"
+      });
+    },
+    onCancel() {
+      console.log("已取消");
+    },
+    clickCollection() {
+       this.toast.toastShow = false
+      var id = this.$router.history.current.query.id;
+      let bodys = {
+        _json: false, //参数类型 formdata/json
+        _jsonp: true, //dataType: jsonp true/false
+        _jsonpCallback: "onBack" //请求接口返回的callback
+      };
+      bodys.refType = 20;
+      bodys.refId = id;
+      commonApi.Collection(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          this.toast.toastShow = true
+          this.isCollection = this.isCollection == 1 ? 0 : 1;
+          this.toast.toastText = this.isCollection == 1 ? '收藏成功!':'取消收藏成功!'
+        } else {
+          this.hide_alert = !this.hide_alert;
+          this.test_mag = r.errorMessage;
+        }
+      });
+    },
+    getNewsList() {
+      let params = this.$router.history.current.query;
+      params = Object.assign(params, {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      });
+      newsApi.getNewsDetails(params).then(r => {
+        if (r.status && r.statusCode == "200") {
+          this.newsdetails_msg = r.data;
+          //视频地址
+          this.videoAddress = r.data.videoAddress;
+          //直播状态:0未开始 10直播中 20已结束 30直播预告 40直播回看
+          this.liveStatus = r.data.liveStatus;
+          let data = r.data.contentList;
+          for (var i = 0; i < data.length; i++) {
+            console.log(data[i].contentType);
+            switch (data[i].contentType) {
+              case "30":
+                data[i]["type"] = "tabVideo";
+                break;
+              case "10":
+                data[i]["type"] = "list";
+                break;
+              case "40":
+                data[i]["type"] = "tabAudio";
+                break;
+              case "20":
+                data[i]["type"] = "tabTranslate";
+                break;
+              case "60":
+                data[i]["type"] = "tab";
+                break;
+              case "50":
+                data[i]["type"] = "tabList";
+                break;
+            }
+          }
+          this.newslists = data;
+        } else {
+          this.newsdetails_msg = {};
+        }
+      });
+    },
+    city_back() {
+      this.$router.go(-1);
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = "/videodetails";
+          break;
+        case "10":
+          path = "/newsdetails";
+          break;
+        case "20":
+          path = "/atlasdetails";
+          break;
+        case "40":
+          path = "/audiodetails";
+          break;
+        case "60":
+          path = "/specialdetails";
+          break;
+        case "50":
+          items.seriesType == "0"
+            ? (path = "/programdetails")
+            : items.seriesType == "10" ? (path = "/videochannel") : "";
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+       this.$router.go(-1);
+        setTimeout(() => {
+          this.$router.push({
+            path: `/public${path}`,
+            query: Json
+          });
+        }, 500);
+    }
+  }
+};
+</script>
+<style lang="less">
+.videodetails {
+  height: 100vh;
+  overflow: hidden;
+  .videodetails_back {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    position: fixed;
+    left: 0.2rem;
+    top: 0.2rem;
+    z-index: 1000;
+    .videodetails_icon {
+      width: 0.36rem;
+      height: 0.36rem;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+    }
+  }
+  .videodetails_video {
+    padding: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+    background: #fff;
+    height: 5.8rem;
+    border: 2px solid #eee;
+    .video {
+      height: 4.2rem;
+    }
+    > .new_wrap {
+      left: 0;
+      bottom: 0;
+      color: #b3b3b3;
+      overflow: hidden;
+      padding: 0 0.3rem 0.3rem 0.3rem;
+      line-height: 0.34rem;
+      > span:last-child {
+        > img {
+          width: 0.3rem;
+          height: 0.3rem;
+          display: block;
+          float: left;
+          margin-left: 0.03rem;
+          margin-right: 0.5rem;
+          transform: rotate(0deg) !important;
+        }
+        > .news_watch {
+          display: inline-block;
+          width: 0.29rem;
+          height: 0.2rem;
+          margin-bottom: 0.04rem;
+          display: inline-block;
+          vertical-align: middle;
+          margin-left: 0.1rem;
+          background: url(../../../static/imgs/eye.png) no-repeat left center;
+          background-size: 100%;
+        }
+      }
+    }
+  }
+  .videodetails_introduce {
+    margin-top: 5.8rem;
+    background-color: #fff;
+    color: #999;
+    .video_content {
+      > div:nth-of-type(1) {
+        padding: 0 0.3rem;
+        > p {
+          overflow: hidden;
+          min-height: 0.84rem;
+          line-height: 0.84rem;
+          .video_icon {
+            display: inline-block;
+            width: 0.22rem;
+            height: 0.22rem;
+            transform: rotate(90deg);
+            transition: all 0.5s;
+            background: url("../../../static/imgs/arroe.png") no-repeat;
+            background-size: contain;
+          }
+          .video_icon_action {
+            transform: rotate(180deg);
+          }
+        }
+        .video_introduce {
+          height: 0.5rem;
+        }
+        .Block {
+          display: block;
+        }
+        .None {
+          display: none;
+        }
+        .news_footer_title {
+          padding: 0 0.25rem;
+          height: 0.8rem;
+          background: #ffffff;
+          border-bottom: solid 2px #eee;
+          line-height: 0.8rem;
+        }
+      }
+    }
+  }
+}
+</style>
+

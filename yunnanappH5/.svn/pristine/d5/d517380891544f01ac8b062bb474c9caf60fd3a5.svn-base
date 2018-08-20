@@ -1,0 +1,6 @@
+export default {
+  saveImgInfo:(state,imgObject)=>{
+  	Array.prototype.imgObject = imgObject
+    imgObject?( state.imgObj=Array.prototype.imgObject):[]
+  }
+}

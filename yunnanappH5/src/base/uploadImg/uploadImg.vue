@@ -1,0 +1,316 @@
+<template>
+    <div class="uploadimg ">
+        <div class="uploadimg_content _cus_flexContent">
+             <div class="add">
+                <div class="add-image" align="center">
+                    <input @change="fileChange($event)" type="file" id="upload_file" multiple/>
+                    <i class="icon-camera"></i>
+                </div>
+            </div>
+            <!-- 图片预览 -->
+            <div class="add-img" v-show="imgList.length">
+                <p class="font14" v-if="false">图片(最多9张，还可上传<span v-text="9-imgList.length"></span>张)</p>
+                <ul class="img-list">
+                    <li v-for="(url,index) in imgList" class="__cus_fl">
+                        <img class="del" src="../../../static/imgs/del.jpg" @click.stop="delImg(index)"/> 
+                        <!-- del删除样式，icon字体图标需要自己找哦 -->
+                        <img :src="url.file.src" class="img_box">
+                    </li>
+                </ul>
+            </div>
+        </div>
+       
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                showFace: false,
+                imgList: [],
+                size: 0,
+                limit:9, //限制图片上传的数量
+                tempImgs:[]
+            }
+        },
+        props:['errorNetwork'],
+        watch:{
+            errorNetwork(newVal){
+                if(newVal){
+                    this.imgList.splice(this.imgList.length - 1,1)
+                }
+            }
+        },
+        methods: {
+            fileChange(el) {
+                if (!el.target.files[0].size) return;
+                this.fileList(el.target);
+                el.target.value = ''
+            },
+            fileList(fileList) {
+                let files = fileList.files;
+                for (let i = 0; i < files.length; i++) {
+                    //判断是否为文件夹
+                    if (files[i].type != '') {
+                        this.fileAdd(files[i]);
+                    } else {
+                        //文件夹处理
+                        this.folders(fileList.items[i]);
+                    }
+                }
+            },
+            //文件夹处理
+            folders(files) {
+                let _this = this;
+                //判断是否为原生file
+                if (files.kind) {
+                    files = files.webkitGetAsEntry();
+                }
+                files.createReader().readEntries(function (file) {
+                    for (let i = 0; i < file.length; i++) {
+                        if (file[i].isFile) {
+                            _this.foldersAdd(file[i]);
+                        } else {
+                            _this.folders(file[i]);
+                        }
+                    }
+                });
+
+            },
+            foldersAdd(entry) {
+                let _this = this;
+                entry.file(function (file) {
+                    _this.fileAdd(file)
+                })
+            },
+            fileAdd(file) {
+                if (this.limit !== undefined) this.limit--;
+                if (this.limit !== undefined && this.limit < 0) return;
+                //总大小
+                this.size = this.size + file.size;
+                //判断是否为图片文件
+                if (file.type.indexOf('image') == -1) {
+                    this.$dialog.toast({mes: '请选择图片文件'});
+                } else {
+                    let reader = new FileReader();
+                    let image = new Image();
+                    let _this = this;
+                    reader.readAsDataURL(file);
+                    reader.onload = function () {
+                        file.src = this.result;
+                        image.onload = function(){
+                            let width = image.width;
+                            let height = image.height;
+                            file.width = width;
+                            file.height = height;
+                            _this.imgList.push({
+                                file
+                            });
+                            console.log( _this.imgList);
+                            _this.$emit('uploadImg',_this.imgList);
+                        };
+                        image.src= file.src;
+                    }
+                }
+            },
+            delImg(index) {
+                this.size = this.size - this.imgList[index].file.size;//总大小
+                this.imgList.splice(index, 1);
+                if (this.limit !== undefined) this.limit = 9-this.imgList.length;
+                this.$emit('delImg',index)
+            },
+            displayImg() {
+
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .uploadimg{
+        overflow: hidden;
+          .app-bg >img{
+                width: 100%;
+                height: 100%;
+                -webkit-transform: scale(1.03);
+                -moz-transform: scale(1.03);
+                -ms-transform: scale(1.03);
+                -o-transform: scale(1.03);
+                transform: scale(1.03);
+            }
+            textarea {
+                padding: 10px;
+            }
+
+            .text-length {
+                font-size: 14px;
+                z-index: 999;
+                width: 100%;
+                text-align: right;
+                margin-bottom: 10px;
+                color: #e4e4e4;
+            }
+
+            .warning {
+                color: #fe9900;
+            }
+
+            .add-img {
+                width: 100%;
+            }
+
+            .add-img p {
+                color: #999;
+            }
+
+            .mui-content {
+                padding-bottom: 60px;
+            }
+
+            .mui-content .idea {
+                margin-top: 8px;
+                background-color: #FFFFFF;
+            }
+
+            .good-item {
+                text-align: center;
+                width: 33%;
+                max-width: 100%;
+                overflow: hidden;
+                padding-right: 10px;
+                padding-bottom: 10px;
+                float: left;
+            }
+
+            .good-item span {
+                font-size: 15px;
+                height: 30px;
+                line-height: 30px;
+                border-radius: 50px;
+                display: block;
+                width: 100%;
+                color: #333;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                border: 1px solid #CCCCCC;
+            }
+
+            .mui-table {
+                padding-top: 10px;
+                color: #333;
+                padding-left: calc(0.5% + 10px);
+            }
+
+            .h-line-behind {
+                line-height: 40px;
+                padding-left: 10px;
+            }
+
+            .question {
+                border: 0;
+                margin-bottom: 10px;
+            }
+
+            .add {
+                display: inline-block;
+                margin-bottom: .2rem;
+            }
+            .add-image {
+                margin: .15rem;
+                width: 1.08rem;
+                height: 1.08rem;
+                position: relative;
+            }
+            .add-image >#upload_file{
+                width: 1.08rem;
+                height: 1.08rem;
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                filter: alpha(opacity=0);
+                z-index: 99;
+            }
+            .add-image .icon-camera {
+                width: 1.08rem;
+                height: 1.08rem;
+                display: block;
+                background: url('../../../static/imgs/add-img.png') no-repeat;
+                background-size: contain;
+                // font-size: 24px;
+            }
+
+            .good-item .choose {
+                color: #fff;
+                background-color: #87582E;
+                color: #FFF;
+                border: 0;
+            }
+
+            .mui-btn-block {
+                border: 0;
+                border-radius: 0;
+                background-color: #87582E;
+                color: #fff;
+                margin-bottom: 0;
+                bottom: 0;
+            }
+
+            .mui-buttom {
+                position: fixed;
+                width: 100%;
+                bottom: 0;
+                z-index: 999;
+
+            }
+
+            /*九宫格*/
+            .img-list {
+                overflow: hidden;
+            }
+
+            .img-list > li {
+                float: left;
+                width: 1.08rem;
+                height: 1.08rem;
+                overflow: hidden;
+                text-align: center;
+                margin: .15rem;
+                position: relative;
+            }
+            .img-list > li >.img_box{
+                width: 100%;
+            }
+            .img-list > li > div {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+
+            .img-list > li > div .app-bg {
+                width: 100%;
+                height: 100%;
+            }
+
+            .mui-fullscreen {
+                z-index: 9999;
+            }
+
+            .del {
+                position: absolute;
+                width: 18px;
+                top: 0;
+                right: 0;
+                z-index: 999
+            }
+            .uploadimg_content{
+                width: 100%;
+               
+                border-radius: .1rem;
+            }
+    }
+</style>

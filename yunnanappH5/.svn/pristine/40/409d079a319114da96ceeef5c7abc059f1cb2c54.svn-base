@@ -1,0 +1,17 @@
+import {HttpService} from './http';
+/**
+ * 封装首页新闻相关的请求及数据处理
+ */
+
+export const newsApi = {
+  api: {
+    columnList:'/content/columnList.do',
+    newsList:'/content/list.do'
+  },
+  getColumnList(body){
+    return HttpService.post(this.api.columnList, body, false, false)
+  },
+  getnewsList(body){
+    return HttpService.post(this.api.newsList, body, false, false)
+  }
+}

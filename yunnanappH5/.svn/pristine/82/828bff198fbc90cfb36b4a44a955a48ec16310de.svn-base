@@ -1,0 +1,7 @@
+@import "../less/_global";
+.index{
+    font-size: .24rem;
+    .content-box{
+        margin-top: 1.52rem;
+    }
+}

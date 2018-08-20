@@ -1,0 +1,94 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import publicIndex from '@/components/index.vue'
+import systemIndex from '@/components/system/systemIndex.vue'
+import home from '@/components/system/home.vue'
+import myPhotoIndex from '@/components/myPhoto/myPhotoIndex.vue'
+import myPhoto from '@/components/myPhoto/myPhoto.vue'
+import myModuleIndex from '@/components/myModule/myModuleIndex.vue'
+import myModule from '@/components/myModule/myModule.vue'
+import multiMediaIndex from '@/components/multiMedia/multiMediaIndex.vue'
+import video from '@/components/multiMedia/video.vue'
+import cloudTvIndex from '@/components/cloudTv/cloudTvIndex.vue'
+import cloudTv from '@/components/cloudTv/cloudTv.vue'
+import Login from '@/components/login/login.vue'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: '首页',
+      component: publicIndex,
+      redirect:'/system/home',
+      children:[
+        {
+          path:'/system/',
+          name:'',
+          component:systemIndex,
+          children:[
+            {
+              path:'home',
+              name:'首页',
+              component:home
+            }
+          ]
+        },
+        {
+          path:'/myphoto/',
+          name:'',
+          component:myPhotoIndex,
+          children:[
+            {
+              path:'shootlist',
+              name:'',
+              component:myPhoto
+            }
+          ]
+        },
+        {
+          path:'/mymodule/',
+          name:'',
+          component:myModuleIndex,
+          children:[
+            {
+              path:'signin',
+              name:'',
+              component:myModule
+            }
+          ]
+        },
+        {
+          path:'/multimedia/',
+          name:'',
+          component:multiMediaIndex,
+          children:[
+            {
+              path:'video',
+              name:'',
+              component:video
+            }
+          ]
+        },
+        {
+          path:'/cloudtv/',
+          name:'',
+          component:cloudTvIndex,
+          children:[
+            {
+              path:'livebroadcast',
+              name:'',
+              component:cloudTv
+            }
+          ]
+        }
+      ]
+    },
+    {
+      'path':'/login',
+      'name':'登录',
+      component:Login
+    }
+  ]
+})

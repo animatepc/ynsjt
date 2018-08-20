@@ -1,0 +1,253 @@
+<template>
+    <div class="setheadphoto">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="colorfff city_text">设置头像</span>
+        </div>
+        <div class="userphoto">
+            <img :src="imgSrc" alt="" class="">
+        </div>
+        <ul class="userinfo_content">
+            <li class="">
+               <input type="file" ref="file"  value="" class="go_album" accept="image/*" @change="fileChange"/>
+               <span class="icon_photo"></span>
+               <span>从相册中选一张</span>
+            </li>
+        </ul>
+        <alert
+            class="login_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-show="alertShow"
+            @on-hide="alertHide">
+            <span>{{test_mag}}</span>
+        </alert>
+        
+    </div>
+</template>
+<script>
+
+
+//引用ajax
+import { HttpService } from '../../services/http.js'
+import { coreApi } from '../../services/coreApi.js'
+
+    export default {
+        data(){
+            return {
+                hide_alert:false,
+                imgSrc:'', 
+                test_mag:'',
+                idCode:{
+                    name:''
+                },
+                Signin:false,
+                files:null
+            }
+        },
+        methods:{
+            city_back(){
+                this.$router.go(-1)
+            },
+            fileChange(e){
+                
+                var reader = new FileReader();
+                var file = e.target.files[0];
+                // 图片大小不得超过2个M 2*1024*1024
+                let fileSize = file.size,
+                    type = file.type;
+                if(!/image\/\w+/.test(type)){
+                    console.log('只能上传图片');
+                    return false;
+                }
+//              if(fileSize > 2*1024*1024){
+//              	console.log('上传的图片大于2M，请重新选择');
+//              	this.$refs.file.value = ''
+//              	this.imgSrc = ''
+//              	return false;
+//              }
+
+                reader.onload = (e)=>{
+                    this.imgSrc = e.target.result   
+                    this.uploadLocalImage(this.imgSrc);
+                   
+                }
+                reader.readAsDataURL(file);
+            },
+            fileLoad(e){
+            },
+        
+             //上传图片
+           uploadLocalImage(fileds){
+            // 把图片放入数组
+            let upload = new Array();
+            upload.push(fileds)
+            let bodys = {
+                list:JSON.stringify(upload),
+                _json: false, //参数类型 formdata/json
+                // _jsonp:true, //dataType: jsonp true/false
+                _jsonpCallback:'onBack' //请求接口返回的callback
+            }
+            // 调用gloabApi的api 参数是bodys r 接口返回的数据对象
+            coreApi.uploadLocalImage(bodys).then(r=>{
+                if(r.statusCode == '200' && r.status){
+                    // 暂无提示
+                    this.hide_alert = ! this.hide_alert
+                    this.test_mag = '修改成功！'
+                    console.log("接口调用成功");
+                     
+
+                }else{
+                    this.hide_alert = ! this.hide_alert
+                    this.test_mag = r.errorMessage
+                    console.log("接口调用失败");
+                }
+            })
+           },
+            alertShow(){
+
+            },
+            alertHide(){
+                if(this.Signin){
+                    this.$router.push({
+                        'path':'/mymodule/signin'
+                    })
+                }
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .setheadphoto{
+        height: 100%;
+        background-color: #fff;
+        margin-top: 1rem;
+        font-size: 0.28rem;
+        .searchVal{
+            width: 100%;
+            height: 1rem;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #f41a14;
+            z-index: 2;
+            .username_ready{
+                position: absolute;
+                right: .3rem;
+            }
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                color: #fff;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+                .search_mode{
+                    width: 100%;
+                    height: .6rem;
+                    line-height: .6rem;
+                    padding-left: 2rem;
+                    outline: 0;
+                    text-align: left;
+                    box-sizing: border-box;
+                    display: block;
+                    font-size: 0.24rem;
+                    background-color: #f41a14;
+                    color: #fff;
+                    &::-webkit-input-placeholder{ /*WebKit browsers*/
+                        color: #fff;
+                    }
+                    &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                        color: #fff;
+                    }
+                    &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                        color: #fff;
+                    }
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+            }
+        }
+        .userphoto{
+            width: 100%;
+            height: 3rem;
+            line-height: 3rem;
+            background: #f4f4f4;
+            text-align: center;
+            >img{
+                width: 1.57rem;
+                height: 1.57rem;
+                display: inline-block;
+                vertical-align: middle;
+            }
+        }
+        .userinfo_content{
+            font-size: .28rem;
+            >li{
+                padding: 0 0.3rem;
+                height: .95rem;
+                line-height: .95rem;
+                overflow-y: visible;
+                font-size: 0.28rem;
+                color: #282828;
+                border-bottom: 2px solid #eeeeee;
+                position: relative;
+                > .go_album{
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    opacity: 0;
+                    filter: alpha(opacity=0);
+                    z-index: 99;
+                }
+                >.icon_photo{
+                    display: inline-block;
+                    width: 0.27rem;
+                    height: 0.25rem;
+                    margin-right: 0.1rem;
+                    background: url('../../../static/imgs/img_icon.png') 100% no-repeat;
+                }
+            }
+        }
+    }    
+</style>

@@ -1,0 +1,285 @@
+  <template>
+      <div class="setphone">
+          <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+              <span class="search_back" @click="city_back"></span>
+              <span class="colorfff city_text">设置手机号</span>
+          </div>
+          <div class="setphone_content bgfff">
+              <div class="login_phone">
+                  <group class="_cus_flexContent _cus_fleAlignCen perH100 ">
+                      <x-input mask="999 9999 9999" keyboard="number" :max="13" is-type="china-mobile" :should-toast-error="false" v-model="idCode.phone" placeholder="请输入手机号" ref="mobile"></x-input>
+                  </group>
+              </div>
+          </div>
+          <x-Button :disabled="xbuttondis2"  type="button" class="login_sub" @click.native="Signout">下一步</x-Button>
+          <p class="perW100 _cus_textCenter setphone_tip">更换手机后，使用新手机号和当前密码登录账户</p>
+          <alert
+              class="login_alert"
+              :value="hide_alert"
+              button-text="确认"
+              @on-show="alertShow"
+              @on-hide="alertHide">
+              <span>{{test_mag}}</span>
+          </alert>
+      </div>
+  </template>
+  <script>
+  import { HttpService } from "../../services/http.js";
+  import { coreApi } from "../../services/coreApi.js";
+  export default {
+    data() {
+      return {
+        xbuttondis2: false,
+        idCode: {
+          phone: "",
+          status: ""
+        },
+        hide_alert: false,
+        test_mag: ""
+      };
+    },
+    methods: {
+      alertShow() {
+        // 弹窗显示
+      },
+      alertHide() {
+        // 弹窗隐藏
+        this.hide_alert = false;
+      },
+      city_back() {
+        this.$router.go(-1);
+      },
+      Signout() {
+        //校验手机正则
+        let newPhone = this.idCode.phone;
+        newPhone = newPhone.replace(/\s/g, "");
+        let pattern = /(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+        if (!pattern.test(newPhone)) {
+          this.test_mag = "新手机号格式不对";
+          this.hide_alert = true;
+          return;
+        }
+        //获取上级页面传入的参数
+        let mobile = this.$router.currentRoute.query.mobile;
+        //获取input的手机号
+        var inputMobile = this.$refs.mobile.value;
+        //去掉内部的的空格
+        inputMobile = inputMobile.replace(/\s/g, "");
+        this.idCode.phone = inputMobile;
+        let _this = this;
+        if (mobile != "" && mobile != null && mobile != undefined) {
+          //有手机号 走更换手机号逻辑
+
+          this.idCode.status = 1;
+          var bodys = {
+            mobile: inputMobile,
+            _jsonp: true,
+            _jsonpCallback: "onBack"
+          };
+          coreApi.changeNext(bodys).then(r => {
+            if (r.statusCode == "200" && r.status) {
+              // 接口访问成功，执行
+              this.$router.push({
+                path: "/login/updatephone",
+                query: { tel: this.idCode.phone, status: this.idCode.status }
+              });
+            } else if (!r.status) {
+              // 返回错误信息
+              this.hide_alert = true;
+              this.test_mag = r.errorMessage;
+            }
+          });
+        } else {
+          //没有手机号 走绑定手机号逻辑
+
+          this.idCode.status = 2;
+          // var bodys = {
+          //   mobile: inputMobile,
+          //   _jsonp: true,
+          //   _jsonpCallback: "onBack"
+          // };
+          // coreApi.bindingMobile(bodys).then(r => {
+          //   if (r.statusCode == "200" && r.status) {
+          //     // 接口访问成功，执行
+          //     this.$router.push({
+          //       path: "/login/updatephone",
+          //       query: { tel: this.idCode.phone, status: this.idCode.status }
+          //     });
+          //   } else if (!r.status) {
+          //     // 返回错误信息
+          //     this.hide_alert = !this.hide_alert;
+          //     this.test_mag = r.errorMessage;
+          //   }
+          // });
+
+          var bodys = {
+            mobile: inputMobile,
+            _jsonp: true,
+            _jsonpCallback: "onBack"
+          };
+          coreApi.changeNext(bodys).then(r => {
+            if (r.statusCode == "200" && r.status) {
+              // 接口访问成功，执行
+              this.$router.push({
+                path: "/login/updatephone",
+                query: { tel: this.idCode.phone, status: this.idCode.status }
+              });
+            } else if (!r.status) {
+              // 返回错误信息
+              this.hide_alert = true;
+              this.test_mag = r.errorMessage;
+            }
+          });
+        }
+      },
+      SetUserhead() {
+        this.$router.push({
+          path: "/mymodule/setheadphoto"
+        });
+      },
+      SetUsername() {
+        this.$router.push({
+          path: "/mymodule/setusername"
+        });
+      }
+    }
+  };
+  </script>
+  <style lang="less">
+  .setphone {
+    height: 100vh;
+    background-color: #fff;
+    font-size: 0.28rem;
+    .searchVal {
+      width: 100%;
+      height: 1rem;
+      overflow: hidden;
+      color: #fff;
+      z-index: 1;
+      display: flex;
+      line-height: 1rem;
+      text-align: center;
+      background: #f41a14;
+      .search_back {
+        width: 0.22rem;
+        height: 0.4rem;
+        margin-left: 0.3rem;
+        display: inline-block;
+        background: url("../../../static/imgs/back.png") center center no-repeat;
+        background-size: contain;
+        z-index: 10;
+      }
+      .search_box {
+        height: 0.6rem;
+        color: #fff;
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid #fff;
+        border-radius: 0.1rem;
+        .search_icon {
+          width: 0.3rem;
+          height: 0.3rem;
+          background: url("../../../static/imgs/search.png") center center
+            no-repeat;
+          background-size: 0.3rem 0.3rem;
+          z-index: 1;
+          top: 0;
+          left: 1.5rem;
+          bottom: 0;
+          margin: auto;
+        }
+        .search_mode {
+          width: 100%;
+          height: 0.6rem;
+          line-height: 0.6rem;
+          padding-left: 2rem;
+          outline: 0;
+          text-align: left;
+          box-sizing: border-box;
+          display: block;
+          font-size: 0.24rem;
+          background-color: #f41a14;
+          color: #fff;
+          &::-webkit-input-placeholder {
+            /*WebKit browsers*/
+            color: #fff;
+          }
+          &::-moz-input-placeholder {
+            /*Mozilla Firefox*/
+            color: #fff;
+          }
+          &::-ms-input-placeholder {
+            /*Internet Explorer*/
+            color: #fff;
+          }
+        }
+      }
+      .search_city {
+        height: 0.5rem;
+        line-height: 0.5rem;
+        //              margin: 0 0.3rem;
+        margin-right: 0.3rem;
+      }
+      .city_text {
+        position: absolute;
+        left: 0;
+        width: 100vw;
+        text-align: center;
+        height: 1rem;
+        line-height: 1rem;
+        font-size: 0.32rem;
+      }
+    }
+    .setphone_content {
+      overflow: hidden;
+      font-size: 0.28rem;
+      margin-top: 0.85rem;
+      .login_phone {
+        margin: 0 0.3rem;
+        height: 0.8rem;
+        border: 1px solid #999;
+        border-radius: 5px;
+        padding-left: 10px;
+        box-sizing: border-box;
+        .weui-cells {
+          width: 100%;
+          height: 100%;
+          margin-top: 0;
+        }
+        .weui-cell {
+          padding: 0 15px;
+        }
+        .weui-icon-clear {
+          font-size: 0.28rem;
+        }
+        .vux-input-icon.weui-icon-warn:before,
+        .vux-input-icon.weui-icon-success:before {
+          font-size: 0.42rem;
+        }
+        input {
+          height: 0.8rem;
+          outline: none;
+          border: none;
+          line-height: 100%;
+          font-size: 0.28rem;
+        }
+      }
+    }
+    .login_sub {
+      width: 4.9rem;
+      margin: 0 auto;
+      margin-top: 2.14rem;
+      margin-bottom: 0.2rem;
+      height: 0.96rem;
+      line-height: 0.96rem;
+      font-size: 0.32rem;
+      color: #fff;
+      background: #f41a14;
+      border-radius: 10px;
+    }
+    .setphone_tip {
+      margin-top: 0.3rem;
+    }
+  }
+  </style>

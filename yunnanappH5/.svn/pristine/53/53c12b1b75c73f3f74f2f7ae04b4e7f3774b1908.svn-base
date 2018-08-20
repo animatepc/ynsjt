@@ -1,0 +1,61 @@
+import {HttpService} from './http';
+/**
+ * 封装视频相关的请求及数据处理
+ */
+import { sms } from './commonApi.js'
+export const videoApi = {
+  api: {
+    myVideoList: '/myVideo/myVideoList.do',
+    updateUserName: '/home/info/changeNickName.do',
+    homeMessage: '/home/message/list.do',
+    homeFeedback: '/home/feedback/list.do',
+    video: '/content/list.do',
+    recom: '/home/recom/recom.do',
+    shortVideo: '/content/list.do',
+    columnVideoList: '/content/columnList.do',
+    columnDateList: '/watch/list.do',
+    watchList: '/watch/list.do',
+    channelList: 'watch/programList.do',
+    commonList: 'watch/commonList.do'
+  },
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  },
+  //短视频
+  video(body){
+    return HttpService.post(this.api.video, body, false, true)
+  },
+  //推荐位
+  recom(body){
+    return HttpService.post(this.api.recom, body, false, false)
+  },
+  //视频-->品牌栏目
+  getColumnVideoList(body){
+  return HttpService.post(this.api.columnVideoList, body, false, false)
+  },
+  //视频-->品牌栏目-->栏目数据
+  getColumnDateList(body){
+  return HttpService.post(this.api.columnDateList, body, false, false)
+  },
+  //视频-->品牌栏目-->频道、节目
+  watchList(body){
+  return HttpService.post(this.api.watchList, body, false, false)
+  },
+  //视频-->品牌栏目-->频道、节目-->详情
+  channelList(body){
+  return HttpService.post(this.api.channelList, body, false, false)
+  },
+  //所有节目剧集
+  commonList(body){
+  return HttpService.post(this.api.commonList, body, false, false)
+  }
+}

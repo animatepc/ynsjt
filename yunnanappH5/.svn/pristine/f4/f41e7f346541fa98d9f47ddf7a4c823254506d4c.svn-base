@@ -1,0 +1,488 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+
+const publicIndex = resolve => require(['@/components/index.vue'], resolve)
+const systemIndex = resolve => require([ '@/components/system/systemIndex.vue'], resolve)
+const home = resolve => require([ '@/components/system/home.vue'], resolve)
+const myPhotoIndex = resolve => require([ '@/components/myPhoto/myPhotoIndex.vue'], resolve)
+const myPhoto = resolve => require([ '@/components/myPhoto/myPhoto.vue'], resolve)
+const MyPreview = resolve => require([ '@/components/myPhoto/myPreview.vue'], resolve)
+const MyphotoUpload = resolve => require([ '@/components/myPhoto/MyphotoUpload.vue'], resolve)
+const ReleasePhoto = resolve => require([ '@/components/myPhoto/releasePhoto.vue'], resolve)
+const myModuleIndex = resolve => require([ '@/components/myModule/myModuleIndex.vue'], resolve)
+const myModule = resolve => require([ '@/components/myModule/myModule.vue'], resolve)
+const UserInfo = resolve => require([ '@/components/myModule/userinfo.vue'], resolve)
+const setUserName = resolve => require([ '@/components/myModule/setUserName.vue'], resolve)
+const setHeadPhoto = resolve => require([ '@/components/myModule/setHeadPhoto.vue'], resolve)
+const myIntegration = resolve => require([ '@/components/myModule/myIntegration.vue'], resolve)
+const integrationRule = resolve => require([ '@/components/myModule/integrationRule.vue'], resolve)
+const newsMessage = resolve => require([ '@/components/myModule/newsMessage.vue'], resolve)
+const myPicture = resolve => require([ '@/components/myModule/mypicture.vue'], resolve)
+const myCollection = resolve => require([ '@/components/myModule/myCollection.vue'], resolve)
+const recordHist = resolve => require([ '@/components/myModule/recordHist.vue'], resolve)
+const userSet = resolve => require([ '@/components/myModule/userSet.vue'], resolve)
+const Feedback = resolve => require([ '@/components/myModule/feedback.vue'], resolve)
+const AddFeedback = resolve => require([ '@/components/myModule/addfeedback.vue'], resolve)
+const AboutUser = resolve => require([ '@/components/myModule/aboutuser.vue'], resolve)
+const multiMediaIndex = resolve => require([ '@/components/multiMedia/multiMediaIndex.vue'], resolve)
+const video = resolve => require([ '@/components/multiMedia/video.vue'], resolve)
+const cloudTvIndex = resolve => require([ '@/components/cloudTv/cloudTvIndex.vue'], resolve)
+const cloudTv = resolve => require([ '@/components/cloudTv/cloudTv.vue'], resolve)
+const LoginIndex = resolve => require([ '@/components/login/loginIndex.vue'], resolve)
+const Login = resolve => require([ '@/components/login/login.vue'], resolve)
+const ForgetPass = resolve => require([ '@/components/login/forgetPass.vue'], resolve)
+const ModifyPass = resolve => require([ '@/components/login/modifyPass.vue'], resolve)
+const SetPersonal = resolve => require([ '@/components/login/setPersonal.vue'], resolve)
+const agreement = resolve => require([ '@/components/login/agreement.vue'], resolve)
+const SetPhone = resolve => require([ '@/components/login/setphone.vue'], resolve)
+const UpdatePhone = resolve => require([ '@/components/login/UpdatePhone.vue'], resolve)
+const ModifyPassCode = resolve => require([ '@/components/login/modifyPassCode.vue'], resolve)
+const HistoryPass = resolve => require([ '@/components/login/historyPass.vue'], resolve)
+const ontherIndex = resolve => require([ '@/components/public/publicIndex.vue'], resolve)
+const NewsDetails = resolve => require([ '@/components/public/newsdetails.vue'], resolve)
+const VideoDetails = resolve => require([ '@/components/public/videodetails.vue'], resolve)
+const AudioDetails = resolve => require([ '@/components/public/audioDetails.vue'], resolve)
+const SearchMsg = resolve => require([ '@/components/public/SearchMsg.vue'], resolve)
+const ScreenCity = resolve => require([ '@/components/public/ScreenCity.vue'], resolve)
+const SearchList = resolve => require([ '@/components/public/searchlist.vue'], resolve)
+const SpecialDetails = resolve => require([ '@/components/public/SpecialDetails.vue'], resolve)
+const AtlasDetails = resolve => require([ '@/components/public/atlasDetails.vue'], resolve)
+const channelDetails = resolve => require([ '@/components/public/channelDetails.vue'], resolve)
+const atlasExtend = resolve => require([ '@/components/public/atlasExtend.vue'], resolve)
+const videoChannel = resolve => require([ '@/components/public/videoChannel.vue'], resolve)
+const programDetails = resolve => require([ '@/components/public/programdetails.vue'], resolve)
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: '首页',
+      component: publicIndex,
+      redirect: '/system/home',
+      children: [
+        {
+          path: '/system/',
+          name: '',
+          component: systemIndex,
+          children: [
+            {
+              path: 'home',
+              name: '首页',
+              component: home,
+              meta: { 
+                pageTitle: '首页', 
+                keepAlive: true 
+              } 
+            }
+          ]
+        },
+        {
+          path: '/myphoto/',
+          name: '',
+          component: myPhotoIndex,
+          children: [
+            {
+              path: 'shootlist',
+              name: '',
+              component: myPhoto,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }
+          ]
+        },
+        {
+          path: '/mymodule/',
+          name: '我的',
+          component: myModuleIndex,
+          children: [
+            {
+              path: 'signin',
+              name: '我的',
+              component: myModule,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }, {
+              path: 'userinfo',
+              name: '个人信息',
+              component: UserInfo,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }, 
+            {
+              path: 'setusername',
+              name: '设置用户名',
+              component: setUserName,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'setheadphoto',
+              name: '设置头像',
+              component: setHeadPhoto,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'myintegration',
+              name: '我的积分',
+              component: myIntegration,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'integrationrule',
+              name: '积分规则',
+              component: integrationRule,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'newsmessage',
+              name: '我的消息',
+              component: newsMessage,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'mypicture',
+              name: '我的爆料',
+              component: myPicture,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'mycollection',
+              name: '我的收藏',
+              component: myCollection,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'recordhist',
+              name: '历史记录',
+              component: recordHist,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'userset',
+              name: '账户设置',
+              component: userSet,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'feedback',
+              name: '意见反馈',
+              component: Feedback,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            },
+            {
+              path: 'addfeedback',
+              name: '帮助反馈',
+              component: AddFeedback,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }, {
+              path: 'aboutuser',
+              name: '关于我们',
+              component: AboutUser,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }
+          ]
+        },
+        {
+          path: '/multimedia/',
+          name: '',
+          component: multiMediaIndex,
+          children: [
+            {
+              path: 'video',
+              name: '',
+              component: video,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              } 
+            }
+          ]
+        },
+        {
+          path: '/cloudtv/',
+          name: '',
+          component: cloudTvIndex,
+          children: [
+            {
+              path: 'livebroadcast',
+              name: '',
+              component: cloudTv,
+              meta: { 
+                pageTitle: '', 
+                keepAlive: true 
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: '/public/',
+      name: '',
+      component: ontherIndex,
+      children: [
+        {
+          path: 'newsdetails/:id',
+          name: '新闻详情',
+          component: NewsDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true,
+            scrollToTop: true
+          } 
+        },
+        {
+          path: 'videodetails/:id',
+          name: '新闻视频查看',
+          component: VideoDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'audiodetails/:id',
+          name: '音频查看',
+          component: AudioDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'searchmsg',
+          name: '搜索',
+          component: SearchMsg,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'screencity',
+          name: '筛选城市',
+          component: ScreenCity,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'searchlist',
+          name: '搜索列表',
+          component: SearchList,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'specialdetails/:id',
+          name: '专题',
+          component: SpecialDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'atlasdetails/:id',
+          name: '图集详情',
+          component: AtlasDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'atlasextend',
+          name: '图集推荐',
+          component: atlasExtend,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'channeldetails/:id',
+          name: '频道节目列表',
+          component: channelDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'videochannel/:id',
+          name: '视频详情页',
+          component: videoChannel,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'programdetails/:id',
+          name: '节目剧集页',
+          component: programDetails,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        }
+      ]
+    },
+    {
+      path: '/myphoto/mypreview',
+      name: '爆料图集详情',
+      component: MyPreview,
+      meta: { 
+        pageTitle: '', 
+        keepAlive: true 
+      } 
+    },
+    {
+      path: '/myphoto/myphotoupload',
+      name: '我拍',
+      component: MyphotoUpload,
+      meta: { 
+        pageTitle: '', 
+        keepAlive: true 
+      } 
+    },
+    {
+      path: '/myphoto/releasephoto',
+      name: '我拍',
+      component: ReleasePhoto,
+      meta: { 
+        pageTitle: '', 
+        keepAlive: true 
+      } 
+    },
+    {
+      'path': '/login/',
+      'name': '登录',
+      component: LoginIndex,
+      children: [
+        {
+          path: 'login',
+          name: '登录',
+          component: Login,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'forgetpass',
+          name: '忘记密码',
+          component: ForgetPass,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'modifypass',
+          name: '修改密码',
+          component: ModifyPass,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'agreement',
+          name: '用户协议和隐私条款',
+          component: agreement,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'setpersonal',
+          name: '个人信息设置',
+          component: SetPersonal,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'setphone',
+          name: '设置手机号',
+          component: SetPhone,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        }, {
+          path: 'updatephone',
+          name: '更新手机号',
+          component: UpdatePhone,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        }, {
+          path: 'modifypasscode',
+          name: '修改密码-验证码录入',
+          component: ModifyPassCode,
+          meta: { 
+            pageTitle: '', 
+            keepAlive: true 
+          } 
+        },
+        {
+          path: 'historyPass',
+          name:'更新密码',
+          component: HistoryPass
+        }
+      ]
+    }
+  ]
+})

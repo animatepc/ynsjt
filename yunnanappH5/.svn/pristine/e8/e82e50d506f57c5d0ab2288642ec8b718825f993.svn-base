@@ -1,0 +1,271 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import publicIndex from '@/components/index.vue'
+import systemIndex from '@/components/system/systemIndex.vue'
+import home from '@/components/system/home.vue'
+import myPhotoIndex from '@/components/myPhoto/myPhotoIndex.vue'
+import myPhoto from '@/components/myPhoto/myPhoto.vue'
+import MyPreview from '@/components/myPhoto/myPreview.vue'
+import MyphotoUpload from '@/components/myPhoto/MyphotoUpload.vue'
+import ReleasePhoto from '@/components/myPhoto/releasePhoto.vue'
+import myModuleIndex from '@/components/myModule/myModuleIndex.vue'
+import myModule from '@/components/myModule/myModule.vue'
+import UserInfo from '@/components/myModule/userinfo.vue'
+import setUserName from '@/components/myModule/setUserName.vue'
+import setHeadPhoto from '@/components/myModule/setHeadPhoto.vue'
+import myIntegration from '@/components/myModule/myIntegration.vue'
+import integrationRule from '@/components/myModule/integrationRule.vue'
+import newsMessage from '@/components/myModule/newsMessage.vue'
+import myPicture from '@/components/myModule/mypicture.vue'
+import myCollection from '@/components/myModule/myCollection.vue'
+import recordHist from '@/components/myModule/recordHist.vue'
+import userSet from '@/components/myModule/userSet.vue'
+import Feedback from '@/components/myModule/feedback.vue'
+import AddFeedback from '@/components/myModule/addfeedback.vue'
+import AboutUser from '@/components/myModule/aboutuser.vue'
+import multiMediaIndex from '@/components/multiMedia/multiMediaIndex.vue'
+import video from '@/components/multiMedia/video.vue'
+import cloudTvIndex from '@/components/cloudTv/cloudTvIndex.vue'
+import cloudTv from '@/components/cloudTv/cloudTv.vue'
+import LoginIndex from '@/components/login/loginIndex.vue'
+import Login from '@/components/login/login.vue'
+import ForgetPass from '@/components/login/forgetPass.vue'
+import ModifyPass from '@/components/login/modifyPass.vue'
+import SetPersonal from '@/components/login/setPersonal.vue'
+import agreement from '@/components/login/agreement.vue'
+import SetPhone from '@/components/login/setphone.vue'
+import UpdatePhone from '@/components/login/UpdatePhone.vue'
+import ModifyPassCode from '@/components/login/modifyPassCode.vue'
+import NewsDetails from '@/components/public/newsdetails.vue'
+import VideoDetails from '@/components/public/videodetails.vue'
+import SearchMsg from '@/components/public/SearchMsg.vue'
+import ScreenCity from '@/components/public/ScreenCity.vue'
+import SearchList from '@/components/public/searchlist.vue'
+import SpecialDetails from '@/components/public/SpecialDetails.vue'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: '首页',
+      component: publicIndex,
+      redirect:'/system/home',
+      children:[
+        {
+          path:'/system/',
+          name:'',
+          component:systemIndex,
+          children:[
+            {
+              path:'home',
+              name:'首页',
+              component:home
+            }
+          ]
+        },
+        {
+          path:'/myphoto/',
+          name:'',
+          component:myPhotoIndex,
+          children:[
+            {
+              path:'shootlist',
+              name:'',
+              component:myPhoto
+            }
+          ]
+        },
+        {
+          path:'/mymodule/',
+          name:'我的',
+          component:myModuleIndex,
+          children:[
+            {
+              path:'signin',
+              name:'我的',
+              component:myModule
+            },{
+              path:'userinfo',
+              name: '个人信息',
+              component: UserInfo
+            },{
+              path:'setusername',
+              name: '设置用户名',
+              component: setUserName
+            },
+            {
+              path:'setheadphoto',
+              name: '设置头像',
+              component: setHeadPhoto
+            },
+            {
+              path: 'myintegration',
+              name:'我的积分',
+              component: myIntegration
+            },
+            {
+              path: 'integrationrule',
+              name: '积分规则',
+              component: integrationRule
+            },  
+            {
+              path: 'newsmessage',
+              name: '我的消息',
+              component: newsMessage
+            },
+            {
+              path: 'mypicture',
+              name: '我的爆料',
+              component: myPicture
+            },
+            {
+              path: 'mycollection',
+              name: '我的收藏',
+              component: myCollection
+            },
+            {
+              path: 'recordhist',
+              name: '历史记录',
+              component: recordHist
+            },
+            {
+              path: 'userset',
+              name: '账户设置',
+              component: userSet
+            },
+            {
+              path: 'feedback',
+              name: '意见反馈',
+              component: Feedback
+            },
+            {
+              path: 'addfeedback',
+              name: '帮助反馈',
+              component: AddFeedback
+            },{
+            	path: 'aboutuser',
+            	name: '关于我们',
+            	component: AboutUser
+            }
+          ]
+        },
+        {
+          path:'/multimedia/',
+          name:'',
+          component:multiMediaIndex,
+          children:[
+            {
+              path:'video',
+              name:'',
+              component:video
+            }
+          ]
+        },
+        {
+          path:'/cloudtv/',
+          name:'',
+          component:cloudTvIndex,
+          children:[
+            {
+              path:'livebroadcast',
+              name:'',
+              component:cloudTv
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: '/public/newsdetails',
+      name: '新闻详情',
+      component: NewsDetails
+    },
+    {
+      path: '/public/videodetails',
+      name: '新闻视频查看',
+      component: VideoDetails
+    },
+    {
+      path: '/public/searchmsg',
+      name: '搜索',
+      component: SearchMsg
+    },
+    {
+      path: '/public/screencity',
+      name: '筛选城市',
+      component: ScreenCity
+    },
+    {
+      path: '/public/searchlist',
+      name: '搜索列表',
+      component: SearchList
+    },
+    {
+    	path: '/public/specialdetails',
+    	name: '专题',
+    	component: SpecialDetails
+    },
+    {
+			path: '/myphoto/mypreview',
+			name:'爆料图集详情',
+			component: MyPreview
+    },
+    {
+      path: '/myphoto/myphotoupload',
+      name:'我拍',
+      component: MyphotoUpload
+    },
+    {
+      path: '/myphoto/releasephoto',
+      name: '我拍',
+      component: ReleasePhoto
+    },
+    {
+      'path':'/login/',
+      'name':'登录',
+      component:LoginIndex,
+      children:[
+        {
+          path:'login',
+          name:'登录',
+          component:Login
+        },
+        {
+          path:'forgetpass',
+          name:'忘记密码',
+          component:ForgetPass
+        },
+        {
+          path: 'modifypass',
+          name: '修改密码',
+          component: ModifyPass
+        },
+        {
+          path: 'agreement',
+          name: '用户协议和隐私条款',
+          component: agreement
+        },
+        {
+          path: 'setpersonal',
+          name: '个人信息设置',
+          component: SetPersonal
+        },
+        {
+          path: 'setphone',
+          name: '设置手机号',
+          component:SetPhone
+        },{
+          path: 'updatephone',
+          name: '更新手机号',
+          component: UpdatePhone
+        },{
+          path: 'modifypasscode',
+          name: '修改密码-验证码录入',
+          component: ModifyPassCode
+        }
+      ]
+    }
+  ]
+})

@@ -1,0 +1,13 @@
+import {HttpService} from './http';
+/**
+ * 封装产品相关的请求及数据处理
+ */
+
+export const gloabApi = {
+  api: {
+    contentList:'/webapp-yrt/content/list.do',
+  },
+  contentList(body){
+    return HttpService.get(this.api.contentList, body, false, false)
+  }
+}

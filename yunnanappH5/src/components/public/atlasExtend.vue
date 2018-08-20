@@ -1,0 +1,401 @@
+<template>
+    <div class="atlasExtend">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+                <span class="colorfff city_text">相关推荐</span>
+                <span class="username_ready">
+            </span>
+        </div>
+        <div class="newsMessage_content" style="background: #fff;">
+            <scroller
+                :lock-x="true"
+                :scrollbarY="false"
+                :bounce="false"
+                style="height: calc(100vh - .98rem);z-index: 2;">
+                <div class="_cus_overHidden">
+                 <ul class="home_list _cus_overHidden">
+                        <li v-for="(item,keys) in newsList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                            <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                                <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                                <label class="source-label">{{item.listTitle | htmlDecodeByRegExp}}</label>
+                                <div class="tabImg" v-if="item.urlList.length > 0" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="(item.type=='tabList' || item.type == 'tabVideo')?'_cus_posRelative':''">
+                                    <div class="list_live" v-show="item.isLive == '1'" :class="item.liveStatus == '0'?'live_state':item.liveStatus == '20'?'live_state':'live_loading'">{{item.liveStatus == '0'?'未开始':item.liveStatus == '10'?'直播中':item.liveStatus == '20'?'已结束':item.liveStatus == '30'?'直播预告':item.liveStatus == '40'?'直播回看':''}}</div>
+                                    <img class="" v-lazy="item.urlList[0]" :key="item.urlList[0]" alt="">
+                                    <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                                </div>
+                                 <div  v-if="item.urlList.length > 0" v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate">
+                                    <ul class="_cus_flexContent _cus_jusContent home_atlas">
+                                        <li v-for="(img,keys) in item.urlList" :key="keys" class="_cus_flex1">
+                                            <img v-lazy="img" :key="img" alt="">
+                                        </li>
+                                    </ul>
+                                </div>
+                                <p class="home_time _cus_overHidden perW100 color999">
+                                    <span class="__cus_fl">
+                                        <span>{{item.source}}</span>
+                                        <span class="">{{item.createTimeStr}}</span>
+                                    </span>
+                                    <span class="__cus_fr">
+                                        <span>{{item.virtualClickTimes}}</span>
+                                        <span class="new_watch"></span>
+                                    </span>
+                                </p>
+                            </div>
+                            <div v-if="item.urlList.length > 0" v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                                <img v-lazy="item.urlList[0]" :key="item.urlList[0]" alt="">
+                                <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                            </div>
+                        </li>
+                    </ul>
+            </div>
+            </scroller>
+        </div>
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http";
+import { coreApi } from "../../services/coreApi";
+import { newsApi } from "../../services/newsapi.js";
+import { mapGetters, mapMutations } from "vuex";
+export default {
+  data() {
+    return {
+      count: "",
+      isTab: false,
+      newsList: []
+    };
+  },
+  // beforeRouteLeave(to, from, next) {
+  // if (to.path == "/system/home") {
+  //     to.meta.keepAlive = true;
+  // } else if(to.path == '/public/searchlist'){
+  //   to.meta.keepAlive = true
+  // } else {
+  //     to.meta.keepAlive = false;
+  // }
+  //     next();
+  // },
+  computed: {
+    ...mapGetters(["getExtendObj"])
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.$router.history.current.path == "/public/atlasextend") {
+        this.newsList = [];
+        this.newsList = this.getExtendObj;
+      }
+    });
+    this.getNewsList();
+  },
+  filters: {
+    htmlDecodeByRegExp(item) {
+      let str = item;
+      var s = "";
+      // if (str.length == 0) return "";
+      s = str.replace(/&amp;/g, "&");
+      s = str.replace(/&lt;/g, "<");
+      s = str.replace(/&gt;/g, ">");
+      s = str.replace(/&nbsp;/g, " ");
+      s = str.replace(/&#39;/g, "'");
+      s = str.replace(/&quot;/g, '"');
+      return s;
+    }
+  },
+  methods: {
+    ...mapMutations({
+      clearExtend: "clearExtendObj"
+    }),
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = `/videodetails/${items.id}`;
+          break;
+        case "10":
+          path = `/newsdetails/${items.id}`;
+          break;
+        case "20":
+          path = `/atlasdetails/${items.id}`;
+          break;
+        case "40":
+          path = `/audiodetails/${items.id}`;
+          break;
+        case "60":
+          path = `/specialdetails/${items.id}`;
+          break;
+        case "50":
+          items.seriesType == "0"
+            ? (path = `/programdetails/${items.id}`)
+            : items.seriesType == "10"
+              ? (path = `/videochannel/${items.id}`)
+              : (path = `/programdetails/${items.id}`);
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      this.$router.push({
+        path: `/public${path}`,
+        query: Json
+      });
+      this.clearExtend();
+    },
+    // 第一次加载的时候容易为空true
+    getNewsList() {
+      if (!this.getExtendObj) {
+        let params = this.$router.history.current.query;
+        newsApi.getNewsDetails(params).then(r => {
+          if (r.status && r.statusCode == "200") {
+            let data = r.associatedList;
+            data.map(i => {
+              switch (i.contentType) {
+                case "30":
+                  i["type"] = "tabVideo";
+                  break;
+                case "10":
+                  i["type"] = "list";
+                  break;
+                case "40":
+                  i["type"] = "tabAudio";
+                  break;
+                case "20":
+                  i["type"] = "tabTranslate";
+                  break;
+                case "60":
+                  i["type"] = "tab";
+                  break;
+                case "50":
+                  i["type"] = "tabList";
+                  break;
+              }
+            });
+            this.newsList = data;
+          }
+        });
+      } else {
+        this.getExtendObj.map(i => {
+          switch (i.contentType) {
+            case "30":
+              i["type"] = "tabVideo";
+              break;
+            case "10":
+              i["type"] = "list";
+              break;
+            case "40":
+              i["type"] = "tabAudio";
+              break;
+            case "20":
+              i["type"] = "tabTranslate";
+              break;
+            case "60":
+              i["type"] = "tab";
+              break;
+            case "50":
+              i["type"] = "tabList";
+              break;
+          }
+        });
+        this.newsList = this.getExtendObj;
+      }
+    },
+    city_back() {
+      this.clearExtend();
+      this.$router.go(-1);
+    }
+  },
+  destroyed() {
+    //  this.clearExtend()
+  }
+};
+</script>
+<style lang="less">
+.atlasExtend {
+  background-color: #fff;
+  margin-top: 1rem;
+  font-size: 0.28rem;
+  .channel_past {
+    background-color: #fff;
+    overflow: hidden;
+    padding: 0.3rem;
+    font-size: 14px;
+    > li {
+      width: 48%;
+      font-size: 0.26rem;
+      margin-bottom: 0.3rem;
+      > img {
+        width: 100%;
+        height: 1.8rem;
+      }
+      > p {
+        margin: 0.32rem 0 0.2rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      > div {
+        font-size: 0.24rem;
+        color: #999;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+  .searchVal {
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    text-align: center;
+    background: #f41a14;
+    z-index: 2;
+    .username_ready {
+      position: absolute;
+      right: 0.3rem;
+      display: flex;
+      align-items: center;
+      .addfeedback_icon {
+        display: inline-block;
+        width: 0.5rem;
+        height: 0.5rem;
+
+        margin-right: 0.1rem;
+        background: url(../../../static/imgs/search.png);
+        background-repeat: no-repeat;
+        background-size: 100%;
+      }
+    }
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_box {
+      height: 0.6rem;
+      color: #fff;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: 0.3rem 0.3rem;
+        z-index: 1;
+        top: 0;
+        left: 1.5rem;
+        bottom: 0;
+        margin: auto;
+      }
+      .search_mode {
+        width: 100%;
+        height: 0.6rem;
+        line-height: 0.6rem;
+        padding-left: 2rem;
+        outline: 0;
+        text-align: left;
+        box-sizing: border-box;
+        display: block;
+        font-size: 0.24rem;
+        background-color: #f41a14;
+        color: #fff;
+        &::-webkit-input-placeholder {
+          /*WebKit browsers*/
+          color: #fff;
+        }
+        &::-moz-input-placeholder {
+          /*Mozilla Firefox*/
+          color: #fff;
+        }
+        &::-ms-input-placeholder {
+          /*Internet Explorer*/
+          color: #fff;
+        }
+      }
+    }
+    .search_city {
+      height: 0.5rem;
+      line-height: 0.5rem;
+      //              margin: 0 0.3rem;
+      margin-right: 0.3rem;
+    }
+    .city_text {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+    }
+  }
+  .channel_tab {
+    background: #fff;
+    padding: 0.3rem;
+    margin-bottom: 0.2rem;
+    display: flex;
+    > .tab_active {
+      padding: 0.03rem 0.05rem;
+      background: #f3f2f2;
+      border-radius: 0.05rem;
+      color: #ef131c;
+      margin-right: 0.2rem;
+    }
+    > span {
+      padding: 0.03rem 0.05rem;
+      border-radius: 0.05rem;
+      color: #000;
+      margin-right: 0.2rem;
+    }
+  }
+  .login_alert {
+    .weui-dialog {
+      max-width: 80%;
+      border-radius: 0.12rem;
+      // border:none;
+    }
+    .weui-dialog__bd,
+    .weui-dialog__hd,
+    .weui-dialog__ft {
+      font-size: 0.32rem;
+    }
+    .dialog__hd {
+      border: none;
+    }
+    .weui-dialog__ft {
+      width: 100%;
+      padding: 0 0.4rem;
+      line-height: 0.8rem;
+      margin: 0 auto;
+      padding-bottom: 0.4rem;
+      .weui-dialog__btn_default {
+        background-color: #c1c1c1;
+        margin-rigfht: 0.4rem;
+        margin-left: 0;
+      }
+      > a {
+        margin-left: 0.4rem;
+        background-color: #f41a14;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 0.12rem;
+      }
+    }
+  }
+}
+</style>

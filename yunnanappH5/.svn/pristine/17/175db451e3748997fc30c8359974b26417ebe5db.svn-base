@@ -1,0 +1,365 @@
+<template>
+    <div class="videodetails">
+        <div class="videodetails_back" @click="city_back">
+            <i class="videodetails_icon" ></i>
+        </div>    
+        <div class="videodetails_video _cus_posRelative">
+            <div class="video"></div>
+            <p class="new_wrap perW100 _cus_flexContent _cus_jusContent _cus_posAbsolute">
+                <span>
+                    <span>2</span>
+                    <span>1</span>
+                </span>
+                <span>
+                    <img src="../../../static/imgs/collect.png" alt="">
+                    <span>3</span>
+                    <i class="news_watch"></i>
+                </span>
+            </p>
+        </div>
+        <div class="videodetails_introduce">
+        	<scroller
+            :lock-x="true"
+            :scrollbarY="true"
+            :bounce="true"
+            style="height: calc(100vh - 5.8rem);">
+        	<div class="_cus_overHidden video_content">
+	            <div class="_cus_overHidden">
+	                <p class="_cus_flexContent _cus_jusContent _cus_fleAlignCen _cus_overHidden">
+	                    <span>
+	                        <span>2018/05/01</span>
+	                        <span>运势网</span>
+	                    </span>
+	                    <span class="" @click="isIcon = !isIcon">
+	                    	简介 
+	                    	<i class="video_icon" :class="isIcon?'video_icon_action':''"></i>
+	                    </span>
+	                </p>
+	                <div class="video_introduce _cus_overHidden" :class="isIcon?'Block':'None'">
+	                    <span></span>
+	                </div>
+	                <p class="news_footer_title">新闻推荐</p>
+	            </div>
+	            
+	            <ul class="video_list _cus_overHidden">
+	                 <li v-for="(item,keys) in newslists" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+						<div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+							<span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+							<label class="source-label">{{item.listTitle}}</label>
+							<div class="tabImg" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="item.type=='tabList'?'_cus_posRelative':''">
+								<img class="" :src="item.urlList[0]" alt="">
+								<i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+							</div>
+								<div v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate">
+								<ul class="">
+									<li v-for="(img,keys) in item.imgUrl" :key="keys">
+										<img :src="img" alt="">
+									</li>
+								</ul>
+							</div>
+							<p class="home_time _cus_overHidden color999" :class="item.type == 'tabList' || item.type ==  'tabAudio' || item.type ==  'tabTranslate'?'_cus_posAbsolute perW100':''">
+								<span v-show="item.type =='tabTranslate'" class="source-handle-title">置顶</span>
+								<span class="__cus_fl">
+									<span>{{item.source}}</span>
+									<span class="">{{item.createTimeStr}}</span>
+								</span>
+								<span class="__cus_fr">
+									<span>{{item.virtualClickTimes}}</span>
+									<span class="new_watch"></span>
+								</span>
+							</p>
+						</div>
+						<div v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+							<img :src="item.urlList[0]" alt="">
+							<i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+						</div>
+					</li>
+	            </ul>
+        	</div>
+        	</scroller>
+        </div>
+    </div>
+</template>
+<script>
+	import { HttpService } from "../../services/http.js";
+    import { newsApi } from '../../services/newsapi.js'
+    export default {
+        data(){
+            return {
+                isIcon: false,
+                newsdetails_msg:{},
+                newslists:[]
+            }
+        },
+        mounted(){
+        	this.getNewsList()
+        },
+        methods:{
+            getNewsList(){
+                let params = this.$router.history.current.query
+                params = Object.assign(params,{
+                    _jsonp:true,
+                    _jsonpCallback:'onBack'
+                })
+                newsApi.getNewsDetails(params).then(r=>{
+                    if(r.status && r.statusCode == '200'){
+                        this.newsdetails_msg = r.data
+                        let data  = r.data.contentList
+                        for (var i = 0; i < data.length; i++) {
+                            console.log(data[i].contentType)
+                            switch(data[i].contentType){
+                                case '30':
+                                    data[i]['type'] = 'tab_video'
+                                break;
+                                case '10':
+                                    data[i]['type'] = 'tablist'
+                                break;
+                                case '60':
+                                    data[i]['type'] = 'tab'
+                                break;
+                                case '50':
+                                    data[i]['type'] = 'tablist'
+                                break;
+                            }
+                        }
+                        this.newslists = data
+                    }else{
+                        this.newsdetails_msg = {}
+                    }
+                })
+            },
+            city_back(){
+                this.$router.go(-1)
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .videodetails{
+        height: 100vh;
+        overflow: hidden;
+        .videodetails_back{
+            width: 0.6rem;
+            height: 0.6rem;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            position: fixed;
+            left: .2rem;
+            top: .2rem;
+            z-index: 1000;
+            .videodetails_icon{
+                width: .36rem;
+                height: .36rem;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                display: block;
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                margin: auto;
+            }
+        }
+        .videodetails_video{
+            padding: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            z-index: 99;
+            background: #fff;
+            height: 5.8rem;
+            border: 2px solid #eee;
+            .video{
+                height: 4.2rem;
+            }
+             >.new_wrap{
+                left: 0;
+                bottom: 0;
+                color: #b3b3b3;
+                overflow: hidden;
+                padding: 0 0.3rem 0.3rem 0.3rem;
+                line-height: 0.34rem;
+                >span:last-child{
+                    >img{
+                        width: 0.3rem;
+                        height: 0.3rem;
+                        display: block;
+                        float: left;
+                        margin-left: 0.03rem;
+                        margin-right: 0.5rem;
+                        transform: rotate(0deg)!important;
+                    }
+                    >.news_watch{
+                        display: inline-block;
+                        width: 0.29rem;
+                        height: 0.2rem;
+                        margin-bottom: 0.04rem;
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin-left: 0.1rem;
+                        background: url(../../../static/imgs/eye.png) no-repeat left center;
+                        background-size: 100%;
+                    }
+                }
+            }
+        }
+        .videodetails_introduce{
+            margin-top: 5.8rem;
+            background-color: #fff; 
+            color: #999;
+            .video_content{
+            	>div:nth-of-type(1){
+            		padding: 0 .3rem;
+	                >p{
+	                    overflow: hidden;
+	                    min-height: .84rem;
+	                    line-height: .84rem;
+	                    .video_icon{
+	                        display: inline-block;
+	                        width: .22rem;
+	                        height: .22rem;
+	                        transform: rotate(90deg);
+	                        transition: all .5s;
+	                        background: url('../../../static/imgs/arroe.png') no-repeat;
+	                        background-size: contain;
+	                    }
+	                    .video_icon_action{
+	                        transform: rotate(180deg);
+	                    }
+	                }
+	                .video_introduce{
+	                    height: .5rem;
+	                }
+	                .Block{
+	                    display: block;
+	                }
+	                .None{
+	                    display: none;
+	                }
+	            	.news_footer_title{
+	            	    padding: 0 .25rem;
+					    height: 0.8rem;
+					    background: #ffffff;
+					    border-bottom: solid 2px #eee;
+					    line-height: 0.8rem;
+		            }
+	            }
+	            .video_list{
+					>li{
+						padding: 0.2rem 0.3rem;
+						border-bottom: 2px solid #eeeeee;
+						box-sizing: border-box;
+						.source-handle-title{
+							margin-right: 0.15rem;
+							margin-top: 0.033rem;
+							float: left;
+							color: #f41a14;
+							border: 2px solid #f41a14;
+							text-align: center;
+							line-height: 1.5;
+							padding: 0 0.1rem;
+							font-size: 0.24rem;
+							border-radius: 0.1rem;
+						}
+						.source-label{
+								display: -webkit-box;
+								-webkit-box-orient: vertical;
+								-webkit-line-clamp: 2;
+								overflow: hidden;
+								text-align: justify;
+								line-height: 0.48rem;
+						}
+						.tabImg{
+							width: 100%;
+							height: 3.4rem;
+							margin-top: 0.1rem;
+							margin-bottom: 0.3rem;
+							>img{
+								vertical-align: middle;
+								width: 100%;
+								height: 100%;
+								z-index: 1;
+							}
+							>.video_playicon{
+								width: 1.06rem;
+								height: 1.06rem;
+								position: absolute;
+								top: 50%;
+								left: 50%;
+								margin-top: -0.58rem;
+								margin-left: -0.58rem;
+								background: url(../../../static/imgs/playicon.png) no-repeat left center;
+								background-size: 100%;
+								z-index:2;
+							}
+						}
+						>.tabTranslate{
+							width: 100%;
+							height: 1.44rem;
+							margin-bottom: 0.3rem;
+							>li{
+								img{
+									float: left;
+									width: 2.2rem;
+									height: 1.44rem;
+									display: block;
+								}
+							}  
+						}
+						.home_time{
+							bottom: 0;
+							margin-top:.3rem;
+							font-size:.20rem;
+							.new_watch{
+								margin-left: .15rem;
+									width: .29rem;
+									height: .2rem;
+									display: inline-block;
+									background: url(../../../static/imgs/eye.png) no-repeat left center;
+									background-size: 100%;
+							}
+						.source-handle-title{
+								margin-right: 0.15rem;
+								margin-top: 0.033rem;
+								float: left;
+								color: #f41a14;
+								border: 2px solid #f41a14;
+								text-align: center;
+								line-height: 1.5;
+								padding: 0 0.1rem;
+								font-size: 0.24rem;
+								border-radius: 0.1rem;
+							}
+						}
+						.imageNews-img{
+							width: 2.2rem;
+							height: 1.44rem;
+							margin-left: 0.2rem;
+							position: relative;
+							>img{
+								width: 100%;
+								height: 100%;
+							}
+							>.audio_icon{
+								width: 0.66rem;
+								height: 0.66rem;
+								position: absolute;
+								top: 50%;
+								left: 50%;
+								margin-top: -0.38rem;
+								margin-left: -0.38rem;
+								background: url(../../../static/imgs/audio.png) no-repeat left center;
+								background-size: contain;
+								z-index: 89;
+							}
+						}
+					}
+				}
+            }
+            
+        }
+    }
+</style>
+

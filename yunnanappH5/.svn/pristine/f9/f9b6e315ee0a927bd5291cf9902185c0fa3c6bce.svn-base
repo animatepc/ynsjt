@@ -1,0 +1,343 @@
+<template>
+    <div class="videoChannel _cus_flexContent _cus_direction">
+        <div class="videodetails_back" @click="city_back">
+            <i class="videodetails_icon" ></i>
+        </div>    
+        <div class="videodetails_video _cus_posRelative _cus_flex1">
+            <div class="video">
+                <img :alt="newsdetails_msg.title" :src="newsdetails_msg.thumbnail">
+            </div>
+            <p class="new_wrap perW100 _cus_flexContent _cus_jusContent">
+                <span>
+                    <span>{{newsdetails_msg.title}}</span>
+                </span>
+                <span>
+                    <i @click="clickCollection()" :class="isCollection==1?'collectActive':'collect'"></i>
+                    <span>{{newsdetails_msg.virtualClickTimes}}</span>
+                    <i class="news_watch"></i>
+                </span>
+            </p>
+            <p class="_cus_flexContent _cus_jusContent _cus_fleAlignCen _cus_overHidden" v-show="newsdetails_msg.introduction">
+                    <span>{{newsdetails_msg.introduction}}</span>
+            </p>
+             
+        </div>
+        <p class="news_footer_title">往期节目</p>
+        <div class="videodetails_introduce _cus_flex1 bgfff">
+        	<scroller
+            :lock-x="true"
+            :scrollbarY="true"
+            :bounce="true"
+            class="perH100"
+            style="height: 100%">
+        	<div class="_cus_overHidden video_content">
+	           <ul class="program_list _cus_overHidden">
+               <li v-for="(item,keys) in newslists" :key="keys" class="_cus_flexContent _cus_fleAlignCen" @click="Details_back(item)">
+                 <div>
+                   <img :src="item.listImgOne" :alt="item.listTitle">
+                   <p>{{item.watchDateStr}}</p>
+                 </div>
+                 <span class="_cus_flex1">{{item.listTitle}}</span>
+               </li>
+             </ul>
+        	</div>
+        	</scroller>
+        </div>
+         <confirm
+            class="confirm_alert"
+            :value="hide_alert"
+            button-text="确认"
+            @on-confirm="onConfirm"
+            @on-cancel="onCancel">
+            <span>{{test_mag}}</span>
+        </confirm> 
+        <toast :value="toast.toastShow" type="text" width="auto" :text="toast.toastText" position="bottom" class="toast_alert"></toast>	
+    </div>
+</template>
+<script>
+import { HttpService } from "../../services/http.js";
+import { newsApi } from "../../services/newsApi.js";
+import { Collection } from "../../common/js/common.js";
+import { commonApi } from "../../common/js/common.js";
+export default {
+  data() {
+    return {
+      isIcon: false,
+      isHide: false,
+      newsdetails_msg: {},
+      newslists: [],
+      videoAddress: "",
+      liveStatus: "",
+      isCollection:0,
+      hide_alert: false,
+      test_mag: "请确定是否登录?",
+      toast: {
+        toastShow: false,
+        toastText: "收藏成功"
+      },
+    };
+  },
+  mounted() {
+    this.getWatchList();
+  },
+  methods: {
+    getWatchList() {
+      let params = this.$router.history.current.query;
+      let bodys = {
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      bodys = Object.assign(bodys, params);
+      newsApi.watchList(bodys).then(r => {
+        if (r.status && r.statusCode == "200") {
+          let data = r.list;
+          this.isCollection=r.data.isCollection;
+          for (var i = 0; i < data.length; i++) {
+            switch (data[i].contentType) {
+              case "30":
+                data[i]["type"] = "tabVideo";
+                break;
+              case "10":
+                data[i]["type"] = "list";
+                break;
+              case "40":
+                data[i]["type"] = "tabAudio";
+                break;
+              case "20":
+                data[i]["type"] = "tabTranslate";
+                break;
+              case "60":
+                data[i]["type"] = "tab";
+                break;
+              case "50":
+                data[i]["type"] = "programdetails";
+                break;
+            }
+          }
+          this.newslists = data;
+          this.newsdetails_msg = r.data;
+        } else {
+          this.newsdetails_msg = {};
+          this.newslists = [];
+        }
+      });
+    },
+    city_back() {
+      this.$router.go(-1);
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = "/videodetails";
+          break;
+        case "10":
+          path = "/newsdetails";
+          break;
+        case "20":
+          path = "/atlasdetails";
+          break;
+        case "40":
+          path = "/audiodetails";
+          break;
+        case "60":
+          path = "/specialdetails";
+          break;
+        case "50":
+          items.seriesType == "0"
+            ? (path = "/programdetails")
+            : items.seriesType == "10" ? (path = "/videochannel") : "";
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      this.$router.push({
+        path: `/public${path}`,
+        query: Json
+      });
+    },
+    onConfirm() {
+      this.$router.push({
+        path: "/login/login"
+      });
+    },
+    onCancel() {
+      console.log("已取消");
+    },
+    clickCollection() {
+      this.toast.toastShow = false
+      var id = this.$router.history.current.query.id;
+      let bodys = {
+        _json: false, //参数类型 formdata/json
+        _jsonp: true, //dataType: jsonp true/false
+        _jsonpCallback: "onBack" //请求接口返回的callback
+      };
+      bodys.refType = 50;
+      bodys.refId = id;
+      console.log(bodys);
+      commonApi.Collection(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          this.toast.toastShow = true
+          this.isCollection = this.isCollection == 1 ? 0 : 1;
+          this.toast.toastText = this.isCollection == 1 ? '收藏成功!':'取消收藏成功!'
+        } else {
+          this.hide_alert = !this.hide_alert;
+          this.test_mag = r.errorMessage;
+        }
+      });
+    },
+  }
+};
+</script>
+<style lang="less">
+.videoChannel {
+  height: 100vh;
+  background-color: #f4f4f4;
+  overflow: hidden;
+  .videodetails_back {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    position: fixed;
+    left: 0.2rem;
+    top: 0.2rem;
+    z-index: 1000;
+    .videodetails_icon {
+      width: 0.36rem;
+      height: 0.36rem;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+    }
+  }
+  .videodetails_video {
+    width: 100%;
+    z-index: 99;
+    background: #fff;
+    border: 1px solid #eee;
+    .video {
+      height: 4rem;
+      margin-bottom: 0.2rem;
+      > img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    > .new_wrap {
+      color: #b3b3b3;
+      overflow: hidden;
+      padding: 0 0.3rem 0.3rem 0.3rem;
+      line-height: 0.34rem;
+      > span:last-child {
+        > img {
+          width: 0.3rem;
+          height: 0.3rem;
+          display: block;
+          float: left;
+          margin-left: 0.03rem;
+          margin-right: 0.5rem;
+          transform: rotate(0deg) !important;
+        }
+        > .news_watch {
+          display: inline-block;
+          width: 0.29rem;
+          height: 0.2rem;
+          margin-bottom: 0.04rem;
+          display: inline-block;
+          vertical-align: middle;
+          margin-left: 0.1rem;
+          background: url(../../../static/imgs/eye.png) no-repeat left center;
+          background-size: 100%;
+        }
+      }
+    }
+    > p:nth-of-type(2) {
+      padding: 0 0.3rem;
+    }
+    > p:nth-of-type(3) {
+      padding: 0 0.3rem;
+      overflow: hidden;
+      min-height: 0.84rem;
+      line-height: 0.84rem;
+      .video_icon {
+        display: inline-block;
+        width: 0.22rem;
+        height: 0.22rem;
+        transform: rotate(90deg);
+        transition: all 0.5s;
+        background: url("../../../static/imgs/arroe.png") no-repeat;
+        background-size: contain;
+      }
+      .video_icon_action {
+        transform: rotate(180deg);
+      }
+    }
+    .Block {
+      display: block;
+    }
+    .None {
+      display: none;
+    }
+  }
+  .program_list {
+    height: auto;
+    overflow: hidden;
+    color: #000;
+    > li {
+      padding: 0.3rem;
+      border-bottom: .01rem solid #eeeeee;
+      > div:nth-child(1) {
+        position: relative;
+        margin-right: 0.35rem;
+        width: 2.2rem;
+        height: 1.2rem;
+        > img {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+        > p {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          padding: 0.1rem 0;
+          background: rgba(0, 0, 0, 0.5);
+          color: #fff;
+          font-size: 0.2rem;
+          text-align: center;
+        }
+      }
+      > span:nth-child(2) {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+    .news_footer_title {
+      margin-top: .2rem;
+      padding: 0 0.3rem;
+      height: 0.8rem;
+      background: #ffffff;
+      color: #666;
+      border-bottom: solid 2px #eee;
+      line-height: 0.8rem;
+    }
+  }
+</style>
+

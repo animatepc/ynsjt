@@ -1,0 +1,128 @@
+<template>
+    <div ref="header" class="header _cus_flexContent _cus_fleAlignCen _cus_justifyCen" :class="headerPath == 2?'_cus_posRelative':''" v-if="headerPath != 3 && headerPath != 4">
+        <div class="colorfff _cus_posRelative _cus_overHidden search_box" @click.prevent.stop="touchVal" :class="headerPath == 2?'search_photo':'_cus_flex1'">
+            <span class="_cus_posAbsolute search_icon"></span>
+            <input type="text" class="_cus_posAbsolute search_mode" placeholder="搜索" disabled>
+        </div>
+        <div class="colorfff search_city _cus_overHidden" @click="select_city" v-show=" headerPath == 0">
+            <i class="inlineBlock menu_location"></i>
+            <span>云南省</span>
+        </div>
+        <span class="gobroke" :class="headerPath == 2?'_cus_posAbsolute':''" v-if="headerPath == 2">+</span>
+        <!-- 搜索模块 -->
+        <popup
+            :value="search_popup"
+            height="100%"
+            width="100%"
+            :hide-on-blur="false"
+            :show-mask="false"
+            style="background-color:#fff"
+            position="right"
+            @on-hide="onHide"
+            @on-show="onShow">
+            <!-- 插槽 -->
+            <div class="search">
+                <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+                    <span class="search_back" @click="search_back"></span>
+                    <div class="colorfff _cus_flex1 _cus_posRelative _cus_overHidden search_box">
+                        <span class="_cus_posAbsolute search_icon"></span>
+                        <input type="text" autofocus class="_cus_posAbsolute search_mode" ref="search_mode" placeholder="输入搜索词">
+                    </div>
+                    <div class="colorfff search_city _cus_overHidden">
+                        <span>搜索</span>
+                    </div>
+                </div>
+                <!-- 搜索内容 -->
+                <div class="search_content">
+
+                </div>
+            </div>
+        </popup>
+
+        <!-- 选择城市 -->
+        <popup
+            :value="city_popup"
+            height="100%"
+            width="100%"
+            :hide-on-blur="false"
+            :show-mask="false"
+            style="background-color:#fff;z-index:100;"
+            position="right"
+            @on-hide="onHide"
+            @on-show="onShow">
+            <!-- 插槽 -->
+            <div class="search">
+                <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+                    <span class="search_back" @click="city_back"></span>
+                    <span class="colorfff city_text">切换城市</span>
+                </div>
+                <!-- 搜索内容 -->
+                <div class="search_content" style="background: #fff;">
+                    <scroller
+                        :lock-x="true"
+                        :scrollbarY="true"
+                        :bounce="true"
+                        style="height: calc(100vh - 1.28rem);z-index: 1000;">
+                        <ul class="city_list _cus_overHidden">
+                            <li class="">31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>
+                            <li>31132</li>  
+                        </ul>
+                    </scroller>
+                </div>
+            </div>
+        </popup>
+    </div>
+</template>
+<script>
+    export default {
+        data(){
+            return {
+                search_popup:false,
+                city_popup:false
+            }
+        },
+        props:{
+            'headerPath':{
+                type:Number,
+                default:0
+            }
+        },
+        mounted(){
+//      	adapted.px2rem(doc,{'width':375,'height':,'margin':'margin-top':'','margin-bottom':'','margin-left':'','margin-bottom':'',,'padding':'padding-top':'','padding-bottom':'','padding-left':'','padding-bottom':''})
+        },
+        methods:{
+            touchVal(){
+                this.search_popup = true
+                this.$refs.search_mode.focus()
+            },
+            search_back(){
+                this.search_popup = false
+            },
+            onHide(){
+
+            },
+            onShow(){
+                
+            },
+            select_city(){
+                this.city_popup = true
+            },
+            city_back(){
+                this.city_popup = false
+            },
+        }
+    }
+</script>
+<style lang="less" src="./header.less">
+
+</style>
+

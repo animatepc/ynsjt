@@ -1,0 +1,750 @@
+<template>
+	<div class="searchList">
+		<div class="search_head _cus_flexContent _cus_fleAlignCen">
+			<span class="search_back" @click="search_back"></span>
+	        <div class="colorfff _cus_posRelative _cus_overHidden search_box" @click.prevent.stop="touchVal">
+	            <span class="_cus_posAbsolute search_icon"></span>
+	            <input type="text"  v-model="searchVal" class="_cus_posAbsolute search_mode" placeholder="输入搜索词" disabled>
+	        </div>
+	    </div>
+	    <!--tab区-->
+	    <tab
+            active-color="#fc2506"
+            bar-active-color="#fc2506"
+            :animate="false"
+            :line-width="2"
+            style="padding-top: .88rem; margin-top: 1rem">
+            <tab-item
+                style="height: .88rem;line-height: .88rem;font-size: .28rem;width: 20%;"
+                v-for="(item,keys) in tabArr"
+                :selected="keys == index"
+                :key="keys"
+                @click.native="handler(keys)"><span>{{item.tabName}}</span></tab-item>
+        </tab>
+         <div class="searchList_content color28" v-for="(item,keys) in newsListBox" :key="keys" v-show="keys == index">
+            <scroller
+                v-show="item.isShow"
+                v-model="item.scrollerStatus"
+                lock-x
+                scrollbar-y
+                ref="scroller"
+                :bounce="item.isbounce"
+                :use-pullup="item.showUp"
+                :use-pulldown="true"
+                :pulldown-config="item.downObj"
+                :pullup-config="item.upobj" 
+                @on-pulldown-loading="selPullDown(keys)"
+                @on-pullup-loading="selPullUp(keys)"
+                style="height: calc(100vh - .88rem - .98rem)">
+                <div class="_cus_overHidden">
+                    <ul class="home_list _cus_overHidden" v-if="keys != 5" >
+                        <li v-for="(item,keys) in item.lists" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
+                            <div class="_cus_overHidden __cus_fl _cus_flex1 _cus_posRelative">
+                                <span v-show="item.type =='tab'" class="source-handle-title">专题</span>
+                                <label class="source-label">{{item.listTitle}}</label>
+                                <div class="tabImg" v-if="item.urlList.length > 0" v-show="item.type == 'tab' || item.type == 'tabVideo'" :class="(item.type=='tabList' || item.type == 'tabVideo')?'_cus_posRelative':''">
+                                    <div class="list_live" v-show="item.isLive == '1'" :class="item.liveStatus == '0'?'live_state':item.liveStatus == '20'?'live_state':'live_loading'">{{item.liveStatus == '0'?'未开始':item.liveStatus == '10'?'直播中':item.liveStatus == '20'?'已结束':item.liveStatus == '30'?'直播预告':item.liveStatus == '40'?'直播回看':''}}</div>
+                                    <img class="" :src="item.urlList[0]" alt="">
+                                    <i class="video_playicon" v-show="item.type =='tabVideo'"></i>
+                                </div>
+                                 <div  v-if="item.urlList.length > 0" v-show="item.type == 'tabTranslate'" class="_cus_overHidden tabTranslate">
+                                    <ul class="_cus_flexContent _cus_jusContent home_atlas">
+                                        <li v-for="(img,keys) in item.urlList" :key="keys" class="_cus_flex1">
+                                            <img :src="img" alt="">
+                                        </li>
+                                    </ul>
+                                </div>
+                                <p class="home_time _cus_overHidden perW100 color999">
+                                   <span v-show="item.topFlag == '1'" class="source-handle-title">置顶</span>
+                                    <span class="__cus_fl">
+                                        <span>{{item.source}}</span>
+                                        <span class="">{{item.createTimeStr}}</span>
+                                    </span>
+                                    <span class="__cus_fr">
+                                        <span>{{item.virtualClickTimes}}</span>
+                                        <span class="new_watch"></span>
+                                    </span>
+                                </p>
+                            </div>
+                            <div v-if="item.urlList.length > 0" v-show="item.type == 'list' || item.type == 'tabList' || item.type == 'tabAudio'" class="_cus_overHidden __cus_fr imageNews-img">
+                                <img :src="item.urlList[0]" alt="">
+                                <i class="audio_icon" v-show="item.type == 'tabAudio'"></i>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="myPhoto_list" v-else  v-for="(item,index) in newsListBox[index].lists">
+                        <li :key="keys" class="" @click="Details_back(item)">
+                            <img class="head_photo" :src="item.userAvatar" alt=""/>
+                            <div class="myPhoto_posted">
+                                <p class="_cus_flexContent _cus_jusContent">
+                                    <span>{{item.nickName}}</span>
+                                    <span>{{item.createTimeStr}}</span>
+                                </p>
+                                <p>{{item.content}}</p>
+                                <ul class="myPhoto_img _cus_overHidden">
+                                    <li class="__cus_fl" v-for="img in item.urlList" @click="img_back(item.urlList)">
+                                        <img :src="img" alt="" class=""/>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </scroller>
+        </div>
+	</div>
+</template>
+
+<script>
+import { newsApi } from "../../services/newsApi.js";
+import { myPhotoApi } from "../../services/myPhotoApi.js";
+import { HttpService } from "../../services/http";
+import { mapMutations, mapState } from "vuex";
+export default {
+  data() {
+    return {
+      tabArr: [
+        { tabName: "综合" },
+        { tabName: "新闻" },
+        { tabName: "视频" },
+        { tabName: "音频" },
+        { tabName: "图集" },
+        { tabName: "我拍" }
+      ],
+      news_List: [
+        {
+          label: "对仗不工整上下联挂反 昆明老街多幅对联被指“没文化",
+          soure: "昆明信息港",
+          timer: "1天前",
+          watch_num: 30,
+          type: "list"
+        },
+        {
+          label: "滇池大坝12组新建景观雕塑全部完工 正式与市民见面",
+          soure: "春城晚报",
+          timer: "1天前",
+          watch_num: 4,
+          type: "list"
+        },
+        {
+          label: "昆明市将实施献血条例：献血满5次终生免交临床用血费",
+          soure: "春城晚报",
+          timer: "1天前",
+          watch_num: 4,
+          type: "list"
+        },
+        {
+          label: "昆明今后违法排污将面临最高50万元罚款",
+          soure: "春城晚报",
+          timer: "1天前",
+          watch_num: 4,
+          type: "list"
+        },
+        {
+          label: "最美云南 秘境百马",
+          price: require("../../../static/imgs/contentimg.jpg"),
+          tab: "专题",
+          timer: "2天前",
+          type: "tab"
+        },
+        {
+          label: "名声关注",
+          price: require("../../../static/imgs/contentimg.jpg"),
+          watch_num: 158,
+          timer: "2天前",
+          type: "tablist"
+        },
+        {
+          label: "客车追尾大货车 男子被困消防营救",
+          price: require("../../../static/imgs/contentimg.jpg"),
+          watch_num: 85,
+          timer: "2天前",
+          type: "tab_video"
+        }
+      ],
+      index: 0,
+      type: "1",
+      newsListBox: [],
+      list: [],
+      contentType: "",
+      searchVal: "",
+      recomSetCode: ""
+    };
+  },
+  mounted() {
+    //第一次加载
+    this.getCloumnList();
+  },
+  computed: {
+    ...mapState(["imgObj"])
+  },
+  methods: {
+    ...mapMutations({
+      setImgArr: "saveImgInfo",
+      setPath: "saveSearchPath"
+    }),
+    img_back(Obj) {
+      this.$nextTick(() => {
+        this.setImgArr(Obj);
+        this.$router.push({
+          path: "/myphoto/mypreview"
+        });
+      });
+    },
+    // 遍历内容区域
+    getCloumnList() {
+      for (let i in this.tabArr) {
+        this.newsListBox.push({
+          PageIndex: 1, //页码从第一页开始
+          PageSize: 5, //煤业显示的条数
+          isShow: true, //是否显示scroller,第一次请求数据过程中隐藏插件，不隐藏的时候会显示“请上拉刷新数据”的字样，不好看
+          showloading: false,
+          textloading: "加载中",
+          showUp: true,
+          isbounce: true,
+          lists: [],
+          downObj: {
+            content: "请上拉刷新数据",
+            pullUpHeight: 60,
+            height: 40,
+            autoRefresh: false,
+            downContent: "请上拉刷新数据",
+            upContent: "请上拉刷新数据",
+            loadingContent: "加载中...",
+            clsPrefix: "xs-plugin-pullup-"
+          },
+          upobj: {
+            content: "请上拉刷新数据",
+            pullUpHeight: 60,
+            height: 40,
+            autoRefresh: false,
+            downContent: "请上拉刷新数据",
+            upContent: "请上拉刷新数据",
+            loadingContent: "加载中...",
+            clsPrefix: "xs-plugin-pullup-"
+          },
+          isShowLoading: false,
+          textLoading: "加载中",
+          scrollerStatus: {
+            pulldownStatus: "default",
+            pullupStatus: "default"
+          }
+        });
+      }
+      this.getSearchList(true, this.contentType);
+    },
+    Details_back(items) {
+      let data = items.contentType;
+      let path = "";
+      switch (data) {
+        case "30":
+          path = "/videodetails";
+          break;
+        case "10":
+          path = "/newsdetails";
+          break;
+        case "20":
+          path = "/atlasdetails";
+          break;
+        case "40":
+          path = "/audiodetails";
+          break;
+        case "60":
+          path = "/specialdetails";
+          break;
+        case "50":
+          items.seriesType == "0"
+            ? (path = "/programdetails")
+            : items.seriesType == "10" ? (path = "/ ") : "";
+          break;
+      }
+      let Json = {
+        refType: items.contentType,
+        id: items.id,
+        columnCode: items.columnCode
+      };
+      if ((path = "/programdetails")) {
+        // this.setPath({
+        //   path: "/public/searchMsg",
+        //   recomSetCode: this.recomSetCode
+        // });
+        this.$router.push({
+          path: `/public${path}`,
+          query: Json
+        });
+      } else {
+        this.$router.push({
+          path: `/public${path}`,
+          query: Json
+        });
+      }
+    },
+    //第一次加载的时候容易为空true  新闻列表
+    getSearchList(isEmpty, contentType) {
+      if (contentType != "getMyVideoList") {
+        //获取输入的标题
+        let title = this.$router.currentRoute.query.title;
+        this.searchVal = title;
+        this.newsListBox[this.index].showloading = true;
+        let JsonApi = {
+          i: this.newsListBox[this.index].PageIndex,
+          title: title,
+          contentType: contentType,
+          _jsonp: true,
+          _jsonpCallback: "onBack"
+        };
+        newsApi.search(JsonApi).then(r => {
+          // sucess callback
+          var data = r.list;
+          if (isEmpty) {
+            this.newsListBox[this.index].lists = [];
+            this.newsListBox[this.index].show = false;
+          } else {
+            //isEmpty为false时，也就是向上滚动刷新selPullUp ()方法被被调用的时候
+            if (data && data.length === 0) {
+              this.newsListBox[this.index].showToast = true;
+              this.newsListBox[this.index].isShowLoading = false;
+              this.newsListBox[this.index].scrollerStatus.pullupStatus =
+                "disabled"; // 禁用下拉
+              return;
+            }
+            this.newsListBox[this.index].isShow = false;
+          }
+          for (var i = 0; i < data.length; i++) {
+            switch (data[i].contentType) {
+              case "30":
+                data[i]["type"] = "tabVideo";
+                break;
+              case "10":
+                data[i]["type"] = "list";
+                break;
+              case "40":
+                data[i]["type"] = "tabAudio";
+                break;
+              case "20":
+                data[i]["type"] = "tabTranslate";
+                break;
+              case "60":
+                data[i]["type"] = "tab";
+                break;
+              case "50":
+                data[i]["type"] = "tabList";
+                break;
+            }
+            this.newsListBox[this.index].lists.push(data[i]);
+          }
+          console.log(this.newsListBox[this.index].lists);
+          this.newsListBox[this.index].isShow = true;
+          this.newsListBox[this.index].showloading = false;
+          if (!isEmpty) {
+            this.newsListBox[this.index].scrollerStatus.pullupStatus =
+              "default";
+            this.$nextTick(() => {
+              this.$refs.scroller[this.index].reset();
+            });
+          }
+        });
+      } else if (contentType == "getMyVideoList") {
+        this.getMyVideoList(true);
+      }
+    },
+    selPullUp() {
+      this.newsListBox[this.index].PageIndex++;
+      if (this.index != 5) {
+        this.getSearchList(false, this.contentType);
+      } else {
+        this.getSearchList(false, "getMyVideoList");
+      }
+    },
+    selPullDown() {
+      if (this.index != 5) {
+        if (this.newsListBox[this.index].PageIndex == 1) {
+          this.getSearchList(true, this.contentType);
+        } else {
+          this.getSearchList(false, this.contentType);
+        }
+      } else {
+        this.getSearchList(true, "getMyVideoList");
+      }
+      setTimeout(() => {
+        this.newsListBox[this.index].scrollerStatus.pulldownStatus = "disabled";
+        this.$nextTick(() => {
+          this.newsListBox[
+            this.index
+          ].scrollerStatus.pulldownStatus = "disabled"
+            ? (this.newsListBox[this.index].scrollerStatus.pulldownStatus =
+                "default")
+            : "";
+          this.$refs.scroller[this.index].reset();
+        });
+      }, 1000);
+    },
+    activated() {
+      this.$refs.scroller[this.index].reset();
+    },
+    //
+    getArticleList() {},
+    handler(keys) {
+      this.index = keys;
+      if (keys == 0) {
+        //综合
+
+        this.contentType = "";
+        this.getSearchList(true, "");
+      } else if (keys == 1) {
+        //新闻
+        this.contentType = 10;
+        this.getSearchList(true, this.contentType);
+      } else if (keys == 2) {
+        //视频
+        this.contentType = 30;
+        this.getSearchList(true, this.contentType);
+      } else if (keys == 3) {
+        //音频
+        this.contentType = 40;
+        this.getSearchList(true, this.contentType);
+      } else if (keys == 4) {
+        //图集
+        this.contentType = 20;
+        this.getSearchList(true, this.contentType);
+      } else if (keys == 5) {
+        //我拍
+        this.getSearchList(true, "getMyVideoList");
+      }
+    },
+    //我拍列表
+    getMyVideoList(isEmpty) {
+      this.newsListBox[this.index].showloading = true;
+      let title = this.$router.currentRoute.query.title;
+      this.searchVal = title;
+      let bodys = {
+        i: this.newsListBox[this.index].PageIndex,
+        content: title,
+        _jsonp: true, //dataType: jsonp true/false
+        _jsonpCallback: "onBack" //请求接口返回的callback
+      };
+      myPhotoApi.getMyPhotoList(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 接口访问成功，执行
+          let data = r.list; //等级列表
+          if (isEmpty) {
+            this.newsListBox[this.index].lists = [];
+            this.newsListBox[this.index].show = false;
+          } else {
+            //isEmpty为false时，也就是向上滚动刷新selPullUp ()方法被被调用的时候
+            if (data && data.length === 0) {
+              this.newsListBox[this.index].showToast = true;
+              this.newsListBox[this.index].isShowLoading = false;
+              this.newsListBox[this.index].scrollerStatus.pullupStatus =
+                "disabled"; // 禁用下拉
+              return;
+            }
+            this.newsListBox[this.index].isShow = false;
+          }
+          for (var i = 0; i < data.length; i++) {
+            switch (data[i].contentType) {
+              case "30":
+                data[i]["type"] = "tabVideo";
+                break;
+              case "10":
+                data[i]["type"] = "list";
+                break;
+              case "40":
+                data[i]["type"] = "tabAudio";
+                break;
+              case "20":
+                data[i]["type"] = "tabTranslate";
+                break;
+              case "60":
+                data[i]["type"] = "tab";
+                break;
+              case "50":
+                data[i]["type"] = "tabList";
+                break;
+            }
+            this.newsListBox[this.index].lists.push(data[i]);
+          }
+          this.newsListBox[this.index].isShow = true;
+          this.newsListBox[this.index].showloading = false;
+          if (!isEmpty) {
+            this.newsListBox[this.index].scrollerStatus.pullupStatus =
+              "default";
+            this.$nextTick(() => {
+              this.$refs.scroller[this.index].reset();
+            });
+          }
+        } else {
+          // 返回错误信息
+        }
+      });
+    },
+    search_back() {
+      this.$router.go(-1);
+    },
+    touchVal() {
+      let recomSetCode = this.$router.currentRoute.query.recomSetCode;
+      this.recomSetCode = recomSetCode;
+      this.$router.push({
+        path: "/public/searchMsg",
+        query: { recomSetCode: recomSetCode }
+      });
+    }
+  }
+};
+</script>
+
+<style lang="less">
+.searchList {
+  background-color: #fff;
+  .search_head {
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    font-size: 0.28rem;
+    text-align: center;
+    background: #f41a14;
+    z-index: 2;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_photo {
+      width: 5.35rem;
+    }
+    .gobroke {
+      height: 1rem;
+      line-height: 1rem;
+      right: 0.5rem;
+      font-size: 0.4rem;
+      color: #fff;
+    }
+    .search_box {
+      flex: 1;
+      height: 0.6rem;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      margin: 0 0.3rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: contain;
+        z-index: 1;
+        top: 0;
+        left: 35%;
+        bottom: 0;
+        margin: auto;
+      }
+      .search_mode {
+        position: absolute;
+        left: 40%;
+        width: 60%;
+        height: 0.6rem;
+        line-height: 0.6rem;
+        padding-left: 0.1rem;
+        border: none;
+        outline: 0;
+        box-sizing: border-box;
+        display: block;
+        font-size: 0.24rem;
+        background-color: #f41a14;
+        color: #fff;
+        &::-webkit-input-placeholder {
+          /*WebKit browsers*/
+          color: #fff;
+        }
+        &::-moz-input-placeholder {
+          /*Mozilla Firefox*/
+          color: #fff;
+        }
+        &::-ms-input-placeholder {
+          /*Internet Explorer*/
+          color: #fff;
+        }
+      }
+    }
+  }
+  .searchList_content {
+    height: calc(100vh - 0.88rem - 0.98rem);
+    .home_list {
+      > li {
+        padding: 0.2rem 0.3rem;
+        border-bottom: 2px solid #eeeeee;
+        box-sizing: border-box;
+        .source-handle-title {
+          margin-right: 0.15rem;
+          margin-top: 0.033rem;
+          float: left;
+          color: #f41a14;
+          border: 2px solid #f41a14;
+          text-align: center;
+          line-height: 1.5;
+          padding: 0 0.1rem;
+          font-size: 0.24rem;
+          border-radius: 0.1rem;
+        }
+        .source-label {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          text-align: justify;
+          line-height: 0.48rem;
+        }
+        .tabImg {
+          width: 100%;
+          height: 3.4rem;
+          margin-top: 0.1rem;
+          margin-bottom: 0.3rem;
+          > img {
+            vertical-align: middle;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+          }
+          > .video_playicon {
+            width: 1.06rem;
+            height: 1.06rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -0.58rem;
+            margin-left: -0.58rem;
+            background: url(../../../static/imgs/playicon.png) no-repeat left
+              center;
+            background-size: 100%;
+            z-index: 2;
+          }
+        }
+        > .tabTranslate {
+          width: 100%;
+          height: 1.44rem;
+          margin-bottom: 0.3rem;
+          > li {
+            img {
+              float: left;
+              width: 2.2rem;
+              height: 1.44rem;
+              display: block;
+            }
+          }
+        }
+        .home_time {
+          bottom: 0;
+          margin-top: 0.3rem;
+          font-size: 0.2rem;
+          .new_watch {
+            margin-left: 0.15rem;
+            width: 0.29rem;
+            height: 0.2rem;
+            display: inline-block;
+            background: url(../../../static/imgs/eye.png) no-repeat left center;
+            background-size: 100%;
+          }
+          .source-handle-title {
+            margin-right: 0.15rem;
+            margin-top: 0.033rem;
+            float: left;
+            color: #f41a14;
+            border: 2px solid #f41a14;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 0.1rem;
+            font-size: 0.24rem;
+            border-radius: 0.1rem;
+          }
+        }
+        .imageNews-img {
+          width: 2.2rem;
+          height: 1.44rem;
+          margin-left: 0.2rem;
+          position: relative;
+          > img {
+            width: 100%;
+            height: 100%;
+          }
+          > .audio_icon {
+            width: 0.66rem;
+            height: 0.66rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -0.38rem;
+            margin-left: -0.38rem;
+            background: url(../../../static/imgs/audio.png) no-repeat left
+              center;
+            background-size: contain;
+            z-index: 89;
+          }
+        }
+      }
+    }
+    .myPhoto_list {
+      display: flex;
+      width: 100%;
+      background: #fff;
+      > li {
+        padding: 0.3rem;
+        display: flex;
+        border-bottom: 2px solid #eee;
+        > .head_photo {
+          width: 0.7rem;
+          height: 0.7rem;
+          border-radius: 50%;
+          margin-right: 0.4rem;
+          overflow: hidden;
+          background-color: #666;
+        }
+        > .myPhoto_posted {
+          width: 85%;
+          > p:first-child {
+            width: 100%;
+            color: #666666;
+            box-sizing: border-box;
+            padding: 0 0.2rem 0.2rem 0;
+            margin-top: 0.1rem;
+          }
+          > p {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 0.3rem;
+          }
+          > .myPhoto_img {
+            > li {
+              width: 1.7rem;
+              height: 1.7rem;
+              border: 2px solid #ccc;
+              margin-top: 0.2rem;
+              overflow: hidden;
+              > img {
+                height: 100%;
+              }
+            }
+            > li:nth-child(n + 2) {
+              margin-left: 0.2rem;
+            }
+          }
+        }
+      }
+    }
+  }
+  .vux-tab-container,
+  .vux-tab {
+    height: 0.88rem !important;
+  }
+}
+</style>

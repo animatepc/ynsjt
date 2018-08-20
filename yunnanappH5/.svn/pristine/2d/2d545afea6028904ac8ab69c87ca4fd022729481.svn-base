@@ -1,0 +1,5 @@
+export const adapted = {
+    api(){
+        document.documentElement.style.fontSize = document.documentElement.clientWidth? document.documentElement.clientWidth / 7.5 + 'px':window.innerWidth/7.5 + 'px';
+    }
+}

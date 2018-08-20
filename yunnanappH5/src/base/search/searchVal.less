@@ -1,0 +1,70 @@
+.search{
+    height: 100vh;
+    background-color: #fff;
+    .searchVal{
+        width: 7.1rem;
+        height: 1rem;
+        padding: .14rem .2rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        background-color: #f41a14;
+        .search_back{
+            width: .3rem;
+            height: .3rem;
+            display: inline-block;
+            background: url('../../../static/imgs/back.png') center center no-repeat;
+            background-size: cover;
+        }
+        .search_box{
+            height:.5rem;
+            color: #fff;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            border: .02rem solid #fff;
+            border-radius: .05rem;
+            .search_icon{
+                width: .3rem;
+                height: .3rem;
+                background: url('../../../static/imgs/search.png') center center no-repeat;
+                background-size: .3rem .3rem;
+                z-index: 1;
+                top: 0;
+                left: 2rem;
+                bottom: 0;
+                margin: auto;
+            }
+            .search_mode{
+                width: 2.85rem;
+                height: 100%;
+                left: 2.4rem;
+                overflow: hidden;
+                outline: none;
+                border: 0rem solid #fff;
+                background-color: #f41a14;
+                color: #fff;
+                &::-webkit-input-placeholder{ /*WebKit browsers*/
+                    color: #fff;
+                }
+                &::-moz-input-placeholder{ /*Mozilla Firefox*/
+                    color: #fff;
+                }
+                &::-ms-input-placeholder{ /*Internet Explorer*/ 
+                    color: #fff;
+                }
+            }
+        }
+        .search_city{
+            text-align: right;
+            width: 1.8rem;
+            height: .5rem;
+            line-height: .5rem;
+            color: #fff;
+            overflow: hidden;
+            font-size: .24rem;
+            position: relative;
+        }
+    }
+}

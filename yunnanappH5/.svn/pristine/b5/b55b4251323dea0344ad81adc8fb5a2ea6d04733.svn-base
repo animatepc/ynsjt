@@ -1,0 +1,34 @@
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import {adapted} from './common/js/adapted.js'  
+export default {
+  name: 'App',
+  created(){
+// 	adapted.orientation(document,window)
+// 	adapted.dpr()
+    adapted.plusReady(this)
+    let browser = adapted.browser()
+    if(browser.versions.ios){
+        console.log('当前终端为ios')
+    }else if(browser.versions.android){
+        console.log('当前终端为android')
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "./less/_global";
+#app {
+  height: 100%;
+  width: 100%;
+  font-size: 0.28rem;
+  position: static;
+  -webkit-overflow-scrolling:touch;
+}
+</style>

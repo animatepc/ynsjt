@@ -1,0 +1,260 @@
+<template>
+	<div class="searchMsg">
+        <div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="back_off"></span>
+            <div class="colorfff _cus_flex1 _cus_posRelative _cus_overHidden search_box" @click="searchInput">
+                <span class="_cus_posAbsolute search_icon"></span>
+                <input type="text" v-model="search_text" autofocus="autofocus" class="_cus_posAbsolute search_mode" ref="search_mode" placeholder="输入搜索词">
+            </div>
+            <div class="colorfff search_city _cus_overHidden">
+                <span @click="search_back">搜索</span>
+            </div>
+        </div>
+        <!-- 搜索内容 -->
+        <div class="search_content">
+        	
+        	 <div class="search_history" v-show="history_list.length >0"> 
+        	 	
+				<p class="history_title">
+					<span>搜索历史</span>
+					<i class="search_icon" @click="delete_history"></i>
+				</p>
+				<ul class="history_list">
+					<li class="" v-for="item in history_list" @click="search(item.search)">{{item.search}}</li>
+				</ul>
+	        </div>
+	        <div class="search_history"> 
+        	 	
+				<p class="history_title">
+					<span>热门搜索</span>
+				</p>
+				<ul class="history_list">
+					<li class="" v-for="item in list" @click="search(item.name)">{{item.name}}</li>
+				</ul>
+	        </div>
+        </div>
+       
+    </div>
+</template>
+
+<script>
+import { historyService } from "../../services/historyMsg.js";
+import { newsApi } from "../../services/newsApi.js";
+export default {
+  data() {
+    return {
+      search_text: "",
+      history_list: [],
+      list: [],
+      recomSetCode: ""
+    };
+  },
+  mounted() {
+    this.getHotWork();
+    historyService.get() && historyService.get().length > 0
+      ? (this.history_list = historyService.get())
+      : null;
+    this.$refs.search_mode.focus();
+  },
+  methods: {
+    searchInput() {
+      this.$refs.search_mode.focus();
+    },
+    //查询关键词 热门搜索
+    getHotWork() {
+      //获取header.vue页面传入的推荐位值
+      let recomSetCode = this.$router.currentRoute.query.recomSetCode;
+      this.recomSetCode = recomSetCode;
+      var bodys = {
+        recomSetCode: recomSetCode,
+        _jsonp: true,
+        _jsonpCallback: "onBack"
+      };
+      newsApi.hotwork(bodys).then(r => {
+        if (r.statusCode == "200" && r.status) {
+          // 接口访问成功，执行
+          this.list = r.list; //等级列表
+        } else if (!r.status) {
+          // 返回错误信息
+          this.list = [];
+        }
+      });
+    },
+    back_off() {
+      this.$router.replace({
+        path: "/system/home"
+      });
+    },
+    search_back() {
+      //获取输入的值
+      var title = this.$refs.search_mode.value;
+      this.$router.push({
+        path: "/public/searchlist",
+        query: {
+          title: title,
+          recomSetCode: this.recomSetCode,
+          SetCode:
+            this.$route.query.SetCode != ""
+              ? this.$route.query.SetCode
+              : undefined
+        }
+      });
+      let historyObj = new Array();
+      this.search_text != ""
+        ? historyObj.push({ search: this.search_text })
+        : [];
+      if (!historyService.get() || historyService.get().length == 0) {
+        historyService.save(historyObj);
+      } else {
+        let historyObj2 = historyService.get();
+        historyService.get().map(i => {
+          if (i.search != this.search_text) {
+            historyService.save(Array.concat(historyObj, historyObj2));
+          }
+        });
+      }
+    },
+    search(title) {
+      this.$router.push({
+        path: "/public/searchList",
+        query: { title: title, recomSetCode: this.recomSetCode }
+      });
+    },
+    delete_history() {
+      historyService.clear();
+      this.history_list = [];
+    }
+  }
+};
+</script>
+
+<style lang="less">
+.searchMsg {
+  height: 100vh;
+  background-color: #fff;
+  margin-top: 1rem;
+  .searchVal {
+    width: 100%;
+    height: 1rem;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    line-height: 1rem;
+    font-size: 0.28rem;
+    text-align: center;
+    background: #f41a14;
+    z-index: 2;
+    .search_back {
+      width: 0.22rem;
+      height: 0.4rem;
+      margin-left: 0.3rem;
+      display: inline-block;
+      background: url("../../../static/imgs/back.png") center center no-repeat;
+      background-size: contain;
+      z-index: 10;
+    }
+    .search_box {
+      width: 70%;
+      height: 0.6rem;
+      border: 2px solid #fff;
+      border-radius: 0.1rem;
+      margin: 0 0.3rem;
+      .search_icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        background: url("../../../static/imgs/search.png") center center
+          no-repeat;
+        background-size: contain;
+        z-index: 1;
+        top: 0;
+        left: 30%;
+        bottom: 0;
+        margin: auto;
+      }
+      .search_mode {
+        position: absolute;
+        left: 35%;
+        width: 65%;
+        height: 100%;
+        padding-left: 0.1rem;
+        border: none;
+        outline: 0;
+        box-sizing: border-box;
+        display: block;
+        font-size: 0.28rem;
+        background-color: #f41a14;
+        color: #fff;
+        &::-webkit-input-placeholder {
+          /*WebKit browsers*/
+          color: #fff;
+        }
+        &::-moz-input-placeholder {
+          /*Mozilla Firefox*/
+          color: #fff;
+        }
+        &::-ms-input-placeholder {
+          /*Internet Explorer*/
+          color: #fff;
+        }
+      }
+    }
+    .search_city {
+      height: 0.5rem;
+      line-height: 0.5rem;
+      //              margin: 0 0.3rem;
+      margin-right: 0.3rem;
+    }
+    .city_text {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+      font-size: 0.32rem;
+    }
+  }
+  .search_content {
+    width: 100%;
+    font-size: 0.28rem;
+    padding: 0 0.3rem;
+    overflow: hidden;
+    background: #f4f4f4;
+    box-sizing: border-box;
+    .search_history {
+      margin-top: 0.4rem;
+      font-size: 0.32rem;
+      overflow: hidden;
+      .history_title {
+        height: 1rem;
+        line-height: 1rem;
+        > .search_icon {
+          display: block;
+          width: 0.29rem;
+          height: 0.3rem;
+          float: right;
+          margin-top: 0.35rem;
+          background: url(../../../static/imgs/delete.jpg) no-repeat center
+            center;
+          background-size: contain;
+        }
+      }
+      .history_list {
+        width: 100%;
+        overflow: hidden;
+        > li {
+          float: left;
+          font-size: 0.28rem;
+          background: #fff;
+          border-radius: 0.3rem;
+          padding: 0.1rem 0.4rem;
+          margin-right: 0.29rem;
+          margin-bottom: 0.3rem;
+        }
+      }
+    }
+  }
+}
+</style>

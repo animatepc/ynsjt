@@ -1,0 +1,95 @@
+import {HttpService} from './http';
+/**
+ * 封装个人中心相关的请求及数据处理
+ */
+
+export const coreApi = {
+  api: {
+    myVideoList:'/myVideo/myVideoList.do',
+    updateUserName:'/home/info/changeNickName.do',
+    homeMessage:'/home/message/list.do', 
+    homeFeedback:'/home/feedback/list.do',
+    getUserPointInfo:'/home/info/getUserPointInfo.do',
+    getUserPointLog:'/home/info/getUserPointLog.do',
+    getPointList:'/home/info/getPointList.do',
+    logOff:'/logOff.do',
+    userSetIndex:'/userSet/userSetIndex.do',
+    bindingMobile:'sms/bindingMobile.do',
+    userSetBindingMobile:'userSet/bindingMobile.do',
+    changeNext:'sms/changeNext.do',
+    newMobile:'userSet/newMobile.do',
+    changePassword:'sms/changePassword.do',
+    newPassword:'/userSet/newPassword.do',  
+    uploadLocalImage:'/home/info/uploadImageByBase64.do',
+    addFeedback:'/home/feedback/add.do'
+  },
+
+  //我的-->我的我拍-->列表
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  //我的-->个人信息-->修改用户名
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  //个人中心-->意见反馈
+  gethomeFeedback(body){
+  return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  //个人中心-->我的消息
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  }, 
+  //我的-->我的积分-->我的积分上半部分
+  getUserPointInfo(body){
+    return HttpService.post(this.api.getUserPointInfo, body, false, false)
+  },
+  //我的-->我的积分-->我的积分下半部分
+  getUserPointLog(body){
+    return HttpService.post(this.api.getUserPointLog, body, false, false)
+  },
+  //我的-->我的积分-->积分规则
+  getPointList(body){
+    return HttpService.post(this.api.getPointList, body, false, false)
+  },
+  //退出登录
+  logOff(body){
+    return HttpService.get(this.api.logOff, body, false, false,false)
+  },
+  //我的-->账户设置主页
+  userSetIndex(body){
+    return HttpService.get(this.api.userSetIndex, body, false, false,false) 
+  },
+  //我的-->绑定手机号-->发送验证码
+  bindingMobile(body){
+    return HttpService.post(this.api.bindingMobile, body, false, false) 
+  },
+  //我的-->绑定手机号-->手机号+验证码验证码
+  userSetBindingMobile(body){
+    return HttpService.post(this.api.userSetBindingMobile, body, false, false) 
+  },
+  //我的-->修改手机号-->发送验证码
+  changeNext(body){
+    return HttpService.post(this.api.changeNext, body, false, false) 
+  },
+  //我的-->修改手机号-->手机号+验证码验证
+  newMobile(body){
+    return HttpService.post(this.api.newMobile, body, false, false) 
+  },
+  //我的-->修改密码-->发送验证码
+  changePassword(body){
+    return HttpService.post(this.api.changePassword, body, false, false)
+  },
+  //我的-->修改密码-->手机号+验证码验证
+  newPassword(body){
+    return HttpService.post(this.api.newPassword, body, false, false)
+  },
+  //我的-->个人信息-->上传图片
+  uploadLocalImage(body){
+    return HttpService.post(this.api.uploadLocalImage, body, false, false)
+  },
+  //个人中心-->意见反馈-->添加反馈
+  getaddFeedback(body){
+  return HttpService.post(this.api.addFeedback, body, false, false)
+  }
+}

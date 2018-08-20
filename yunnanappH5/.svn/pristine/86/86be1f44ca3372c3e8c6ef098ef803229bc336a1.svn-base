@@ -1,0 +1,41 @@
+import {HttpService} from './http';
+/**
+ * 封装产品相关的请求及数据处理
+ */
+
+export const gloabApi = {
+  api: {
+    loginOrReg:'sms/loginOrReg.do',
+    valiloginCode:'/register.do',
+    columnList:'/content/columnList.do',
+    newsList:'/content/list.do',
+    myVideoList:'/myVideo/myVideoList.do',
+    updateUserName:'/home/info/changeNickName.do',
+    homeMessage:'/home/message/list.do',
+    homeFeedback:'/home/feedback/list.do'
+  },
+  getloginCode(body){
+    return HttpService.post(this.api.loginOrReg, body, false, false)
+  },
+  valiloginCode(body){
+    return HttpService.post(this.api.valiloginCode, body, false, false)
+  },
+  getColumnList(body){
+    return HttpService.post(this.api.columnList, body, false, false)
+  },
+  getnewsList(body){
+    return HttpService.post(this.api.newsList, body, false, false)
+  },
+  getMyVideoList(body){
+  return HttpService.post(this.api.myVideoList, body, false, false)
+  },
+  updateUserName(body){
+  return HttpService.post(this.api.updateUserName, body, false, false)
+  },
+  gethomeFeedback(body){
+    return HttpService.post(this.api.homeFeedback, body, false, false)
+  },
+  gethomeMessage(body){
+    return HttpService.post(this.api.homeMessage, body, false, false)
+  },
+}

@@ -1,0 +1,279 @@
+<template>
+    <div class="login">
+        <div class="login_msg _cus_flexContent _cus_fleAlignCen _cus_posRelative">
+            <i class="login_back" @click="login_back"></i>
+            <span class="colorfff _cus_posAbsolute login_sign">登录</span>
+        </div>
+        <div class="login_content _cus_overHidden">
+            <div class="login_logo">
+                <img src="../../../static/imgs/logo.png" alt="" >
+            </div>
+            <div class="login_box">
+                <div class="login_phone">
+                    <group class="_cus_flexContent _cus_fleAlignCen perH100 ">
+                        <x-input mask="999 9999 9999" keyboard="number" is-type="china-mobile" :should-toast-error="false" required v-model="Json.phone" placeholder="请输入手机号码"></x-input>
+                    </group>
+                </div>
+                <div class="login_code _cus_flexContent _cus_jusContent">
+                    <div class="login_pass ">
+                        <group class="_cus_flexContent _cus_fleAlignCen perH100 ">
+                            <x-input  title="" required :disabled="xbuttondis" v-model="Json.pass" placeholder="请输入验证码"></x-input>
+                        </group>
+                    </div>
+                    <x-Button :disabled="xbuttondis" class="login_xbtn">{{xbtn_msg}}</x-Button>
+                </div>
+                <x-Button :disabled="xbuttondis2" class="login_sub">提交</x-Button>
+                <p class="login_">
+                    <i :class="selected?'login_select':'login_cancel'" @click="selected_mask"></i>
+                    我已阅读并同意"<span class="login_agreement">用户协议和隐私条款</span>"
+                </p>
+                <p class="login_userpass">
+                    使用账户密码登录 >
+                </p>
+                <div class="login_footer">
+                    <fieldset class="login_field">
+                        <legend>第三方登录</legend>
+                    </fieldset>
+                    <ul class="login_ways _cus_flexContent">
+                        <li class="third_party_img _cus_flex1">
+                            <img src="../../../static/imgs/qq.png" alt="">
+                            <p>QQ</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1">
+                            <img src="../../../static/imgs/wechat.png"  alt="">
+                            <p>微信</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1">
+                            <img src="../../../static/imgs/zhi.png"  alt="">
+                            <p>支付宝</p>
+                        </li>
+                        <li class="third_party_img _cus_flex1">
+                            <img src="../../../static/imgs/weibo.png"  alt="">
+                            <p>微博</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+    export default {
+        data(){
+            return {
+                xbuttondis:false,
+                xbuttondis2: false,
+                xbtn_msg:'点击发送验证码',
+                selected:true,
+                Json:{
+                    phone:'',
+                    pass:''
+                }
+            }
+        },
+        methods:{
+            login_back(){
+                this.$router.go(-1)
+            },
+            selected_mask(){
+            	this.selected = !this.selected
+            	this.selected?this.xbuttondis2 = false:this.xbuttondis2 = true
+            }
+        }
+    }
+</script>
+<style lang="less">
+    .login{
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        font-size: .28rem;
+        .login_msg{
+        	width: 100%;
+            height: 1rem;
+            line-height: 1rem;
+            padding: .14rem 0;
+            overflow: hidden;
+            background-color: #f41a14;
+            .login_back{
+               	width: 0.22rem;
+			    height: 1rem;
+			    line-height: 1rem;
+			    position: absolute;
+			    left: 0.2rem;
+                background: url('../../../static/imgs/back.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .login_sign{
+                width: 100%;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+                text-align: center;
+            }
+        }
+        .login_content{
+            .login_logo{
+                text-align:center;
+                >img{
+                    width: 1.33rem;
+                    margin: 0.75rem auto 0.7rem;
+                }
+            }
+            .login_box{
+            	overflow: hidden;
+            	font-size: .28rem;
+                .login_phone{
+                    margin: 0 .3rem;
+                    height: 0.8rem;
+                    border: 1px solid #999;
+                    border-radius: 5px;
+                    padding-left: 10px;
+                    box-sizing: border-box;
+                    margin-bottom: .4rem;
+                    .weui-cells{
+                    	width: 100%;
+                    	height: 100%;
+                    	margin-top:0;
+                    }
+                    .weui-cell{
+                    	padding:0 15px;
+                    }
+                    .weui-icon-clear{
+                    	font-size: .28rem;
+                    }
+                    .vux-input-icon.weui-icon-warn:before, .vux-input-icon.weui-icon-success:before{
+                    	font-size: .42rem;
+                    }
+                    input{
+                    	height: .8rem;
+                    	outline: none;
+                    	border: none;
+                    	line-height: 100%;
+                    	font-size: .28rem;
+                    }
+                }
+                .login_code{
+                    margin: 0 .3rem;
+                    .login_pass{
+                        width: 3.1rem;
+                        height: .8rem;
+                        line-height: .8rem;
+                        border: 1px solid #999;
+                        border-radius: 5px;
+                        padding-left: 10px;
+                        box-sizing: border-box;
+                        margin-bottom: .4rem;
+                        .weui-cells{
+                        	width: 100%;
+                        	height: 100%;
+                        	line-height: 100%;
+	                    	margin-top:0;
+	                    }
+	                    .weui-cell{
+	                    	padding:0 15px;
+	                    }
+	                    .weui-icon-clear{
+	                    	font-size: .28rem;
+	                    }
+	                    .vux-input-icon.weui-icon-warn:before, .vux-input-icon.weui-icon-success:before{
+	                    	font-size: .42rem;
+	                    }
+	                    input{
+	                    	height: .8rem;
+	                    	outline: none;
+	                    	border: none;
+	                    	/*height: .8rem;*/
+	                    	line-height: 100%;
+	                    	font-size: .28rem;
+	                    }
+                    }
+                    .login_xbtn{
+                        width: 3rem;
+                        height: 0.8rem;
+                        margin: 0;
+                        background: #f41a14;
+                        border-color: #eee;
+                        color: #fff;
+                    }
+                }
+            }
+            .login_sub{
+                margin: 0 auto;
+                margin-top: 0.3rem;
+                margin-bottom: 0.2rem;
+                width: 4.9rem;
+                height: 0.96rem;
+                line-height: 0.96rem;
+                font-size: .32rem;
+                color: #fff;
+                background: #f41a14;
+                border-radius: 10px;
+            }
+            .login_{
+                font-size: .24rem;
+                line-height: 18px;
+                color: #282828;
+                margin-top: 0.3rem;
+                text-align: center;
+                .login_select{
+                    display: inline-block;
+                    width: .32rem;
+                    height: .32rem;
+                    vertical-align: -15%;
+                    margin-right: 5px;
+                    background: url(../../../static/imgs/selected.png) no-repeat center;
+                    background-size: 100% 100%;
+                }
+                .login_cancel{
+                	display: inline-block;
+                	width: .32rem;
+                    height: .32rem;
+                    vertical-align: -15%;
+                    margin-right: 5px;
+                    background-color: #f41a14;
+                    background: #f41a14;
+                    border-radius: .03rem;
+                }
+                .login_agreement{
+                    color: #f41a14;
+                    text-decoration: underline;
+                }
+            }
+            .login_userpass{
+                margin: 0.8rem 0 0.4rem;
+                text-align: center;
+                color: #fca806;
+            }
+            .login_footer{
+                .login_field{
+                    width: 90%;
+                    margin-left: 5%;
+                    border: none;
+                    border-top: 1px solid #eee;
+                    text-align: center;
+                    legend{
+                        display: inline-block;
+                        color: #999;
+                        font-size: .28rem;
+                        padding: 0 10px;
+                    }
+                }
+                .login_ways{
+                    color: #999;
+                    font-size: .22rem;
+                    margin-top: 0.44rem;
+                    .third_party_img{
+                        text-align: center;
+                        >img{
+                            width: 0.87rem;
+                            margin-bottom: 0.16rem;
+                        }
+                    }
+                }
+            }
+        }
+    }    
+</style>
+

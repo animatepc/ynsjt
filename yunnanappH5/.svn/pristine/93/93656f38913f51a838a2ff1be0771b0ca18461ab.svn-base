@@ -1,0 +1,139 @@
+<template>
+	<div class="myPreview">
+		<div class="searchVal _cus_flexContent _cus_fleAlignCen">
+            <span class="search_back" @click="city_back"></span>
+            <span class="city_text"><span class="mypreview_indexs">{{indexs}}</span>/{{imglength}}</span>
+        </div>
+        <div v-if="imgList.length > 0" class="swiper_content">
+        	<swiper :list="imgList" :show-dots="false" class="swiper_box" @on-index-change="swiperChange"></swiper>
+        </div>
+	</div>
+</template>
+
+<script>
+	import {mapState, mapGetters} from 'vuex'
+	export default {
+		data(){
+			return{
+				imglength:3,
+				indexs:1,
+				imgList:[]
+			}
+        },
+		computed:{
+            ...mapState(['imgObj']),
+            ...mapGetters(['getPathObj'])
+		},
+		mounted(){
+            this.imglength = this.imgObj.length
+            this.imgObj.map(i=>{
+                this.imgList.push({'img':i})
+            })
+		},
+		methods:{
+			city_back(){
+                if(this.getPathObj.path == '/public/searchMsg'){
+                    this.$router.push({
+                        'path':this.getPathObj.path,
+                        query:{'recomSetCode':this.getPathObj.recomSetCode}
+                    })
+                    return 
+                }else if(this.getPathObj.path == '/public/searchlist'){
+                     this.$router.push({
+                        'path':this.getPathObj.path
+                    })
+                    return
+                }
+				this.$router.go(-1)
+			},
+			swiperChange(index){
+				this.indexs = index+1
+			}
+		}
+	}
+</script>
+
+<style lang="less">
+	.myPreview{
+		background-color: #000;
+		height: calc(100vh - 1rem);
+        margin-top: 1rem;
+        font-size: 0.28rem;
+        color: #000;
+        overflow: hidden;
+		.searchVal{
+            width: 100%;
+            height: 1rem;
+            position: fixed;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            line-height: 1rem;
+            text-align: center;
+            background: #fff;
+            z-index: 2;
+            .search_back{
+                width: 0.22rem;
+                height: 0.4rem;
+                margin-left: 0.3rem;
+                display: inline-block;
+                background: url('../../../static/imgs/atlas_left_arrow.png') center center no-repeat;
+                background-size: contain;
+                z-index: 10;
+            }
+            .search_box{
+                height:.6rem;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #fff;
+                border-radius: .1rem;
+                .search_icon{
+                    width: .3rem;
+                    height: .3rem;
+                    background: url('../../../static/imgs/search.png') center center no-repeat;
+                    background-size: .3rem .3rem;
+                    z-index: 1;
+                    top: 0;
+                    left: 1.5rem;
+                    bottom: 0;
+                    margin: auto;
+                }
+            }
+            .search_city{
+                height: .5rem;
+                line-height: .5rem;
+//              margin: 0 0.3rem;
+                margin-right: 0.3rem;
+            }
+            .city_text{
+                position: absolute;
+                left: 0;
+                width: 100vw;
+                text-align: center;
+                height: 1rem;
+                line-height: 1rem;
+                font-size: .32rem;
+                .mypreview_indexs{
+                	color: #f41a14;
+                }
+            }
+        }
+        .swiper_content{
+            overflow: hidden;
+            height: 100%;
+            .swiper_box{
+                height: 100% !important;
+                .vux-swiper{
+                    height: 100% !important;
+                    a{
+                        height: 100% !important;
+                        .vux-img{
+                            background-size: 100% auto;
+                        }
+                    }
+                }
+            }
+        }
+	}
+</style>

@@ -1,0 +1,373 @@
+import { HttpService } from "./http";
+import { loginApi } from './loginApi.js'
+import { Cookie } from "../common/js/base.js";
+import Bridge from '../common/js/bridge.js'
+export class loginService {
+  static loginQQ(equipment, router) {
+    if (equipment == 'ios') {
+      Bridge.callhandler("logqq", data => {
+        // 处理返回数据
+
+      });
+      Bridge.registerhandler('returnlogqq', (openId,nickName,head, responseCallback) => {
+        var bodys = {};
+        body.userId = null;
+        body.qqAccount = openId;
+        body.nickName = nickName;
+        body.head = head;
+        loginApi.returnLoginqq(bodys).then(r => {
+          alert(r)
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data)
+      })
+    } else if (equipment == 'android') {
+      Bridge.callhandler("androidLogQq", data => {
+        // 处理返回数据
+        alert('交互成功')
+      });
+      Bridge.registerhandler('returnlogqq', (openId,nickName,head, responseCallback) => {
+        alert(openId +' : '+nickName+' : '+head)
+        var bodys = {};
+        body.userId = null;
+        body.qqAccount = openId;
+        body.nickName = nickName;
+        body.head = head;
+        loginApi.returnLoginqq(bodys).then(r => {
+
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data)
+      })
+    }
+  }
+
+  static loginWX(equipment, router) {
+    if (equipment == 'ios') {
+      Bridge.callhandler("logwx", data => {
+        // 处理返回数据
+      });
+      Bridge.registerhandler('returnlogwx', (code, responseCallback) => {
+        var bodys = {};
+        bodys.code = code;
+        loginApi.returnLoginwx(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    } else if (equipment == 'android') {
+      Bridge.callhandler("androidLogWx", data => {
+        // 处理返回数据
+        alert('交互成功')
+      });
+      Bridge.registerhandler('returnlogwx', (code, responseCallback) => {
+        let bodys = {};
+        bodys.code = code;
+        loginApi.returnLoginwx(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    }
+  }
+  static loginZFB(equipment, router) {
+    if (equipment == 'ios') {
+      Bridge.callhandler("logzfb", data => {
+        // 处理返回数据
+      });
+      Bridge.registerhandler('returnlogzfb', (code, responseCallback) => {
+        var bodys = {};
+        bodys.code = code;
+        loginApi.returnLoginzfb(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    } else if (equipment == 'android') {
+      Bridge.callhandler("androidLogZfb", data => {
+        // 处理返回数据
+        alert('交互成功')
+      });
+      Bridge.registerhandler('returnlogzfb', (code, responseCallback) => {
+        var bodys = {};
+        bodys.code = code;
+        loginApi.returnLoginzfb(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    }
+  }
+  static loginWB(equipment, router) {
+    if (equipment == 'ios') {
+      Bridge.callhandler("logwb", data => {
+        // 处理返回数据
+      });
+      Bridge.registerhandler('returnlogwb', (token, uid, responseCallback) => {
+        var bodys = {};
+        bodys.token = token;
+        bodys.uid = uid;
+        loginApi.returnLoginwb(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    } else if (equipment == 'android') {
+      Bridge.callhandler("androidLogWb", data => {
+        // 处理返回数据
+        alert('交互成')
+      });
+      Bridge.registerhandler('returnlogwb', (token,uid, responseCallback) => {
+        alert(token +' : '+uid)
+        var bodys = {};
+        bodys.token = token;
+        bodys.uid = uid;
+        loginApi.returnLoginwb(bodys).then(r => {
+          if (r.status) {
+            Cookie.addCookie("mobile", "   ", {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用户实体的account
+            Cookie.addCookie("userAvatar", r.user.userAvatar, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //用头像
+            Cookie.addCookie("nickName", r.user.nickName, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //昵称
+            Cookie.addCookie("online", r.user.online, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //是否在线 0不在，1在线
+            Cookie.addCookie("acountType", r.user.accountType, {
+              expires: 10 * 365 * 24 * 60 * 60,
+              path: "/"
+            }); //登陆账号类型 0手机号 1qq 2支付宝 3微信 4新浪
+            if (r.user.nickName == "") {
+              router.push({
+                path: "/mymodule/setusername"
+              });
+            } else {
+              router.push({
+                path: "/mymodule/signin"
+              });
+            }
+          }
+        });
+        responseCallback(data);
+      })
+    }
+  }
+}
+
