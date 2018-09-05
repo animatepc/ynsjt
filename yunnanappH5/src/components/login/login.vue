@@ -23,7 +23,7 @@
                         </div>
                         <x-Button :disabled="xbuttondis" :class="!xbuttondis?'login_xbtn':'login_disabled'" @click.native="xbtn_setinter">{{xbtn_msg}}</x-Button>
                     </div>
-                    <x-Button :disabled="xbuttondis2" type="button" class="login_sub" @click.native="Submission">提交</x-Button>
+                    <x-Button type="button" class="login_sub" @click.native="Submission">提交</x-Button>
                     <p class="login_">
                         <i :class="selected?'login_select':'login_cancel'" @click="selected_mask"></i>
                         我已阅读并同意"<router-link target="span" to="/login/agreement" class="login_agreement">用户协议和隐私条款</router-link>"
@@ -51,7 +51,7 @@
                 <p class="login_userpass">
                     <span @click="signin" v-text="!signin_mode?'使用账户密码登录 >':'使用手机短信快捷登录 >'"></span>
                 </p>
-                <div class="login_footer">
+                <!-- <div class="login_footer">
                     <fieldset class="login_field">
                         <legend>第三方登录</legend>
                     </fieldset>
@@ -73,7 +73,7 @@
                             <p>微博登录</p>
                         </li>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
         <alert
@@ -211,8 +211,9 @@ export default {
       });
     },
     selected_mask() {
-      // this.selected = !this.selected;
-      this.selected ? (this.xbuttondis2 = false) : (this.xbuttondis2 = true);
+      this.selected = !this.selected;
+      this.xbuttondis2 = this.selected ?false: true
+      // (= false) : (this.xbuttondis2 = true);
     },
     signin() {
       this.signin_mode = !this.signin_mode;
@@ -221,39 +222,45 @@ export default {
       this.hidePass = !this.hidePass;
     },
     Submission() {
-      if (!this.signin_mode) {
-        let phone = this.idCode.phone.replace(/\s+/g, ""),
-          reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
-        if (this.idCode.phone == "") {
-          this.hide_alert = true;
-          this.test_mag = "请输入手机号！";
-        } else if (!reg1.test(phone)) {
-          this.hide_alert = true;
-          this.test_mag = "请输入正确的手机号!";
-        } else if (this.idCode.code == "") {
-          this.hide_alert = true;
-          this.test_mag = "请输入短信验证码！";
+      if(this.selected){
+        if (!this.signin_mode) {
+          let phone = this.idCode.phone.replace(/\s+/g, ""),
+            reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+          if (this.idCode.phone == "") {
+            this.hide_alert = true;
+            this.test_mag = "请输入手机号！";
+          } else if (!reg1.test(phone)) {
+            this.hide_alert = true;
+            this.test_mag = "请输入正确的手机号!";
+          } else if (this.idCode.code == "") {
+            this.hide_alert = true;
+            this.test_mag = "请输入短信验证码！";
+          } else {
+            this.hide_alert = false;
+            this.getLoginCode_phone();
+          }
         } else {
-          this.hide_alert = false;
-          this.getLoginCode_phone();
+          let phone = this.idPass.phone.replace(/\s+/g, ""),
+            reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+          if (this.idPass.phone == "") {
+            this.hide_alert = true;
+            this.test_mag = "请输入手机号！";
+          } else if (!reg1.test(phone)) {
+            this.hide_alert = true;
+            this.test_mag = "请输入正确的手机号!";
+          } else if (this.idPass.pass == "") {
+            this.hide_alert = true;
+            this.test_mag = "请输入密码！";
+          } else {
+            this.hide_alert = false;
+            this.getValiLoginUser();
+          }
         }
-      } else {
-        let phone = this.idPass.phone.replace(/\s+/g, ""),
-          reg1 = /^[1][3,4,5,7,8][0-9]{9}$/;
-        if (this.idPass.phone == "") {
-          this.hide_alert = true;
-          this.test_mag = "请输入手机号！";
-        } else if (!reg1.test(phone)) {
-          this.hide_alert = true;
-          this.test_mag = "请输入正确的手机号!";
-        } else if (this.idPass.pass == "") {
-          this.hide_alert = true;
-          this.test_mag = "请输入密码！";
-        } else {
-          this.hide_alert = false;
-          this.getValiLoginUser();
-        }
+      }else{
+        this.hide_alert = true;
+        this.test_mag = "请阅读并同意“用户协议和隐私条款”";
       }
+      
     },
     xbtn_setinter() {
       let phone = this.idCode.phone.replace(/\s+/g, ""),

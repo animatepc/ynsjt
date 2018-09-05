@@ -1,5 +1,5 @@
 <template>
-    <div class="videoChannel  _cus_flexContent _cus_direction">
+    <div class="videoChannel  _cus_flexContent _cus_direction perH100">
         <div class="videodetails_back" @click="city_back" v-show="isFull">
             <i class="videodetails_icon" ></i>
         </div>
@@ -14,9 +14,10 @@
                     <!-- <span>{{newsdetails_msg.title}}</span> -->
                 </span>
                 <span>
+                    <span>{{newsdetails_msg.virtualClickTimes}}</span>
+                    <i class="news_watch"></i>
                     <i @click="clickCollection()" :class="isCollection==1?'collectActive':'collect'"></i>
-                    <!-- <span>{{newsdetails_msg.virtualClickTimes}}</span> -->
-                    <!-- <i class="news_watch"></i> -->
+                    <img src="../../../static/imgs/share.png" @click="fatchBridge">
                 </span>
             </p>
             <p class="_cus_flexContent _cus_jusContent _cus_fleAlignCen _cus_overHidden" v-show="isShow">
@@ -120,6 +121,11 @@ import { mapState, mapMutations } from "vuex";
 import { loginApi } from '../../services/loginApi.js';
 import { coreApi } from '../../services/coreApi.js';
 import { UserService } from '../../services/user.js';
+import { adapted } from "../../common/js/adapted.js";
+import { Share } from '../../common/js/bridgeShare.js';
+import { shareWx } from '../../common/js/shareWeixin.js';
+import { sms } from '../../services/commonApi.js'; 
+import $ from "jquery";
 export default {
   components: {
     VideoPlay
@@ -225,6 +231,8 @@ export default {
     this.$nextTick(()=>{
       this.getNewsList();
     });
+    this.model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':'';
+    shareWx.getQueryString('videodetails',this.$route); 
   },
   computed: {
     ...mapState(["colorMsg","loginMsg"]),
@@ -259,6 +267,20 @@ export default {
     }
   },
   methods: {
+    fatchBridge(){
+      // 
+      if(this.model == 'ios'){
+        // this.show = true;
+      }else{
+        let bodys = {
+          img: this.newsdetails_msg.listShareImg != '' && this.newsdetails_msg.listShareImg ?this.newsdetails_msg.listShareImg:'http://static.yntv.cn/upload/Yntv_app/Baoliao/2018_08/04/201808040642435b6583233031c.png',
+          title: this.newsdetails_msg.title,
+          introduce: '',
+          url: window.location.href
+        };
+        Share.bridgeShart(bodys,this.model, 'OpenShareMenu')
+      }
+    },
     FullActive(msg) {
       this.isFull = !msg;
       // this.isShow = !msg;
@@ -496,6 +518,9 @@ export default {
           margin-right: 0.5rem;
           transform: rotate(0deg) !important;
         }
+        > img:last-child{
+          margin-right: 0;
+        }
         > .news_watch {
           display: inline-block;
           width: 0.29rem;
@@ -505,6 +530,7 @@ export default {
           display: inline-block;
           vertical-align: middle;
           margin-left: 0.1rem;
+          margin-right: .1rem;
           background: url(../../../static/imgs/eye.png) no-repeat left center;
           background-size: 100%;
         }

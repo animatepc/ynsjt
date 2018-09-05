@@ -1,5 +1,5 @@
 <template>
-	<div class="searchList">
+	<div class="searchList perH100">
 		<div class="search_head _cus_flexContent _cus_fleAlignCen">
 			<span class="search_back" @click="search_back"></span>
 	        <div class="colorfff _cus_posRelative _cus_overHidden search_box" @click.prevent.stop="touchVal">
@@ -64,7 +64,11 @@
                                       <span>{{item.source}}</span>
                                       <span class="">{{item.createTimeStr}}</span>
                                   </span>
-                                  <span class="__cus_fr" v-if="!item.isLive == '1'">
+                                  <!-- <span class="__cus_fr" v-if="!item.isLive == '1'">
+                                      <span>{{item.virtualClickTimes}}</span>
+                                      <span class="new_watch"></span>
+                                  </span> -->
+                                  <span class="__cus_fr">
                                       <span>{{item.virtualClickTimes}}</span>
                                       <span class="new_watch"></span>
                                   </span>
@@ -107,7 +111,11 @@
             <div v-show="videoBox" class="dialog-demo" :class="videoShow?'animateStart':'animateEnd'">
               <img src="../../../static/imgs/return_video.png" alt="" class="" @click="videoShow = false">
               <div class="img-box">
-                <playDiv :playInfo="playInfo" ref="playDiv" :changeStatus="changeStatus" @changeFull="changeFull"></playDiv>
+                <!-- <playDiv :playInfo="playInfo" ref="playDiv" :changeStatus="changeStatus" @changeFull="changeFull"></playDiv> -->
+                <video :src="playInfo.url" class="perW100" ref="playbox" autoplay controls style="position: fixed;
+                    top: 50%;
+                    bottom: 50%; margin: auto; z-index: -1"></video>
+                </div>
               </div>
             </div>
           </div>
@@ -238,10 +246,13 @@ export default {
     },
     videoShow(newVal,oldVal){
       if(newVal != oldVal){
+        // console.log(this.$refs.playbox)
         if(newVal){
           this.changeStatus = 'play';
+          this.$refs.playbox[0].play();
         }else{
           this.changeStatus = 'pause';
+          this.$refs.playbox[0].pause();
         }
       }
     }

@@ -1,5 +1,5 @@
 <template>
-    <div class="special_details">
+    <div class="special_details perH100">
         <div class="videodetails_back" @click="city_back">
             <i class="videodetails_icon" ></i>
         </div>    
@@ -307,7 +307,6 @@ export default {
 </script>
 <style lang="less">
 .special_details {
-  height: 100vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;

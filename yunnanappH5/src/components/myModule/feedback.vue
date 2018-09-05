@@ -9,7 +9,7 @@
             </span>
         </div>
         <div class="newsMessage_content" style="background: #fff;">
-            <scroller v-if="list.length > 0" class="" style="z-index: 2;" types="feedback" @pullDown="selPulldown" @pullUp="selPullup" :scrollerMsg="scrollerMsg" :dataList="list" ref="scroller"></scroller>
+            <scroller v-if="list.length > 0" class="perH100" style="z-index: 2;" types="feedback" @pullDown="selPulldown" @pullUp="selPullup" :scrollerMsg="scrollerMsg" :dataList="list" ref="scroller"></scroller>
             <span v-else   class="Block perW100 _cus_textCenter">您还没有添加过反馈~</span>
         </div>
     </div>

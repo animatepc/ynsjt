@@ -70,13 +70,13 @@
                 {'signin_icon':require('../../../static/imgs/userinfo_icon_4.png'),'signin_label':'历史记录','jump':'/mymodule/recordhist'},
                 {'signin_icon':require('../../../static/imgs/userinfo_icon_5.png'),'signin_label':'账户设置','jump':'/mymodule/userset'  },
                 {'signin_icon':require('../../../static/imgs/userinfo_icon_6.png'),'signin_label':'意见反馈','jump':'/mymodule/feedback'},
-                {'signin_icon':require('../../../static/imgs/userinfo_icon_7.png'),'signin_label':'关于我们', jump: '/mymodule/aboutuser'},
+                {'signin_icon':require('../../../static/imgs/userinfo_icon_7.png'),'signin_label':'关于我们','jump': '/mymodule/aboutuser'},
             ]
         },
         mounted(){
             //本地查询信息登录
             UserService.get()?this.signIn():this.getInfoUser()
-            console.log(UserService.get())
+            // console.log(UserService.get())
         },
         methods:{
             signIn(){

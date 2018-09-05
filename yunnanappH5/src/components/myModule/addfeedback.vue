@@ -42,14 +42,13 @@
 					_jsonpCallback: "onBack"
 				};
 				coreApi.getaddFeedback(bodys).then(r => {
+					this.hide_alert = true
 					if(r.statusCode == "200" && r.status) {
 						// 接口访问成功，执行
 						//alert("添加成功");
-						this.hide_alert = !this.hide_alert;
 						this.addStatus = true;
 					} else if(!r.status) {
 						// 返回错误信息
-						this.hide_alert = !this.hide_alert;
 						this.test_mag = r.errorMessage;
 						this.addStatus = false;
 					}
@@ -71,8 +70,10 @@
 					path: "/mymodule/setusername"
 				});
 			},
-			alertShow() {},
+			alertShow() {
+			},
 			alertHide() {
+				this.hide_alert = false;
 				if(this.addStatus) {
 					this.$router.push({
 						path: "/mymodule/feedback"

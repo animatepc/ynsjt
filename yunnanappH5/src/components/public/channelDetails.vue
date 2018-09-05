@@ -1,5 +1,5 @@
 <template>
-    <div class="channelDetails ">
+    <div class="channelDetails perH100">
         <div class="searchVal _cus_flexContent _cus_fleAlignCen">
             <span class="search_back" @click="city_back"></span>
                 <span class="colorfff city_text">{{channel_title}}</span>
@@ -490,7 +490,6 @@ this.channel_title = this.$router.query;
 </script>
 <style lang="less">
 .channelDetails {
-  height: 100%;
   font-size: 0.28rem;
   .channel_past {
     background-color: #fff;

@@ -18,7 +18,7 @@
                 <span>修改密码</span>
                 <i class="_cus_icoago"></i>
             </li>
-            <li class="userset_mode">
+            <!-- <li class="userset_mode">
                 <span>绑定账号</span>
             </li>
             <li class="_cus_flexContent _cus_jusContent" @click="bindWx">
@@ -48,7 +48,7 @@
                     <span :class="this.loginStatus.loginzfb?'bind':'nobind'">{{this.loginStatus.loginzfb?'已绑定':'未绑定'}}</span>
                     <i class="_cus_icoago"></i>
                 </div>
-            </li>
+            </li> -->
         </ul>
          <x-Button :disabled="xbuttondis2" type="button" class="login_sub" @click.native="Signout">退出登录</x-Button>
          <confirm

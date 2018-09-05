@@ -19,7 +19,6 @@
             <swiper class="swiper" :list="jplist" :show-dots="false" :show-desc-mask="true" :loop="true" :auto="true" height="4rem"></swiper>
 	    		</div> 
           <scroller
-                v-if="channelList.length > 0"
                 :lock-x="true"
                 :scrollbarY="true"
                 :bounce="false"

@@ -78,6 +78,7 @@ export default {
     this.cityObj = Object.assign(this.cityObj, this.getCityObj);
     this.city = this.cityObj.areaName || "云南省";
     this.Model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':'';
+    this.hide_alert = false;
   },
   watch:{
     '$route'(newVal,oldVal){
@@ -132,10 +133,10 @@ export default {
               // this.getInfoUser()  //不需要了
               this.bodys.userId = r.user.id;
 
-              this.$router.push({
-                path: "/myphoto/releasephoto"
-              });
-              // this.show = true;
+              // this.$router.push({
+              //   path: "/myphoto/releasephoto"
+              // });
+              this.show = true;
           } else {
               this.hide_alert = true;
               this.test_mag = r.errorMessage;
@@ -150,9 +151,10 @@ export default {
           //登陆成功
           if (r.status && r.loginStatus) {
             // this.userId = r.data.userId;
-            this.$router.push({
-                path: "/myphoto/releasephoto"
-            });
+            // this.$router.push({
+            //     path: "/myphoto/releasephoto"
+            // });
+            this.show = true;
           } else{
             this.hide_alert = true;
             this.test_mag = "请先登录！";

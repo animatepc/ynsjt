@@ -87,7 +87,9 @@ export default {
         }
       });
     },
-    onCancel() {},
+    onCancel() {
+      this.hide_alert = false;
+    },
     city_back() {
       this.$router.go(-1);
     },
@@ -103,7 +105,7 @@ export default {
     },
     clearAlert(msg) {
       this.bodys.id = msg.id;
-      this.hide_alert = !this.hide_alert;
+      this.hide_alert = true;
     },
     selPulldown(index) {
       // if (index.i == 1) {

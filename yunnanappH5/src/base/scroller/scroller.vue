@@ -135,6 +135,7 @@
                       </div>
                     </li>
                   </ul>
+
                   <!-- 我的我拍 -->
                   <ul class="myPicture_list _cus_overHidden" v-if="types == 'myPicture_list'">
                     <li v-for="(item,keys) in dataList" :key="keys">
@@ -145,14 +146,19 @@
                           <span class="__cus_fr">{{item.createTimeStr}}</span>
                         </div>
                         <p class="my_p_se">{{item.content}}</p>
-                        <ul class="myPhoto_img _cus_overHidden">
+                        <ul class="myPhoto_img _cus_overHidden"  v-if="item.url ==''">
                           <li class="__cus_fl" v-for="(img,index) in item.urlList" :key="index">
                             <div class="">
                               <img v-lazy="img" :key="img" alt="" class="" @click="img_back(item.urlList,index)"/>
                             </div>
                           </li>
-                          
                         </ul>
+                        <div class="" v-else>
+                          <div class="video-photo" @click="myphotoShow(item.url,keys)">
+                            <img v-lazy="item.urlList.length > 0?item.urlList[0]:'../../../static/images/loading.png'" alt="">
+                            <i class="video_playicon"></i>
+                          </div>
+                        </div>
                         <div style="margin-top: .3rem;">
                           <span :class="item.checkStatus == '2'?'ready_status':item.checkStatus == '3'?'error_status':''">{{item.checkStatus =='1'?'待审核':item.checkStatus == '2'?'已审核':item.checkStatus == '3'?'未通过':''}}</span>
                           <span @click="clearMsg(item)">删除</span>
@@ -164,6 +170,7 @@
                       </div>
                     </li>
                   </ul>
+
                   <!--  -->
                 <ul class="home_list _cus_overHidden" v-if="types != 'myPhoto_list' && types != 'channelDetails' && types != 'myintegration' && types !='videoList' && types !='videoBox' && types !='myPicture_list' && types !='newsMessage' && types !='feedback'">
                     <li v-for="(item,keys) in dataList" :key="keys" class="_cus_flexContent" @click="Details_back(item)">
@@ -188,7 +195,11 @@
                                     <span>{{item.source}}</span>
                                     <span class="">{{item.createTimeStr}}</span>
                                 </span>
-                                <span class="__cus_fr" v-if="!item.isLive == '1'">
+                                <!-- <span class="__cus_fr" v-if="!item.isLive == '1'">
+                                    <span>{{item.virtualClickTimes}}</span>
+                                    <span class="new_watch"></span>
+                                </span> -->
+                                <span class="__cus_fr">
                                     <span>{{item.virtualClickTimes}}</span>
                                     <span class="new_watch"></span>
                                 </span>
@@ -203,11 +214,14 @@
                 <span class="no_data _cus_textCenter Block" v-show="scrollerMsg.showToast">{{types !='myintegration'?'没有更多新闻了!':'没有更多记录了'}}</span>
             </div>
         </scroller>
-        <div v-transfer-dom class="v-transfer_content" v-show="videoBox" v-if="dataList.length > 0 && types == 'myPhoto_list'">
+        <div v-transfer-dom class="v-transfer_content" v-show="videoBox" v-if="dataList.length > 0 && (types == 'myPhoto_list' || types == 'myPicture_list')">
             <div v-show="videoBox" class="dialog-demo" :class="videoShow?'animateStart':'animateEnd'">
-              <img src="../../../static/imgs/return_video.png" alt="" class="" @click="videoShow = false">
+              <img src="../../../static/imgs/return_video.png" alt="" class="" @click="videoShow = false" style="z-index:20">
               <div class="img-box">
-                <playDiv :playInfo="playInfo" ref="playDiv" :changeStatus="changeStatus" @changeFull="changeFull"></playDiv>
+                <!-- <playDiv :playInfo="playInfo" ref="playDiv" :changeStatus="changeStatus" @changeFull="changeFull"></playDiv> -->
+                <video :src="playInfo.url" class="perW100" ref="playbox" autoplay controls style="position: fixed;
+                  top: 50%;
+                  bottom: 50%; margin: auto; z-index: -1"></video>
               </div>
             </div>
           </div>
@@ -310,8 +324,10 @@ export default {
       if(newVal != oldVal){
         if(newVal){
           this.changeStatus = 'play';
+          this.$refs.playbox.play();
         }else{
           this.changeStatus = 'pause';
+          this.$refs.playbox.pause();
         }
       }
     }
@@ -325,7 +341,7 @@ export default {
           url: window.location.href
         })
       if(this.Model == 'ios'){
-        this.show = true;
+        // this.show = true;
       }else{
         Share.bridgeShart(this.bodys,this.Model, 'OpenShareMenu')
       }
@@ -748,7 +764,6 @@ export default {
         }
       }
     }
-    
     .video-photo{
       margin-top: .2rem;
       height: 3rem;
@@ -773,7 +788,6 @@ export default {
         z-index: 2;
       }
     }
-
   }
   .myPicture_list {
     -webkit-overflow-scrolling: touch;
@@ -956,9 +970,11 @@ export default {
         }
         > div:nth-of-type(3) {
           margin-top: 0.3rem;
-          background-color: #f4f4f4;
+          // background-color: #f4f4f4;
           padding: 0.1rem 0.1rem 0.3rem 0.15rem;
           border-radius: 4px;
+          display: flex;
+          justify-content: space-between;
           > p:nth-child(1) {
             width: 100%;
             color: #666666;
@@ -974,6 +990,30 @@ export default {
             line-height: 24px;
           }
         }
+      }
+    }
+    .video-photo{
+      margin-top: .2rem;
+      height: 3rem;
+      // margin-left: .2rem;
+      position: relative;
+      // max-width: 80%;
+      // overflow: hidden;
+      >img{
+        width: 100%;
+        height: 100%;
+      }
+      >.video_playicon{
+        width: 16%;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        background: url(../../../static/imgs/playicon.png) no-repeat center center;
+        background-size: 100%;
+        z-index: 2;
       }
     }
   }

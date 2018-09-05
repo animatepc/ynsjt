@@ -33,7 +33,7 @@ export class shareWx {
     }
     
     // 微信去除from等字段
-    static getQueryString(types){
+    static getQueryString(types,route){
         function _getQueryString(name) {//根据字段看网址是否拼接&字符串
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
             var r = window.location.search.substr(1).match(reg);
@@ -50,11 +50,11 @@ export class shareWx {
             if(types == 'newsdetails'){
                 // http://yntvapph5.4kb.cn 测试环境
                 //http://ynapp.yntv.cn 正式url
-                window.location.href =`http://yntvapph5.4kb.cn/dist/#/public/newsdetails/${this.$route.query.id}?refType=${this.$route.query.refType}&id=${this.$route.query.id}&columnCode=${this.$route.query.columnCode}`;
+                window.location.href =`http://ynapp.yntv.cn/dist/#/public/newsdetails/${route.query.id}?refType=${route.query.refType}&id=${route.query.id}&columnCode=${route.query.columnCode}`;
             }else if(types == 'videodetails'){
-                window.location.href =`http://yntvapph5.4kb.cn/dist/#/public/videodetails/${this.$route.query.id}?refType=${this.$route.query.refType}&id=${this.$route.query.id}&columnCode=${this.$route.query.columnCode}&videoLabel=${this.$route.query.videoLabel}`;
+                window.location.href =`http://ynapp.yntv.cn/dist/#/public/videodetails/${route.query.id}?refType=${route.query.refType}&id=${route.query.id}&columnCode=${route.query.columnCode}&videoLabel=${route.query.videoLabel}`;
             }else if(types == 'shootlist'){
-                window.location.href = `http://yntvapph5.4kb.cn/dist/#/myphoto/shootlist`;
+                window.location.href = `http://ynapp.yntv.cn/dist/#/myphoto/shootlist`;
             }
         }
     }

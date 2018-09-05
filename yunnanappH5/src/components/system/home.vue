@@ -57,7 +57,11 @@
                                         <span>{{item.source}}</span>
                                         <span class="">{{item.createTimeStr}}</span>
                                     </span>
-                                    <span class="__cus_fr" v-show="item.type !='tab'"  v-if="!item.isLive == '1'">
+                                    <!-- <span class="__cus_fr" v-show="item.type !='tab'"  v-if="!item.isLive == '1'">
+                                        <span>{{item.virtualClickTimes}}</span>
+                                        <span class="new_watch"></span>
+                                    </span> -->
+                                     <span class="__cus_fr">
                                         <span>{{item.virtualClickTimes}}</span>
                                         <span class="new_watch"></span>
                                     </span>
@@ -271,7 +275,7 @@ export default {
           this.$nextTick(() => {
             //第一次调用此方法
             this.getNewsList(true);
-            this.$refs.scroller[0].reset({top:0});
+            // this.$refs.scroller.reset({top:0});
           });
         }
       });
@@ -308,7 +312,8 @@ export default {
         refType: items.contentType,
         id: items.id,
         columnCode: items.columnCode,
-        videoLabel: videoLabel
+        videoLabel: videoLabel,
+        beforeroute: this.tabArr[this.tabIndex].treeName == '直播'?'video':undefined 
       };
       this.$router.push({
         path: `/public${path}/${items.id}`,

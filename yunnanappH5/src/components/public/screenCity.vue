@@ -77,7 +77,7 @@
 
 <style	lang="less">
 	.screen_city{
-		 height: 100vh;
+		height: 100vh;
         background-color: #fff;
         margin-top: 1rem;
         .searchVal{

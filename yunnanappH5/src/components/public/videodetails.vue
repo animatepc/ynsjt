@@ -1,5 +1,5 @@
 <template>
-    <div class="videodetails">
+    <div class="videodetails perH100">
         <div class="videodetails_back" @click="city_back" v-show="isFull">
             <i class="videodetails_icon" ></i>
         </div>
@@ -10,27 +10,35 @@
             </div> 
             <div class="new_wrap perW100 _cus_flexContent _cus_jusContent">
                 <span>
-                    <span>{{newsdetails_msg.title}}</span>
+                    <p>{{newsdetails_msg.title}}</p>
                 </span>
-                <span class="Block _cus_flexContent list_watch">
+                <span class="Block _cus_flexContent list_watch" style="margin-left: .1rem;">
+                  <span v-if="isVideo">{{newsdetails_msg.virtualClickTimes}}</span>
+                  <i v-if="isVideo" class="news_watch"></i>
                   <i @click="clickCollection()" :class="isCollection==1?'collectActive':'collect'"></i>
-                  <!-- <span>{{newsdetails_msg.virtualClickTimes}}</span> -->
-                  <!-- <i class="news_watch"></i> -->
+                  
                   <img src="../../../static/imgs/share.png" @click="fatchBridge">
                 </span>
             </div>
             <div class="list_box">
               <span>{{newsdetails_msg.liveTimeStr}}</span>
-              <span class="_cus_flexContent _cus_fleAlignCen">
-                  <span v-if="newsdetails_msg.isLive == 1 && newsdetails_msg.liveStatus == '10'" style="margin-right: .2rem;">
-                    <span class="ft700">{{watchPeople}}</span>
-                    人正在看
-                  </span>
+              <!-- <span class="_cus_flexContent _cus_fleAlignCen"> -->
                   <span class="status_live Block" v-show="newsdetails_msg.isLive == 1" :class="newsdetails_msg.liveStatus == '0'?'live_state':newsdetails_msg.liveStatus == '20'?'live_state':'live_loading'">{{newsdetails_msg.liveStatus == '0'?'未开始':newsdetails_msg.liveStatus == '10'?'直播中':newsdetails_msg.liveStatus == '20'?'已结束':newsdetails_msg.liveStatus == '30'?'直播预告':newsdetails_msg.liveStatus == '40'?'直播回看':''}}</span>
-              </span>
+              <!-- </span> -->
              
             </div>
+            <div style="padding: 0 0.3rem;" class="_cus_flexContent">
+              <!-- <span style="margin-right: .2rem;"  v-if="newsdetails_msg.isLive == 1 && newsdetails_msg.liveStatus == '10'" class="_cus_flexContent _cus_fleAlignCen">
+                <img src="../../../static/imgs/onLineShow.png" style="width: .3rem; margin-right:.2rem;">
+                <span class="ft700">{{onLineNum || 0}}</span> 人在线
+              </span> -->
+              <span class="_cus_flexContent _cus_fleAlignCen" v-if="newsdetails_msg.isLive == 1" style="margin-right: .2rem;">
+                <img src="../../../static/imgs/showNum.png" style="width: .3rem; margin-right:.1rem;">
+                <span class="ft700">{{watchPeople || 0}}</span>次播放
+              </span>
+            </div>
         </div>
+       
         <!-- height: calc(100vh - 5.9rem) -->
         	<!-- <scroller
             :lock-x="true"
@@ -79,8 +87,8 @@
                                   <span class="">{{item.createTimeStr}}</span>
                               </span>
                               <span class="__cus_fr">
-                                  <!-- <span>{{item.virtualClickTimes}}</span> -->
-                                  <!-- <span class="new_watch"></span> -->
+                                  <span>{{item.virtualClickTimes}}</span>
+                                  <span class="new_watch"></span>
                               </span>
                           </p>
                       </div>
@@ -178,7 +186,9 @@ export default {
       changeStatus: "",
       show: false,
       watchPeople: '',
-      timer: null
+      onLineNum: '',
+      timer: null,
+      isVideo: false
     };
   },
   beforeRouteLeave(to, from, next) {
@@ -215,15 +225,21 @@ export default {
     ...mapState(['loginMsg'])
   },
   mounted() {
+    if(this.$route.query.beforeroute && this.$route.query.beforeroute == 'video'){
+      this.isVideo = false;
+    }else{
+      this.isVideo = true;
+    }
+
     this.path = this.$route.path;
     this.changeStatus = "play";
     this.model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':'';
-    shareWx.getQueryString('videodetails'); 
+    shareWx.getQueryString('videodetails',this.$route); 
   },
   beforeDestroy() {
       if(this.timer) { //如果定时器还在运行 或者直接关闭，不用判断
           clearInterval(this.timer); //关闭
-          console.log('已经离开播放页');
+          // console.log('已经离开播放页');
       }
   },
   watch: {
@@ -258,10 +274,11 @@ export default {
         this.timer = setTimeout(()=>{
             if(num < date || people < length){
                 this.random(num, peo, date, length);
-                console.log('当前观看人数'+peo);
+                // console.log('当前观看人数'+peo);
                 this.watchPeople += peo;
+                // this.onLineNum +=peo;
             }else{
-                console.log('直播已结束');
+                // console.log('直播已结束');
                 this.random = null;
                 clearTimeout(this.timer);
                 return;
@@ -271,7 +288,7 @@ export default {
     fatchBridge(){
       // 
       if(this.model == 'ios'){
-        this.show = true;
+        // this.show = true;
       }else{
         let bodys = {
           img: this.newsdetails_msg.listShareImg != '' && this.newsdetails_msg.listShareImg ?this.newsdetails_msg.listShareImg:'http://static.yntv.cn/upload/Yntv_app/Baoliao/2018_08/04/201808040642435b6583233031c.png',
@@ -449,15 +466,20 @@ export default {
             }
           };
             this.newslists = data;
-            this.watchPeople = Number(this.newsdetails_msg.onLineNum);
-          // if(this.newsdetails_msg.isLive == 1 && this.newsdetails_msg.liveStatus == '10'){
-            console.log('正在直播...');
+            
+          if(this.newsdetails_msg.isLive == 1 && this.newsdetails_msg.liveStatus == '10'){
+            this.watchPeople = Number(this.newsdetails_msg.showNum); //观看人数
+            // this.onLineNum = Number(this.newsdetails_msg.onLineNum); //在线人数
+            // console.log('正在直播...');
             //初始化时间，基数，小时转化为秒数，总观看数
             let s = 3 * 60 *  60;
             let totalTime = Math.ceil(Math.random()*(300000-200000+200000)+200000); //随机增加时间
             this.random(0,Number(this.newsdetails_msg.onLineNum) - Number(this.newsdetails_msg.onLineNum),s,totalTime);
-          // };
-
+            this.random(0,Number(this.newsdetails_msg.showNum) - Number(this.newsdetails_msg.showNum),s,totalTime);
+          };
+          if(this.newsdetails_msg.isLive == 1 && this.newsdetails_msg.liveStatus != '10'){
+            this.watchPeople = Number(this.newsdetails_msg.showNum);
+          }
         } else {
           this.newsdetails_msg = {};
         }
@@ -557,7 +579,6 @@ export default {
 </script>
 <style lang="less">
 .videodetails {
-  height: 100vh;
   overflow: hidden;
   background-color: #fff;
   display: flex;

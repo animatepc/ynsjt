@@ -1,10 +1,10 @@
 <template>
-    <div class="newsdetails _cus_flexContent _cus_direction">
-         <div class="searchVal">
+    <div class="newsdetails _cus_flexContent _cus_direction perH100">
+        <div class="searchVal">
             <span class="search_back" @click="city_back"></span>
             <span class="colorfff city_text">新闻内容</span>
         </div>
-        <div class="newsdetails_content _cus_flex1" ref="newsdetails_content">
+        <div class="newsdetails_content _cus_flex1" ref="newsdetails_content" v-if="newsdetails_msg">
             <div class="details_head">
                 <span class="news_title">{{newsdetails_msg.title}}</span>
                 <p class="new_wrap perW100 _cus_flexContent _cus_jusContent">
@@ -23,7 +23,7 @@
             </div>
         <div>
         </div>
-            <div class="details_content" v-html="htmlDecodeByRegExp" ref="htmlImg"></div>
+            <div class="details_content" v-html="htmlDecodeByRegExp" ref="htmlImg" v-if="htmlDecodeByRegExp"></div>
             <div class="details_footer">
                 <p class="news_footer_title">新闻推荐</p>
                 <ul class="home_list _cus_overHidden">
@@ -144,22 +144,21 @@ export default {
         isbounce: true,
         lists: [],
         downObj: {
-          content: "请上拉刷新数据",
-          pullUpHeight: 60,
+          content: "下拉刷新",
           height: 40,
           autoRefresh: false,
-          downContent: "请上拉刷新数据",
-          upContent: "请上拉刷新数据",
-          loadingContent: "加载中...",
-          clsPrefix: "xs-plugin-pullup-"
+          downContent: "下拉刷新",
+          upContent: "释放后刷新",
+          loadingContent: "正在刷新...",
+          clsPrefix: "xs-plugin-pulldown-"
         },
         upobj: {
-          content: "请上拉刷新数据",
+          content: "上拉加载更多",
           pullUpHeight: 60,
           height: 40,
           autoRefresh: false,
-          downContent: "请上拉刷新数据",
-          upContent: "请上拉刷新数据",
+          downContent: "释放后加载",
+          upContent: "上拉加载更多",
           loadingContent: "加载中...",
           clsPrefix: "xs-plugin-pullup-"
         },
@@ -216,8 +215,9 @@ export default {
       s = s.replace(/&quot;/g, '"');
       // s = s.replace(/hh/g, "href");
       s = s.replace(/<p.*?>(.*?)<\/p>/g,function(e){
-        return e.replace(/<br>/g,"");
+        return e.replace(/<br>/g,'<br style="display: none;">');
       })
+      s = s.replace(/<br.*?>(.*?)/g,'<br style="display: none;">');
       s= s.replace(/font-size:(\d+)/g, function(e){
         return 'font-size:' + Number(e.match(/\d+/ig)[0]) / 10 + 'rem;'
       })
@@ -230,15 +230,18 @@ export default {
     ...mapState(['loginMsg'])
   },
   mounted() {
-    this.path = this.$route.path;
-    // !this.pathother?this.getNewsList():''
-    this.Model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':'';
+    this.$nextTick(()=>{
+      this.path = this.$route.path;
+      
+      // !this.pathother?this.getNewsList():''
+      this.Model = adapted.browser().versions.ios?'ios':adapted.browser().versions.android?'android':'';
 
-    shareWx.getQueryString('newsdetails'); 
+      shareWx.getQueryString('newsdetails',this.$route); 
+    });
   },
   watch: {
     path(newVal, oldVal) {
-      if ( newVal != oldVal && newVal !='') {
+      if (newVal != oldVal) {
         this.$nextTick(()=>{
           this.getNewsList();
           this.$refs.newsdetails_content.scrollTo(0, 0);
@@ -250,7 +253,7 @@ export default {
     fatchBridge(){
       // 
       if(this.Model == 'ios'){
-        this.show = true;
+        // this.show = true;
       }else{
         let bodys = {
           img: this.newsdetails_msg.listShareImg != '' && this.newsdetails_msg.listShareImg ?this.newsdetails_msg.listShareImg:'http://static.yntv.cn/upload/Yntv_app/Baoliao/2018_08/04/201808040642435b6583233031c.png',
@@ -332,7 +335,7 @@ export default {
         introduce: !this.newsdetails_msg.introduction || this.newsdetails_msg.introduction == ''?this.removeHTMLTag(this.newsdetails_msg.content):this.newsdetails_msg.introduction,
         url: window.location.href
       };
-      Share.bridgeShart(bodys,this.Model, 'weiboShare')
+      Share.bridgeShart(bodys,this.Model, 'weiboShare');
     },
     onConfirm() {
       this.$router.push({
@@ -350,8 +353,10 @@ export default {
     },
     getNewsList() {
       let bodys = this.$route.query;
+      // alert('未获取到数据..')
       newsApi.getNewsDetails(bodys).then(r => {
         if (r.status && r.statusCode == "200") {
+          // alert(JSON.stringify(r))
           this.newsdetails_msg = r.data;
           this.isCollection = r.data.isCollection;
           let data = r.data.contentList;
@@ -408,7 +413,7 @@ export default {
               link: window.location.href.split('#')[0]+'#'+window.location.href.split('#')[1]
         }; 
           shareWx.share(`${sms}weichatShare/sign.do?url=${url}`, {}, shareData, ['wx','firends','wb','qq','zone']);
-        // shareWx.share(`http://dinglinfeng.4kb.cn/langya/sign.do`, { url: url }, shareData, ['wx','firends','wb','qq','zone']);
+        // shareWx.share(`http://dinglinfeng.4kb.cn/langya/sign.do?url=${url}`, {}, shareData, ['wx','firends','wb','qq','zone']);
       }); 
     },
     // 记住登录状态
@@ -486,7 +491,6 @@ export default {
           'path': '/system/home'
         })
       }
-      
     },
     clickCollection() {
       this.toast.toastShow = false;
@@ -518,6 +522,7 @@ export default {
 .newsdetails {
   background-color: #fff;
   font-size: 0.28rem;
+  overflow: hidden;
   .searchVal {
     width: 100%;
     height: 1rem;

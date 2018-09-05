@@ -1,6 +1,5 @@
 <template>
     <div class="myPhoto">
-      
 		<scroller class="newsMessage_content bgfff perH100" style="height: 100%;" types="myPhoto_list" @pullDown="selPulldown" @pullUp="selPullup" :scrollerMsg="scrollerMsg" :dataList="newMsg" ref="scroller"></scroller>
     </div>
 </template>
@@ -64,7 +63,7 @@ export default {
   },
   mounted() {
     this.getMyPhotoList(true);
-    shareWx.getQueryString('shootlist');
+    shareWx.getQueryString('shootlist',this.$route); 
   },
   methods: {
     selPulldown(index) {
@@ -174,7 +173,7 @@ export default {
         // 微信分享方法
         var _this = this;
         var url =window.location.href.split('#')[0];
-        console.log(r.list[0])
+        // console.log(r.list[0])
         var shareData = {
               title: r.list[0].content, 
               desc: r.list[0].content, 
